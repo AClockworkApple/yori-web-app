@@ -100,16 +100,13 @@ class Order {
     return this.getById(orderId);
   }
 
-  static async update(req, res) {
-    try {
-      const order = await Order.update(req.params.id, req.body);
-      if (!order) {
-        return res.status(404).json({ error: 'Order not found' });
-      }
-      res.json(order);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+  static async update(id, data) {
+    const updateData = {
+      ...data,
+      updatedAt: new Date().toISOString()
+    };
+    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    return this.getById(id);
   }
 
   static async updateTip(id, tip) {

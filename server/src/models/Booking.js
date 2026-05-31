@@ -18,7 +18,8 @@ class Booking {
       scheduledEnd: rest.scheduledEnd,
       actualStart: null,
       actualEnd: null,
-      status: 'PENDING',
+      status: rest.status || 'PENDING',
+      source: rest.source || 'pre-booking',
       isOverbooked: rest.isOverbooked || false,
       employeeId: rest.employeeId || null,
       createdAt: new Date().toISOString(),
@@ -93,6 +94,21 @@ class Booking {
       const bookingDate = new Date(b.scheduledStart).toISOString().split('T')[0];
       return bookingDate === date;
     });
+  }
+
+  static async getWalkInsByRestaurant(restaurantId) {
+    const q = query(
+      collection(db, COLLECTION_NAME),
+      where('restaurantId', '==', restaurantId),
+      where('source', '==', 'walk-in')
+    );
+    const querySnapshot = await getDocs(q);
+    const walkIns = [];
+    querySnapshot.forEach((doc) => {
+      walkIns.push({ id: doc.id, ...doc.data() });
+    });
+    walkIns.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    return walkIns;
   }
 
   static async update(id, data) {
