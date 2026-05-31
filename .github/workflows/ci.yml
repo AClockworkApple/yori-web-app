@@ -29,7 +29,7 @@ jobs:
         run: npm run lint || echo "Linter not configured"
 
       - name: Verify server loads
-        run: timeout 5 node src/index.js; code=$?; if [ $code -eq 124 ]; then exit 0; else exit $code; fi
+        run: if timeout 5 node src/index.js; then exit 0; else code=$?; [ $code -eq 124 ] && exit 0; exit $code; fi
 
   lint-client:
     runs-on: ubuntu-latest
