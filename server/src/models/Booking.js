@@ -1,37 +1,49 @@
 const { db } = require('../config/firebase');
 const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
+const BookingTable = require('./BookingTable');
 
 const COLLECTION_NAME = 'bookings';
 
 class Booking {
   static async create(data) {
+    const { tableIds, ...rest } = data;
     const bookingData = {
-      restaurantId: data.restaurantId,
-      tableId: data.tableId || null,
-      customerId: data.customerId || null,
-      customerName: data.customerName,
-      customerPhone: data.customerPhone,
-      customerEmail: data.customerEmail,
-      partySize: data.partySize,
-      scheduledStart: data.scheduledStart,
-      scheduledEnd: data.scheduledEnd,
+      restaurantId: rest.restaurantId,
+      customerId: rest.customerId || null,
+      customerName: rest.customerName,
+      customerPhone: rest.customerPhone,
+      customerEmail: rest.customerEmail,
+      partySize: rest.partySize,
+      scheduledStart: rest.scheduledStart,
+      scheduledEnd: rest.scheduledEnd,
       actualStart: null,
       actualEnd: null,
       status: 'PENDING',
-      isOverbooked: data.isOverbooked || false,
-      employeeId: data.employeeId || null,
+      isOverbooked: rest.isOverbooked || false,
+      employeeId: rest.employeeId || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     const docRef = await addDoc(collection(db, COLLECTION_NAME), bookingData);
-    return { id: docRef.id, ...bookingData };
+    const booking = { id: docRef.id, ...bookingData };
+
+    if (tableIds && tableIds.length > 0) {
+      const tableRecords = await Promise.all(
+        tableIds.map(tableId => BookingTable.create(booking.id, tableId))
+      );
+      booking.tables = tableRecords;
+    }
+
+    return booking;
   }
 
   static async getById(id) {
     const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() };
+      const booking = { id: docSnap.id, ...docSnap.data() };
+      booking.tables = await BookingTable.getByBooking(id);
+      return booking;
     }
     return null;
   }
@@ -42,6 +54,9 @@ class Booking {
     querySnapshot.forEach((doc) => {
       bookings.push({ id: doc.id, ...doc.data() });
     });
+    await Promise.all(bookings.map(async (b) => {
+      b.tables = await BookingTable.getByBooking(b.id);
+    }));
     return bookings;
   }
 
@@ -52,16 +67,9 @@ class Booking {
     querySnapshot.forEach((doc) => {
       bookings.push({ id: doc.id, ...doc.data() });
     });
-    return bookings;
-  }
-
-  static async getByTable(tableId) {
-    const q = query(collection(db, COLLECTION_NAME), where('tableId', '==', tableId));
-    const querySnapshot = await getDocs(q);
-    const bookings = [];
-    querySnapshot.forEach((doc) => {
-      bookings.push({ id: doc.id, ...doc.data() });
-    });
+    await Promise.all(bookings.map(async (b) => {
+      b.tables = await BookingTable.getByBooking(b.id);
+    }));
     return bookings;
   }
 
@@ -105,9 +113,8 @@ class Booking {
     return this.getById(id);
   }
 
-  static async seatCustomer(id, tableId, actualStart) {
+  static async seatCustomer(id, actualStart) {
     const updateData = {
-      tableId,
       status: 'SEATED',
       actualStart: actualStart || new Date().toISOString(),
       updatedAt: new Date().toISOString()

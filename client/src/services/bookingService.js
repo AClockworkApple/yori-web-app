@@ -19,12 +19,6 @@ export const bookingService = {
     return response.json();
   },
 
-  async getByTable(tableId) {
-    const response = await fetch(`${API_URL}/table/${tableId}`);
-    if (!response.ok) throw new Error('Failed to fetch bookings');
-    return response.json();
-  },
-
   async getByDate(restaurantId, date) {
     const response = await fetch(`${API_URL}/restaurant/${restaurantId}/date/${date}`);
     if (!response.ok) throw new Error('Failed to fetch bookings');
@@ -61,13 +55,37 @@ export const bookingService = {
     return response.json();
   },
 
-  async seatCustomer(id, tableId, actualStart) {
+  async seatCustomer(id, actualStart) {
     const response = await fetch(`${API_URL}/${id}/seat`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tableId, actualStart }),
+      body: JSON.stringify({ actualStart }),
     });
     if (!response.ok) throw new Error('Failed to seat customer');
+    return response.json();
+  },
+
+  async getBookingTables(bookingId) {
+    const response = await fetch(`${API_URL}/${bookingId}/tables`);
+    if (!response.ok) throw new Error('Failed to fetch booking tables');
+    return response.json();
+  },
+
+  async addBookingTable(bookingId, tableId) {
+    const response = await fetch(`${API_URL}/${bookingId}/tables`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tableId }),
+    });
+    if (!response.ok) throw new Error('Failed to add table to booking');
+    return response.json();
+  },
+
+  async removeBookingTable(bookingId, tableId) {
+    const response = await fetch(`${API_URL}/${bookingId}/tables/${tableId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to remove table from booking');
     return response.json();
   },
 
