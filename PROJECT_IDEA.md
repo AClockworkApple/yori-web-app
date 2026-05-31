@@ -45,7 +45,7 @@
 | Role-based access | Owner, Manager, Staff, Customer | Full admin (Owner), Limited admin (Manager), Staff, Public (Customer) |
 | Login/Logout | Owner, Manager, Staff, Customer | |
 | Table management | Owner, Manager, Staff | CRUD (Owner), Status check (Manager), Status update (Staff) |
-| Table merging | Manager+ | Always requires employee confirmation |
+| Multi-table assignment | Staff+ | Assign multiple tables to a single booking |
 | Booking system | Owner, Manager, Staff, Customer | 2h slots, 30min buffer, +30% overbooking |
 | Walk-in management | Staff+ | Lower priority than pre-bookings |
 | Pre-booking priority | System | Waitlisted pre-bookings seated before walk-ins |
@@ -67,9 +67,6 @@
 | Internal announcements | Owner, Manager | Owner broadcasts to all restaurants |
 | Real-time table status board | Staff+ | TV display |
 | Search bookings | Staff+ | By name/phone |
-| Clock-in/out | Staff+ | Attendance tracking |
-| Break tracking | Staff+ | Staff breaks |
-| Shift confirmation | Staff | Confirm scheduled shifts |
 | Automatic email reminders | System | 24h before booking |
 | Wait time estimator | System | Shown when restaurant is full |
 | Restaurant hours per day | Manager+ | Configurable per day |
@@ -86,7 +83,6 @@
 | Feature | Access Level | Notes |
 | --- | --- | --- |
 | Audit logs | Manager+ | Immutable action logs |
-| Staff performance metrics | Manager+ | Tables served, avg order value |
 | Daily cash reconciliation | Manager+ | End-of-day cash vs card |
 
 ### Could Have
@@ -97,7 +93,6 @@
 | Manual tax rate reconfiguration | Emergency override for law changes |
 | Kitchen Display System (KDS) | Kitchen order display |
 | Inventory management | Stock tracking |
-| Staff scheduling optimization | Automated scheduling |
 | Predictive analytics | Busy period forecasting |
 | Offline mode | For WiFi reliability issues |
 
@@ -126,7 +121,6 @@
 | Seating Priority | Tightest fit (smallest table that fits party) |
 | Walk-in Priority | After waitlisted pre-bookings |
 | Auto Mode | Full auto (no confirm) / Semi-auto (requires confirm) per restaurant |
-| Table Merge | Always requires employee confirmation |
 | Early Release | Employee+ can free anytime |
 | Extension | Employee+ can extend (max configurable) |
 | No-show Release | Auto after buffer (full auto) / Confirm (semi-auto) |
@@ -155,8 +149,8 @@
 | Role | Scope | Key Rights |
 | --- | --- | --- |
 | **Owner** | All restaurants | Full admin, slot config, max extension, warning timing, AI toggle, export financials, data retention, broadcast to all |
-| **Manager** | Own restaurant | Hours config, buffer config, mode config, tax rate, service fee, menu CRUD, employee management, table CRUD, approval tasks, daily summary, audit logs |
-| **Staff** | Own restaurant | Update table status, create/close orders, process payments, print receipts, mark no-shows, clock-in/out, break tracking, seat customers |
+| **Manager** | Own restaurant | Hours config, buffer config, mode config, tax rate, service fee, menu CRUD, table CRUD, approval tasks, daily summary, audit logs |
+| **Staff** | Own restaurant | Update table status, create/close orders, process payments, print receipts, mark no-shows, seat customers |
 | **Customer** | Public | Book tables, cancel/rebook, receive confirmations, chat with AI support |
 
 ---
@@ -169,22 +163,18 @@ erDiagram
     OWNER ||--o{ RESTAURANT : owns
     OWNER ||--o{ GENERAL_MENU : creates
     MANAGER ||--o{ RESTAURANT : manages
-    MANAGER ||--o{ EMPLOYEE : employs
     RESTAURANT ||--o{ TABLE : has
     RESTAURANT ||--o{ MENU_ITEM : has
     RESTAURANT ||--o{ BOOKING : has
     RESTAURANT ||--o{ ORDER : has
-    RESTAURANT ||--o{ SHIFT : has
     RESTAURANT ||--o{ RESTAURANT_HOURS : has
     RESTAURANT ||--o{ ANNOUNCEMENT : has
     RESTAURANT ||--o| GENERAL_MENU : imports_from
-    EMPLOYEE ||--o{ SHIFT : assigned_to
     EMPLOYEE ||--o{ ORDER : creates
     EMPLOYEE ||--o{ BOOKING : handles
-    EMPLOYEE ||--o{ CLOCK_RECORD : has
     EMPLOYEE ||--o{ ANNOUNCEMENT : broadcasts
-    TABLE ||--o{ BOOKING : reserved_for
-    TABLE ||--o{ TABLE_MERGE : participates_in
+    TABLE ||--o{ BOOKING_TABLE : assigned_to
+    BOOKING ||--o{ BOOKING_TABLE : assigns
     BOOKING ||--o{ BOOKING_EXTENSION : has
     BOOKING ||--o{ ORDER : has
     BOOKING ||--o| CUSTOMER : booked_by
@@ -213,8 +203,6 @@ erDiagram
         uuid id PK
         string email
         string name
-        string role "STAFF | MANAGER"
-        uuid manager_id FK "nullable"
         uuid restaurant_id FK
         timestamp created_at
     }
@@ -255,16 +243,6 @@ erDiagram
         timestamp created_at
     }
 
-    TABLE_MERGE {
-        uuid id PK
-        uuid table_id_1 FK
-        uuid table_id_2 FK
-        uuid booking_id FK
-        uuid employee_id FK "who confirmed merge"
-        boolean is_active
-        timestamp created_at
-    }
-
     MENU_ITEM {
         uuid id PK
         uuid restaurant_id FK
@@ -296,7 +274,6 @@ erDiagram
     BOOKING {
         uuid id PK
         uuid restaurant_id FK
-        uuid table_id FK "nullable until seated"
         uuid customer_id FK
         int party_size
         timestamp scheduled_start
@@ -306,6 +283,13 @@ erDiagram
         string status "PENDING | CONFIRMED | SEATED | COMPLETED | CANCELLED | NO_SHOW | WAITLISTED"
         boolean is_overbooked
         uuid employee_id "who handled"
+        timestamp created_at
+    }
+
+    BOOKING_TABLE {
+        uuid id PK
+        uuid booking_id FK
+        uuid table_id FK
         timestamp created_at
     }
 
@@ -361,25 +345,6 @@ erDiagram
         string content "JSON: itemized breakdown"
         boolean is_printed
         timestamp generated_at
-    }
-
-    SHIFT {
-        uuid id PK
-        uuid restaurant_id FK
-        uuid employee_id FK
-        timestamp scheduled_start
-        timestamp scheduled_end
-        boolean confirmed
-    }
-
-    CLOCK_RECORD {
-        uuid id PK
-        uuid employee_id FK
-        uuid restaurant_id FK
-        timestamp clock_in
-        timestamp clock_out "nullable"
-        int break_minutes
-        timestamp created_at
     }
 
     ANNOUNCEMENT {
@@ -438,7 +403,6 @@ flowchart TD
         AIAssistant["AI Chatbot"]
         Notifications["Notification Service"]
         StaffMgmt["Staff Management"]
-        ClockSystem["Clock In/Out System"]
     end
 
     subgraph DataStores["Data Stores"]
@@ -464,30 +428,27 @@ flowchart TD
     TableMgmt -->|"12. Assign table"| DB
     TableMgmt -->|"13. Update status"| Cache
 
-    Employee -->|"14. Clock in/out"| ClockSystem
-    ClockSystem -->|"15. Record time"| DB
+    Employee -->|"14. View table status"| TableMgmt
+    TableMgmt -->|"15. Get status"| Cache
 
-    Employee -->|"16. View table status"| TableMgmt
-    TableMgmt -->|"17. Get status"| Cache
+    Employee -->|"16. Take order"| OrderMgmt
+    OrderMgmt -->|"17. Save order"| DB
 
-    Employee -->|"18. Take order"| OrderMgmt
-    OrderMgmt -->|"19. Save order"| DB
+    Employee -->|"18. Close bill"| PaymentFlow
+    PaymentFlow -->|"19. Record payment"| DB
+    PaymentFlow -->|"20. Generate receipt"| DB
+    PaymentFlow -->|"21. Print receipt"| Employee
 
-    Employee -->|"20. Close bill"| PaymentFlow
-    PaymentFlow -->|"21. Record payment"| DB
-    PaymentFlow -->|"22. Generate receipt"| DB
-    PaymentFlow -->|"23. Print receipt"| Employee
+    Manager -->|"22. Create announcement"| StaffMgmt
+    StaffMgmt -->|"23. Broadcast"| DB
+    StaffMgmt -->|"24. Notify"| Employee
 
-    Manager -->|"24. Create announcement"| StaffMgmt
-    StaffMgmt -->|"25. Broadcast"| DB
-    StaffMgmt -->|"26. Notify"| Employee
+    Owner -->|"25. View analytics"| Reporting
+    Reporting -->|"26. Export data"| Sheets
 
-    Owner -->|"27. View analytics"| Reporting
-    Reporting -->|"28. Export data"| Sheets
-
-    TableMgmt -->|"29. Update analytics"| DB
-    BookingFlow -->|"30. Log session"| DB
-    BookingFlow -->|"31. Log audit"| DB
+    TableMgmt -->|"27. Update analytics"| DB
+    BookingFlow -->|"28. Log session"| DB
+    BookingFlow -->|"29. Log audit"| DB
 ```
 
 ---
@@ -506,9 +467,6 @@ graph LR
 
     subgraph Staff["Staff"]
         UC10[Log In/Out]
-        UC11[Clock In/Out]
-        UC12[Start Break / End Break]
-        UC13[Confirm Shift]
         UC14[View Table Status]
         UC15[Seat Customers]
         UC16[Free Table Early]
@@ -537,15 +495,12 @@ graph LR
         UC39[Configure Data Retention]
         UC40[CRUD Menu Items]
         UC41[CRUD Tables]
-        UC42[Approve Table Merge]
         UC43[Approve Auto-Seating]
         UC44[Approve Early Release]
         UC45[Approve AI Booking]
         UC46[View Daily Summary]
         UC47[View Audit Logs]
-        UC48[Manage Employees]
         UC49[Create Announcement]
-        UC50[View Staff Performance]
         UC51[Export to Google Sheets]
     end
 

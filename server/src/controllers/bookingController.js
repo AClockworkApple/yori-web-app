@@ -1,4 +1,5 @@
 const Booking = require('../models/Booking');
+const BookingTable = require('../models/BookingTable');
 
 const bookingController = {
   async create(req, res) {
@@ -34,15 +35,6 @@ const bookingController = {
   async getByRestaurant(req, res) {
     try {
       const bookings = await Booking.getByRestaurant(req.params.restaurantId);
-      res.json(bookings);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  async getByTable(req, res) {
-    try {
-      const bookings = await Booking.getByTable(req.params.tableId);
       res.json(bookings);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -100,8 +92,8 @@ const bookingController = {
 
   async seatCustomer(req, res) {
     try {
-      const { tableId, actualStart } = req.body;
-      const booking = await Booking.seatCustomer(req.params.id, tableId, actualStart);
+      const { actualStart } = req.body;
+      const booking = await Booking.seatCustomer(req.params.id, actualStart);
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
@@ -139,8 +131,40 @@ const bookingController = {
 
   async delete(req, res) {
     try {
+      await BookingTable.removeByBooking(req.params.id);
       await Booking.delete(req.params.id);
       res.json({ message: 'Booking deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async getBookingTables(req, res) {
+    try {
+      const tables = await BookingTable.getByBooking(req.params.id);
+      res.json(tables);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async addBookingTable(req, res) {
+    try {
+      const { tableId } = req.body;
+      if (!tableId) {
+        return res.status(400).json({ error: 'tableId is required' });
+      }
+      const record = await BookingTable.create(req.params.id, tableId);
+      res.status(201).json(record);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async removeBookingTable(req, res) {
+    try {
+      await BookingTable.removeByBookingAndTable(req.params.id, req.params.tableId);
+      res.json({ message: 'Table removed from booking successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

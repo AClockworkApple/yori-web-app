@@ -89,12 +89,44 @@ export function BookingProvider({ children }) {
     }
   };
 
-  const seatCustomer = async (id, tableId) => {
+  const seatCustomer = async (id) => {
     setError(null);
     try {
-      const updated = await bookingService.seatCustomer(id, tableId);
+      const updated = await bookingService.seatCustomer(id);
       setBookings(bookings.map(b => b.id === id ? updated : b));
       return updated;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const getBookingTables = async (bookingId) => {
+    setError(null);
+    try {
+      return await bookingService.getBookingTables(bookingId);
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const addBookingTable = async (bookingId, tableId) => {
+    setError(null);
+    try {
+      const record = await bookingService.addBookingTable(bookingId, tableId);
+      return record;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const removeBookingTable = async (bookingId, tableId) => {
+    setError(null);
+    try {
+      await bookingService.removeBookingTable(bookingId, tableId);
+      return { success: true };
     } catch (err) {
       setError(err.message);
       throw err;
@@ -151,6 +183,9 @@ export function BookingProvider({ children }) {
       updateBooking,
       updateBookingStatus,
       seatCustomer,
+      getBookingTables,
+      addBookingTable,
+      removeBookingTable,
       completeBooking,
       extendBooking,
       deleteBooking,
