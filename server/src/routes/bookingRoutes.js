@@ -1,21 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
+const { requireRole } = require('../middleware/auth');
 
 router.post('/', bookingController.create);
-router.get('/', bookingController.getAll);
+router.get('/', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.getAll);
 router.get('/:id', bookingController.getById);
-router.get('/restaurant/:restaurantId', bookingController.getByRestaurant);
-router.get('/restaurant/:restaurantId/status/:status', bookingController.getByStatus);
-router.get('/restaurant/:restaurantId/date/:date', bookingController.getByDate);
-router.put('/:id', bookingController.update);
-router.patch('/:id/status', bookingController.updateStatus);
-router.patch('/:id/seat', bookingController.seatCustomer);
-router.patch('/:id/complete', bookingController.completeBooking);
-router.patch('/:id/extend', bookingController.extendBooking);
-router.get('/:id/tables', bookingController.getBookingTables);
-router.post('/:id/tables', bookingController.addBookingTable);
-router.delete('/:id/tables/:tableId', bookingController.removeBookingTable);
-router.delete('/:id', bookingController.delete);
+router.get('/restaurant/:restaurantId', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.getByRestaurant);
+router.get('/restaurant/:restaurantId/status/:status', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.getByStatus);
+router.get('/restaurant/:restaurantId/date/:date', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.getByDate);
+router.get('/restaurant/:restaurantId/walk-ins', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.getWalkIns);
+router.put('/:id', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.update);
+router.patch('/:id/status', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.updateStatus);
+router.patch('/:id/seat', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.seatCustomer);
+router.patch('/:id/complete', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.completeBooking);
+router.patch('/:id/extend', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.extendBooking);
+router.get('/:id/tables', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.getBookingTables);
+router.post('/:id/tables', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.addBookingTable);
+router.delete('/:id/tables/:tableId', requireRole('OWNER', 'MANAGER', 'STAFF'), bookingController.removeBookingTable);
+router.delete('/:id', requireRole('OWNER', 'MANAGER'), bookingController.delete);
 
 module.exports = router;

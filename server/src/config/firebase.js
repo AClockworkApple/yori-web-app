@@ -1,6 +1,5 @@
 const { initializeApp } = require('firebase/app');
 const { getFirestore } = require('firebase/firestore');
-const { getAuth } = require('firebase/auth');
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -14,6 +13,5 @@ const firebaseConfig = {
 const firebase = initializeApp(firebaseConfig);
 
 const db = getFirestore(firebase);
-const auth = getAuth(firebase);
 
-module.exports = { firebase, db, auth };
+module.exports = { db };

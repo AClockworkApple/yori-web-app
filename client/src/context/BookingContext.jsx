@@ -47,6 +47,20 @@ export function BookingProvider({ children }) {
     }
   };
 
+  const fetchWalkIns = async (restaurantId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await bookingService.getWalkIns(restaurantId);
+      return data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const createBooking = async (data) => {
     setLoading(true);
     setError(null);
@@ -179,6 +193,7 @@ export function BookingProvider({ children }) {
       fetchBookings,
       fetchBookingsByRestaurant,
       fetchBookingsByDate,
+      fetchWalkIns,
       createBooking,
       updateBooking,
       updateBookingStatus,

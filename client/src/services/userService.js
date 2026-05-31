@@ -1,23 +1,29 @@
 import { getAuthHeaders } from './api';
 
-const API_URL = '/api/tables';
+const API_URL = '/api/users';
 
-export const tableService = {
+export const userService = {
   async getAll() {
     const response = await fetch(API_URL, { headers: getAuthHeaders() });
-    if (!response.ok) throw new Error('Failed to fetch tables');
+    if (!response.ok) throw new Error('Failed to fetch users');
     return response.json();
   },
 
   async getById(id) {
     const response = await fetch(`${API_URL}/${id}`, { headers: getAuthHeaders() });
-    if (!response.ok) throw new Error('Failed to fetch table');
+    if (!response.ok) throw new Error('Failed to fetch user');
+    return response.json();
+  },
+
+  async getByRole(role) {
+    const response = await fetch(`${API_URL}/role/${role}`, { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error('Failed to fetch users');
     return response.json();
   },
 
   async getByRestaurant(restaurantId) {
     const response = await fetch(`${API_URL}/restaurant/${restaurantId}`, { headers: getAuthHeaders() });
-    if (!response.ok) throw new Error('Failed to fetch tables');
+    if (!response.ok) throw new Error('Failed to fetch users');
     return response.json();
   },
 
@@ -27,7 +33,7 @@ export const tableService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Failed to create table');
+    if (!response.ok) throw new Error('Failed to create user');
     return response.json();
   },
 
@@ -37,17 +43,7 @@ export const tableService = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Failed to update table');
-    return response.json();
-  },
-
-  async updateStatus(id, status) {
-    const response = await fetch(`${API_URL}/${id}/status`, {
-      method: 'PATCH',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ status }),
-    });
-    if (!response.ok) throw new Error('Failed to update table status');
+    if (!response.ok) throw new Error('Failed to update user');
     return response.json();
   },
 
@@ -56,7 +52,7 @@ export const tableService = {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
-    if (!response.ok) throw new Error('Failed to delete table');
+    if (!response.ok) throw new Error('Failed to delete user');
     return response.json();
   },
 };

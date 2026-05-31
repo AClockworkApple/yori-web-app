@@ -1,26 +1,28 @@
+import { getAuthHeaders } from './api';
+
 const API_URL = '/api/orders';
 
 export const orderService = {
   async getAll() {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch orders');
     return response.json();
   },
 
   async getById(id) {
-    const response = await fetch(`${API_URL}/${id}`);
+    const response = await fetch(`${API_URL}/${id}`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch order');
     return response.json();
   },
 
   async getByRestaurant(restaurantId) {
-    const response = await fetch(`${API_URL}/restaurant/${restaurantId}`);
+    const response = await fetch(`${API_URL}/restaurant/${restaurantId}`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch orders');
     return response.json();
   },
 
   async getByDate(restaurantId, date) {
-    const response = await fetch(`${API_URL}/restaurant/${restaurantId}/date/${date}`);
+    const response = await fetch(`${API_URL}/restaurant/${restaurantId}/date/${date}`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch orders');
     return response.json();
   },
@@ -28,7 +30,7 @@ export const orderService = {
   async create(data) {
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error('Failed to create order');
@@ -38,7 +40,7 @@ export const orderService = {
   async addItem(orderId, itemData) {
     const response = await fetch(`${API_URL}/${orderId}/items`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(itemData),
     });
     if (!response.ok) throw new Error('Failed to add item');
@@ -46,7 +48,7 @@ export const orderService = {
   },
 
   async getItems(orderId) {
-    const response = await fetch(`${API_URL}/${orderId}/items`);
+    const response = await fetch(`${API_URL}/${orderId}/items`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch items');
     return response.json();
   },
@@ -54,7 +56,7 @@ export const orderService = {
   async updateItem(orderId, itemId, data) {
     const response = await fetch(`${API_URL}/${orderId}/items/${itemId}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error('Failed to update item');
@@ -64,6 +66,7 @@ export const orderService = {
   async removeItem(orderId, itemId) {
     const response = await fetch(`${API_URL}/${orderId}/items/${itemId}`, {
       method: 'DELETE',
+      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to remove item');
     return response.json();
@@ -72,7 +75,7 @@ export const orderService = {
   async updateTip(id, tip) {
     const response = await fetch(`${API_URL}/${id}/tip`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ tip }),
     });
     if (!response.ok) throw new Error('Failed to update tip');
@@ -82,7 +85,7 @@ export const orderService = {
   async processPayment(id, paymentData) {
     const response = await fetch(`${API_URL}/${id}/payment`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(paymentData),
     });
     if (!response.ok) throw new Error('Failed to process payment');
@@ -90,7 +93,7 @@ export const orderService = {
   },
 
   async getPayments(id) {
-    const response = await fetch(`${API_URL}/${id}/payments`);
+    const response = await fetch(`${API_URL}/${id}/payments`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch payments');
     return response.json();
   },
@@ -98,6 +101,7 @@ export const orderService = {
   async closeOrder(id) {
     const response = await fetch(`${API_URL}/${id}/close`, {
       method: 'PATCH',
+      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to close order');
     return response.json();
@@ -106,13 +110,14 @@ export const orderService = {
   async splitOrder(id) {
     const response = await fetch(`${API_URL}/${id}/split`, {
       method: 'PATCH',
+      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to split order');
     return response.json();
   },
 
   async calculateTotals(id) {
-    const response = await fetch(`${API_URL}/${id}/calculate`);
+    const response = await fetch(`${API_URL}/${id}/calculate`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to calculate totals');
     return response.json();
   },
@@ -120,6 +125,7 @@ export const orderService = {
   async delete(id) {
     const response = await fetch(`${API_URL}/${id}`, {
       method: 'DELETE',
+      headers: getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete order');
     return response.json();

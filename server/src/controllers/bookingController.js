@@ -61,6 +61,16 @@ const bookingController = {
     }
   },
 
+  async getWalkIns(req, res) {
+    try {
+      const { restaurantId } = req.params;
+      const walkIns = await Booking.getWalkInsByRestaurant(restaurantId);
+      res.json(walkIns);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   async update(req, res) {
     try {
       const booking = await Booking.update(req.params.id, req.body);
