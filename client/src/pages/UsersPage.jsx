@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useUsers } from '../context/UserContext';
+import { useRestaurants } from '../context/RestaurantContext';
+import { useAuth } from '../context/AuthContext';
 
-const ROLE_OPTIONS = ['OWNER', 'MANAGER', 'STAFF', 'CUSTOMER'];
+const CREATE_ROLE_OPTIONS = ['MANAGER', 'STAFF'];
+const FILTER_ROLE_OPTIONS = ['OWNER', 'MANAGER', 'STAFF', 'CUSTOMER'];
 
 export default function UsersPage() {
   const { users, loading, error, fetchUsers, fetchUsersByRole, createUser, updateUser, deleteUser } = useUsers();
+  const { restaurants, fetchRestaurants } = useRestaurants();
+  const { user: currentUser, hasRole } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [filterRole, setFilterRole] = useState('');
   const [formData, setFormData] = useState({
     email: '',
+    password: '',
     name: '',
     role: 'STAFF',
     restaurantId: '',
@@ -17,6 +23,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers();
+    fetchRestaurants();
   }, []);
 
   const handleInputChange = (e) => {
@@ -28,12 +35,15 @@ export default function UsersPage() {
     e.preventDefault();
     try {
       const payload = {
-        ...formData,
+        email: formData.email,
+        name: formData.name,
+        role: formData.role,
         restaurantId: formData.restaurantId || null,
       };
       if (editingId) {
         await updateUser(editingId, payload);
       } else {
+        payload.password = formData.password;
         await createUser(payload);
       }
       resetForm();
@@ -45,6 +55,7 @@ export default function UsersPage() {
   const handleEdit = (user) => {
     setFormData({
       email: user.email,
+      password: '',
       name: user.name,
       role: user.role,
       restaurantId: user.restaurantId || '',
@@ -77,6 +88,7 @@ export default function UsersPage() {
     setEditingId(null);
     setFormData({
       email: '',
+      password: '',
       name: '',
       role: 'STAFF',
       restaurantId: '',
@@ -100,16 +112,18 @@ export default function UsersPage() {
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px' }}>
-          {showForm ? 'Cancel' : 'Add User'}
-        </button>
+        {hasRole('OWNER') && (
+          <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px' }}>
+            {showForm ? 'Cancel' : 'Add User'}
+          </button>
+        )}
         <select
           value={filterRole}
           onChange={(e) => handleFilterRole(e.target.value)}
           style={{ padding: '8px' }}
         >
           <option value="">All Roles</option>
-          {ROLE_OPTIONS.map(r => (
+          {FILTER_ROLE_OPTIONS.map(r => (
             <option key={r} value={r}>{r}</option>
           ))}
         </select>
@@ -122,7 +136,7 @@ export default function UsersPage() {
           marginBottom: '20px',
           borderRadius: '8px'
         }}>
-          <h2>{editingId ? 'Edit User' : 'Add New User'}</h2>
+          <h2>{editingId ? 'Edit User' : 'Create New User'}</h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
@@ -149,6 +163,21 @@ export default function UsersPage() {
               />
             </div>
 
+            {!editingId && (
+              <div>
+                <label>Password *</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  minLength={6}
+                  style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+                />
+              </div>
+            )}
+
             <div>
               <label>Role *</label>
               <select
@@ -158,22 +187,25 @@ export default function UsersPage() {
                 required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               >
-                {ROLE_OPTIONS.map(r => (
+                {CREATE_ROLE_OPTIONS.map(r => (
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label>Restaurant ID (for Manager/Staff)</label>
-              <input
-                type="text"
+              <label>Restaurant</label>
+              <select
                 name="restaurantId"
                 value={formData.restaurantId}
                 onChange={handleInputChange}
-                placeholder="Leave empty for Owner/Customer"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              >
+                <option value="">-- Select Restaurant --</option>
+                {restaurants.map(r => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -226,15 +258,21 @@ export default function UsersPage() {
                   </span>
                 </td>
                 <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  {user.restaurantId || '-'}
+                  {user.restaurantId
+                    ? (restaurants.find(r => r.id === user.restaurantId)?.name || user.restaurantId)
+                    : '-'}
                 </td>
                 <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  <button onClick={() => handleEdit(user)} style={{ marginRight: '5px' }}>
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(user.id)} style={{ color: 'red' }}>
-                    Delete
-                  </button>
+                  {hasRole('OWNER') && (
+                    <>
+                      <button onClick={() => handleEdit(user)} style={{ marginRight: '5px' }}>
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(user.id)} style={{ color: 'red' }}>
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

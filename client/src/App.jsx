@@ -14,7 +14,6 @@ import MenuItemsPage from './pages/MenuItemsPage';
 import OrdersPage from './pages/OrdersPage';
 import UsersPage from './pages/UsersPage';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -23,7 +22,7 @@ function ProtectedRoute({ children }) {
 }
 
 function AppNav() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, hasRole, logout } = useAuth();
   if (!isAuthenticated) return null;
   return (
     <nav style={{ padding: '10px', backgroundColor: '#f8f9fa', marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
@@ -33,7 +32,7 @@ function AppNav() {
       <a href="/walk-ins" style={{ marginRight: '20px' }}>Walk-ins</a>
       <a href="/menu-items" style={{ marginRight: '20px' }}>Menu Items</a>
       <a href="/orders" style={{ marginRight: '20px' }}>Orders</a>
-      <a href="/users" style={{ marginRight: '20px' }}>Users</a>
+      {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontSize: '13px', color: '#666' }}>{user?.name} ({user?.role})</span>
         <button onClick={logout} style={{ padding: '4px 12px', cursor: 'pointer', fontSize: '13px' }}>Logout</button>
@@ -54,7 +53,6 @@ function AppRoutes() {
                   <AppNav />
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
                     <Route path="/" element={<ProtectedRoute><RestaurantsPage /></ProtectedRoute>} />
                     <Route path="/tables" element={<ProtectedRoute><TablesPage /></ProtectedRoute>} />
                     <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
