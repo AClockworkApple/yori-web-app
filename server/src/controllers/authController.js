@@ -2,18 +2,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { JWT_SECRET } = require('../middleware/auth');
-
-function hashPassword(password) {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-  return `${salt}:${hash}`;
-}
-
-function verifyPassword(password, stored) {
-  const [salt, key] = stored.split(':');
-  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-  return key === hash;
-}
+const { hashPassword, verifyPassword } = require('../utils/auth');
 
 function generateToken(user) {
   return jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
@@ -24,41 +13,6 @@ function generateRefreshToken(user) {
 }
 
 const authController = {
-  async register(req, res) {
-    try {
-      const { email, password, name, role, restaurantId } = req.body;
-
-      if (!email || !password || !name) {
-        return res.status(400).json({ error: 'email, password, and name are required' });
-      }
-
-      const existingUser = await User.getByEmail(email);
-      if (existingUser) {
-        return res.status(409).json({ error: 'Email already registered' });
-      }
-
-      const passwordHash = hashPassword(password);
-
-      const user = await User.create({
-        email,
-        name,
-        passwordHash,
-        role: role || 'STAFF',
-        restaurantId: restaurantId || null
-      });
-
-      const { passwordHash: _, ...safeUser } = user;
-
-      res.status(201).json({
-        user: safeUser,
-        idToken: generateToken(user),
-        refreshToken: generateRefreshToken(user)
-      });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
   async login(req, res) {
     try {
       const { email, password } = req.body;

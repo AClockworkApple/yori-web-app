@@ -14,19 +14,6 @@ export const authService = {
     return response.json();
   },
 
-  async register(data) {
-    const response = await fetch(`${API_URL}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error || 'Registration failed');
-    }
-    return response.json();
-  },
-
   async refresh(refreshToken) {
     const response = await fetch(`${API_URL}/refresh`, {
       method: 'POST',

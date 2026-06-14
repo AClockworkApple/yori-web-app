@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -63,10 +63,6 @@ export default function LoginPage() {
         }}>
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
-
-        <p style={{ textAlign: 'center', marginTop: '15px' }}>
-          Don't have an account? <Link to="/register">Register</Link>
-        </p>
       </form>
     </div>
   );

@@ -66,12 +66,6 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
-  const register = async (data) => {
-    const result = await authService.register(data);
-    setAuth(result);
-    return result.user;
-  };
-
   const logout = () => {
     clearAuth();
   };
@@ -102,7 +96,6 @@ export function AuthProvider({ children }) {
       loading,
       getToken,
       login,
-      register,
       logout,
       refreshToken,
       isAuthenticated,

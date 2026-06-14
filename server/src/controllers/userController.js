@@ -1,9 +1,15 @@
 const User = require('../models/User');
+const { hashPassword } = require('../utils/auth');
 
 const userController = {
   async create(req, res) {
     try {
-      const user = await User.create(req.body);
+      const data = { ...req.body };
+      if (data.password) {
+        data.passwordHash = hashPassword(data.password);
+        delete data.password;
+      }
+      const user = await User.create(data);
       res.status(201).json(user);
     } catch (error) {
       res.status(500).json({ error: error.message });
