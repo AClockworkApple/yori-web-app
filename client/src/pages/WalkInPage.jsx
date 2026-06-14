@@ -4,11 +4,10 @@ import { useBookings } from '../context/BookingContext';
 import { useTables } from '../context/TableContext';
 
 export default function WalkInPage() {
-  const { restaurants, fetchRestaurants } = useRestaurants();
-  const { fetchWalkIns, createBooking, seatCustomer, completeBooking, addBookingTable } = useBookings();
+  const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
+  const { fetchWalkIns, createBooking, seatCustomer, completeBooking } = useBookings();
   const { tables, fetchTablesByRestaurant } = useTables();
   const [walkIns, setWalkIns] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     customerName: '',
@@ -19,19 +18,15 @@ export default function WalkInPage() {
   });
 
   useEffect(() => {
-    fetchRestaurants();
-  }, []);
-
-  useEffect(() => {
-    if (selectedRestaurant) {
-      fetchTablesByRestaurant(selectedRestaurant);
+    if (selectedRestaurantId) {
+      fetchTablesByRestaurant(selectedRestaurantId);
       loadWalkIns();
     }
-  }, [selectedRestaurant]);
+  }, [selectedRestaurantId]);
 
   const loadWalkIns = async () => {
-    if (!selectedRestaurant) return;
-    const data = await fetchWalkIns(selectedRestaurant);
+    if (!selectedRestaurantId) return;
+    const data = await fetchWalkIns(selectedRestaurantId);
     setWalkIns(data);
   };
 
@@ -55,7 +50,7 @@ export default function WalkInPage() {
       const now = new Date();
       const end = new Date(now.getTime() + 2 * 60 * 60 * 1000);
       await createBooking({
-        restaurantId: selectedRestaurant,
+        restaurantId: selectedRestaurantId,
         customerName: formData.customerName,
         customerPhone: formData.customerPhone,
         customerEmail: formData.customerEmail,
@@ -94,27 +89,24 @@ export default function WalkInPage() {
 
   const availableTables = tables.filter(t => t.status === 'AVAILABLE');
 
+  if (!selectedRestaurantId) {
+    return (
+      <div style={{ padding: '20px' }}>
+        <h1>Walk-in Management</h1>
+        <p>Select a restaurant from the navigation bar to manage walk-ins.</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Walk-in Management</h1>
+      <h1>Walk-in Management — {selectedRestaurant?.name}</h1>
 
-      <div style={{ marginBottom: '20px' }}>
-        <label>Restaurant: </label>
-        <select value={selectedRestaurant} onChange={(e) => setSelectedRestaurant(e.target.value)}>
-          <option value="">-- Select Restaurant --</option>
-          {restaurants.map(r => (
-            <option key={r.id} value={r.id}>{r.name}</option>
-          ))}
-        </select>
-      </div>
+      <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}>
+        {showForm ? 'Cancel' : 'Register Walk-in'}
+      </button>
 
-      {selectedRestaurant && (
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}>
-          {showForm ? 'Cancel' : 'Register Walk-in'}
-        </button>
-      )}
-
-      {showForm && selectedRestaurant && (
+      {showForm && (
         <form onSubmit={handleSubmit} style={{ border: '1px solid #ddd', padding: '20px', marginBottom: '20px', borderRadius: '4px' }}>
           <h3>Register Walk-in</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -147,7 +139,7 @@ export default function WalkInPage() {
                   color: formData.tableIds.includes(table.id) ? '#fff' : '#000',
                 }}>
                   <input type="checkbox" checked={formData.tableIds.includes(table.id)} onChange={() => handleTableToggle(table.id)} style={{ display: 'none' }} />
-                  {table.tableNumber || table.name} ({table.capacity})
+                  {table.name || table.id} ({table.seats} seats)
                 </label>
               ))}
             </div>

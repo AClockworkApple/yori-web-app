@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useRestaurants } from '../context/RestaurantContext';
 
 export default function RestaurantsPage() {
-  const { restaurants, loading, error, fetchRestaurants, createRestaurant, updateRestaurant, deleteRestaurant } = useRestaurants();
+  const { restaurants, loading, error, fetchRestaurants, createRestaurant } = useRestaurants();
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -16,7 +16,6 @@ export default function RestaurantsPage() {
     taxRate: 0,
     serviceFeeRate: 0,
     dataRetentionDays: 30,
-    ownerId: 'demo-owner',
   });
 
   useEffect(() => {
@@ -34,48 +33,15 @@ export default function RestaurantsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingId) {
-        await updateRestaurant(editingId, formData);
-      } else {
-        await createRestaurant(formData);
-      }
+      await createRestaurant(formData);
       resetForm();
     } catch (err) {
       alert('Error: ' + err.message);
     }
   };
 
-  const handleEdit = (restaurant) => {
-    setFormData({
-      name: restaurant.name,
-      address: restaurant.address || '',
-      mode: restaurant.mode || 'SEMI_AUTO',
-      maxExtensionMinutes: restaurant.maxExtensionMinutes || 60,
-      warningBeforeMinutes: restaurant.warningBeforeMinutes || 15,
-      slotDurationMinutes: restaurant.slotDurationMinutes || 120,
-      bufferMinutes: restaurant.bufferMinutes || 30,
-      taxRate: restaurant.taxRate || 0,
-      serviceFeeRate: restaurant.serviceFeeRate || 0,
-      dataRetentionDays: restaurant.dataRetentionDays || 30,
-      ownerId: restaurant.ownerId,
-    });
-    setEditingId(restaurant.id);
-    setShowForm(true);
-  };
-
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this restaurant?')) {
-      try {
-        await deleteRestaurant(id);
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    }
-  };
-
   const resetForm = () => {
     setShowForm(false);
-    setEditingId(null);
     setFormData({
       name: '',
       address: '',
@@ -87,7 +53,6 @@ export default function RestaurantsPage() {
       taxRate: 0,
       serviceFeeRate: 0,
       dataRetentionDays: 30,
-      ownerId: 'demo-owner',
     });
   };
 
@@ -108,7 +73,7 @@ export default function RestaurantsPage() {
           marginBottom: '20px',
           borderRadius: '8px'
         }}>
-          <h2>{editingId ? 'Edit Restaurant' : 'Add New Restaurant'}</h2>
+          <h2>Add New Restaurant</h2>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
@@ -236,7 +201,7 @@ export default function RestaurantsPage() {
             borderRadius: '4px',
             cursor: 'pointer'
           }}>
-            {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
+            {loading ? 'Saving...' : 'Create'}
           </button>
         </form>
       )}
@@ -246,53 +211,27 @@ export default function RestaurantsPage() {
       ) : restaurants.length === 0 ? (
         <p>No restaurants found. Add one to get started.</p>
       ) : (
-        <table style={{ 
-          width: '100%', 
-          borderCollapse: 'collapse',
-          marginTop: '20px'
-        }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Name</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Address</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Mode</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Slot Duration</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Buffer</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Tax Rate</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {restaurants.map((restaurant) => (
-              <tr key={restaurant.id}>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{restaurant.name}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{restaurant.address || '-'}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  <span style={{
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    backgroundColor: restaurant.mode === 'FULL_AUTO' ? '#28a745' : '#ffc107',
-                    color: 'white',
-                    fontSize: '12px'
-                  }}>
-                    {restaurant.mode}
-                  </span>
-                </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{restaurant.slotDurationMinutes} min</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{restaurant.bufferMinutes} min</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{restaurant.taxRate}%</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  <button onClick={() => handleEdit(restaurant)} style={{ marginRight: '10px' }}>
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(restaurant.id)} style={{ color: 'red' }}>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '20px' }}>
+          {restaurants.map((restaurant) => (
+            <Link key={restaurant.id} to={`/restaurants/${restaurant.id}`} style={{
+              display: 'flex', alignItems: 'center', padding: '16px 20px',
+              border: '1px solid #dee2e6', borderRadius: '8px',
+              textDecoration: 'none', color: 'inherit', backgroundColor: '#fff',
+              gap: '20px'
+            }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', minWidth: '180px' }}>{restaurant.name}</div>
+              <div style={{ fontSize: '13px', color: '#666', flex: 1 }}>{restaurant.address || '-'}</div>
+              <span style={{
+                padding: '4px 10px', borderRadius: '4px', fontSize: '12px',
+                backgroundColor: restaurant.mode === 'FULL_AUTO' ? '#28a745' : '#ffc107',
+                color: 'white', fontWeight: 'bold'
+              }}>
+                {restaurant.mode}
+              </span>
+              <span style={{ fontSize: '13px', color: '#007bff' }}>&rarr;</span>
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -11,6 +11,7 @@ class MenuItem {
       description: data.description || '',
       price: data.price,
       category: data.category || 'General',
+      itemNumber: data.itemNumber || '',
       isAvailable: data.isAvailable !== false,
       isGeneral: data.isGeneral || false,
       createdAt: new Date().toISOString(),
@@ -79,22 +80,45 @@ class MenuItem {
 
   static async importGeneralMenu(restaurantId) {
     const generalItems = await this.getGeneralMenu();
-    const importedItems = [];
-    
-    for (const item of generalItems) {
-      const imported = await this.create({
-        restaurantId,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        category: item.category,
-        isAvailable: item.isAvailable,
-        isGeneral: false,
-      });
-      importedItems.push(imported);
+    const restaurantItems = await this.getByRestaurant(restaurantId);
+    const results = [];
+
+    for (const general of generalItems) {
+      const existing = restaurantItems.find(r => r.name === general.name);
+
+      if (!existing) {
+        const created = await this.create({
+          restaurantId,
+          name: general.name,
+          description: general.description,
+          price: general.price,
+          category: general.category,
+          itemNumber: general.itemNumber || '',
+          isAvailable: general.isAvailable,
+          isGeneral: false,
+        });
+        results.push({ action: 'created', item: created });
+      } else if (
+        existing.itemNumber !== (general.itemNumber || '') ||
+        existing.price !== general.price ||
+        existing.description !== (general.description || '') ||
+        existing.category !== general.category
+      ) {
+        const updated = await this.update(existing.id, {
+          name: general.name,
+          description: general.description,
+          price: general.price,
+          category: general.category,
+          itemNumber: general.itemNumber || '',
+          isAvailable: general.isAvailable,
+        });
+        results.push({ action: 'updated', item: updated });
+      } else {
+        results.push({ action: 'skipped', item: existing });
+      }
     }
-    
-    return importedItems;
+
+    return results;
   }
 
   static async getByCategory(restaurantId, category) {
