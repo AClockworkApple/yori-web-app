@@ -9,6 +9,7 @@ const menuItemRoutes = require('./routes/menuItemRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const restaurantHourRoutes = require('./routes/restaurantHourRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,6 +25,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/menu-items', menuItemRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/restaurant-hours', restaurantHourRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Yori Web App API is running' });

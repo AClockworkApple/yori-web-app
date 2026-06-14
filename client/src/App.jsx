@@ -6,6 +6,7 @@ import { MenuItemProvider } from './context/MenuItemContext';
 import { OrderProvider } from './context/OrderContext';
 import { UserProvider } from './context/UserContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { RestaurantHourProvider } from './context/RestaurantHourContext';
 import RestaurantsPage from './pages/RestaurantsPage';
 import TablesPage from './pages/TablesPage';
 import BookingsPage from './pages/BookingsPage';
@@ -13,6 +14,7 @@ import WalkInPage from './pages/WalkInPage';
 import MenuItemsPage from './pages/MenuItemsPage';
 import OrdersPage from './pages/OrdersPage';
 import UsersPage from './pages/UsersPage';
+import RestaurantHoursPage from './pages/RestaurantHoursPage';
 import LoginPage from './pages/LoginPage';
 
 function ProtectedRoute({ children }) {
@@ -32,6 +34,7 @@ function AppNav() {
       <a href="/walk-ins" style={{ marginRight: '20px' }}>Walk-ins</a>
       <a href="/menu-items" style={{ marginRight: '20px' }}>Menu Items</a>
       <a href="/orders" style={{ marginRight: '20px' }}>Orders</a>
+      <a href="/restaurant-hours" style={{ marginRight: '20px' }}>Hours</a>
       {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontSize: '13px', color: '#666' }}>{user?.name} ({user?.role})</span>
@@ -48,21 +51,24 @@ function AppRoutes() {
         <BookingProvider>
           <MenuItemProvider>
             <OrderProvider>
-              <UserProvider>
-                <Router>
-                  <AppNav />
-                  <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/" element={<ProtectedRoute><RestaurantsPage /></ProtectedRoute>} />
-                    <Route path="/tables" element={<ProtectedRoute><TablesPage /></ProtectedRoute>} />
-                    <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
-                    <Route path="/walk-ins" element={<ProtectedRoute><WalkInPage /></ProtectedRoute>} />
-                    <Route path="/menu-items" element={<ProtectedRoute><MenuItemsPage /></ProtectedRoute>} />
-                    <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-                    <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
-                  </Routes>
-                </Router>
-              </UserProvider>
+                  <UserProvider>
+                    <RestaurantHourProvider>
+                      <Router>
+                        <AppNav />
+                        <Routes>
+                          <Route path="/login" element={<LoginPage />} />
+                          <Route path="/" element={<ProtectedRoute><RestaurantsPage /></ProtectedRoute>} />
+                          <Route path="/tables" element={<ProtectedRoute><TablesPage /></ProtectedRoute>} />
+                          <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
+                          <Route path="/walk-ins" element={<ProtectedRoute><WalkInPage /></ProtectedRoute>} />
+                          <Route path="/menu-items" element={<ProtectedRoute><MenuItemsPage /></ProtectedRoute>} />
+                          <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+                          <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+                          <Route path="/restaurant-hours" element={<ProtectedRoute><RestaurantHoursPage /></ProtectedRoute>} />
+                        </Routes>
+                      </Router>
+                    </RestaurantHourProvider>
+                  </UserProvider>
             </OrderProvider>
           </MenuItemProvider>
         </BookingProvider>

@@ -56,28 +56,37 @@
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 11 | **Customer-facing booking** | Large | Public booking page, cancel/rebook flow |
-| 12 | **Automatic email reminders** | Large | Email service (SendGrid?), cron trigger |
-| 13 | **Search bookings by name/phone** | Small | Filter on BookingsPage |
-| 14 | **Real-time table status board** | Medium | TV display view, polling/WebSocket |
-| 15 | **Internal announcements** | Medium | Announcement model, broadcast UI |
-| 16 | **Restaurant hours per day** | Medium | RestaurantHours model, config UI |
-| 17 | **Wait time estimator** | Medium | Algorithm based on current bookings |
-| 18 | **Google Sheets integration** | Medium | Export financial data |
-| 19 | **GDPR compliance** | Medium | Data minimization, right to erasure |
+| 1 | **Customer-facing booking** | Large | Public booking page, cancel/rebook flow |
+| 2 | **Automatic email reminders** | Large | Email service (SendGrid?), cron trigger |
+| 3 | **Search bookings by name/phone** | Small | Filter on BookingsPage |
+| 4 | **Real-time table status board** | Medium | TV display view, polling/WebSocket |
+| 5 | **Internal announcements** | Medium | Announcement model, broadcast UI |
+| 6 | **Restaurant hours per day** | ✅ | Full CRUD, open/close/break times, day-by-day config |
+| 7 | **Receipt (printed + saved)** | Medium | Itemized receipt, Manager+ access |
+| 8 | **Daily summary report** | Medium | Covers, revenue, tips |
+| 9 | **GDPR compliance** | Medium | Data minimization, right to erasure |
 
 ### Should Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 20 | **Audit logs** | Medium | Immutable action logs |
-| 21 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
+| 10 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
+| 11 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
+| 12 | **Audit logs** | Medium | Immutable action logs |
+| 13 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
+| 14 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
 
 ### Could Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 22 | **Automatic tax calculation** | Medium | Requires expense input |
+| 15 | **Google Sheets integration** | Medium | Export financial data |
+| 16 | **Automatic tax calculation** | Medium | Requires expense input |
+| 17 | **Manual tax rate reconfiguration** | Small | Emergency override |
+| 18 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
+| 19 | **Inventory management** | Large | Stock tracking |
+| 20 | **Predictive analytics** | Large | Busy period forecasting |
+| 21 | **Offline mode** | Large | WiFi reliability |
 | 23 | **Manual tax rate reconfiguration** | Small | Emergency override |
 | 24 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
 | 25 | **Inventory management** | Large | Stock tracking |
