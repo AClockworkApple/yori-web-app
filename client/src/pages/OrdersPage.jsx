@@ -1,84 +1,147 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useOrders } from '../context/OrderContext';
 import { useRestaurants } from '../context/RestaurantContext';
+import { useBookings } from '../context/BookingContext';
+import { useMenuItems } from '../context/MenuItemContext';
+import { useTables } from '../context/TableContext';
+import { useAuth } from '../context/AuthContext';
+import { bookingService } from '../services/bookingService';
 
 export default function OrdersPage() {
-  const { orders, loading, error, fetchOrdersByRestaurant, createOrder, closeOrder, deleteOrder } = useOrders();
+  const { orders, orderItems, error, fetchOrdersByRestaurant, fetchOrder, createOrder, addItem, removeItem, closeOrder, deleteOrder, setCurrentOrder, currentOrder } = useOrders();
   const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    bookingId: '',
-    employeeId: '',
-    taxRate: 0,
-    serviceFeeRate: 0,
-  });
+  const { fetchBookingsByStatus } = useBookings();
+  const { menuItems, fetchRestaurantMenu } = useMenuItems();
+  const { tables, fetchTablesByRestaurant } = useTables();
+  const { user } = useAuth();
+
+  const [seatedBookings, setSeatedBookings] = useState([]);
+  const [allBookings, setAllBookings] = useState([]);
+  const [activeOrderId, setActiveOrderId] = useState(null);
+  const [orderQuantities, setOrderQuantities] = useState({});
 
   useEffect(() => {
     if (selectedRestaurantId) {
       fetchOrdersByRestaurant(selectedRestaurantId);
+      loadSeatedBookings();
+      fetchRestaurantMenu(selectedRestaurantId);
+      fetchTablesByRestaurant(selectedRestaurantId);
+      bookingService.getByRestaurant(selectedRestaurantId).then(data => setAllBookings(data)).catch(() => {});
     }
   }, [selectedRestaurantId]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const loadSeatedBookings = async () => {
     try {
-      await createOrder({ ...formData, restaurantId: selectedRestaurantId });
-      resetForm();
+      const seated = await fetchBookingsByStatus(selectedRestaurantId, 'SEATED');
+      setSeatedBookings(seated);
     } catch (err) {
-      alert('Error: ' + err.message);
+      console.error('Failed to load seated bookings:', err);
     }
   };
 
-  const handleClose = async (id) => {
+  const getTableNames = (booking) => {
+    if (!booking || !booking.tables || booking.tables.length === 0) return '-';
+    return booking.tables.map(t => {
+      const table = tables.find(x => x.id === t.tableId);
+      return table ? table.name : t.tableId;
+    }).join(', ');
+  };
+
+  const getBookingForOrder = (order) => {
+    return allBookings.find(b => b.id === order.bookingId) || null;
+  };
+
+  const handleStartOrder = async (booking) => {
+    try {
+      const existingOrder = orders.find(o => o.bookingId === booking.id && o.status === 'OPEN');
+      if (existingOrder) {
+        setActiveOrderId(existingOrder.id);
+        await setCurrentOrder(existingOrder);
+        return;
+      }
+      const newOrder = await createOrder({
+        restaurantId: selectedRestaurantId,
+        bookingId: booking.id,
+        employeeId: user.id,
+        taxRate: selectedRestaurant?.taxRate || 0,
+        serviceFeeRate: selectedRestaurant?.serviceFeeRate || 0,
+      });
+      setActiveOrderId(newOrder.id);
+      setOrderQuantities({});
+      loadSeatedBookings();
+    } catch (err) {
+      alert('Failed to start order: ' + err.message);
+    }
+  };
+
+  const handleSelectOrder = async (order) => {
+    setActiveOrderId(order.id);
+    setOrderQuantities({});
+    await fetchOrder(order.id);
+  };
+
+  const handleQuantityChange = (menuItemId, val) => {
+    setOrderQuantities({ ...orderQuantities, [menuItemId]: Math.max(0, parseInt(val) || 0) });
+  };
+
+  const handleAddItem = async (menuItem) => {
+    const qty = orderQuantities[menuItem.id] || 1;
+    if (qty <= 0) return;
+    try {
+      await addItem(activeOrderId, {
+        menuItemId: menuItem.id,
+        menuItemName: menuItem.name,
+        quantity: qty,
+        unitPrice: menuItem.price,
+      });
+      setOrderQuantities({ ...orderQuantities, [menuItem.id]: 0 });
+    } catch (err) {
+      alert('Failed to add item: ' + err.message);
+    }
+  };
+
+  const handleRemoveItem = async (itemId) => {
+    try {
+      await removeItem(activeOrderId, itemId);
+    } catch (err) {
+      alert('Failed to remove item: ' + err.message);
+    }
+  };
+
+  const handleCloseOrder = async () => {
     if (confirm('Close this order?')) {
       try {
-        await closeOrder(id);
+        await closeOrder(activeOrderId);
+        setActiveOrderId(null);
+        setCurrentOrder(null);
       } catch (err) {
         alert('Error: ' + err.message);
       }
     }
   };
 
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this order?')) {
+  const handleDeleteOrder = async (id) => {
+    if (confirm('Delete this order?')) {
       try {
         await deleteOrder(id);
+        if (activeOrderId === id) {
+          setActiveOrderId(null);
+          setCurrentOrder(null);
+        }
       } catch (err) {
         alert('Error: ' + err.message);
       }
     }
-  };
-
-  const resetForm = () => {
-    setShowForm(false);
-    setFormData({ bookingId: '', employeeId: '', taxRate: 0, serviceFeeRate: 0 });
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      OPEN: '#ffc107',
-      CLOSED: '#28a745',
-      SPLIT: '#17a2b8',
-    };
-    return colors[status] || '#6c757d';
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount || 0);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(amount || 0);
   };
 
   const formatDateTime = (isoString) => {
     if (!isoString) return '-';
-    const date = new Date(isoString);
-    return date.toLocaleString();
+    return new Date(isoString).toLocaleString();
   };
 
   if (!selectedRestaurantId) {
@@ -90,117 +153,207 @@ export default function OrdersPage() {
     );
   }
 
+  const openOrders = orders.filter(o => o.status === 'OPEN');
+  const closedOrders = orders.filter(o => o.status === 'CLOSED' || o.status === 'SPLIT');
+  const menuCategories = [...new Set(menuItems.filter(m => m.isAvailable).map(m => m.category))];
+
   return (
     <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
       <h1>Orders — {selectedRestaurant?.name}</h1>
+      {!activeOrderId && (
+        <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+      )}
 
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px' }}>
-          {showForm ? 'Cancel' : 'Create Order'}
-        </button>
-      </div>
-
-      {showForm && (
-        <form onSubmit={handleSubmit} style={{
-          border: '1px solid #ccc', padding: '20px', marginBottom: '20px', borderRadius: '8px'
-        }}>
-          <h2>Create New Order</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <div>
-              <label>Booking ID (optional)</label>
-              <input type="text" name="bookingId" value={formData.bookingId}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
-            </div>
-            <div>
-              <label>Employee ID *</label>
-              <input type="text" name="employeeId" value={formData.employeeId}
-                onChange={handleInputChange} required
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
-            </div>
-            <div>
-              <label>Tax Rate (%)</label>
-              <input type="number" name="taxRate" value={formData.taxRate}
-                onChange={handleInputChange} step="0.01" min="0"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
-            </div>
-            <div>
-              <label>Service Fee (%)</label>
-              <input type="number" name="serviceFeeRate" value={formData.serviceFeeRate}
-                onChange={handleInputChange} step="0.01" min="0"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
+      {activeOrderId && currentOrder?.id === activeOrderId ? (
+        <div style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '20px', marginBottom: '30px', backgroundColor: '#f8f9fa' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h2 style={{ margin: 0 }}>Order: {currentOrder.id.substring(0, 8)}...</h2>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => { setActiveOrderId(null); setCurrentOrder(null); }} style={{ padding: '6px 14px', cursor: 'pointer' }}>&larr; Back to Orders</button>
+              <button onClick={handleCloseOrder} style={{ padding: '6px 14px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Close Order</button>
             </div>
           </div>
-          <button type="submit" disabled={loading} style={{
-            marginTop: '20px', padding: '10px 30px', backgroundColor: '#007bff',
-            color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'
-          }}>
-            {loading ? 'Creating...' : 'Create Order'}
-          </button>
-        </form>
-      )}
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : orders.length === 0 ? (
-        <p>No orders found.</p>
+          <div style={{ display: 'flex', gap: '30px' }}>
+            <div style={{ flex: 1 }}>
+              <h3>Order Items</h3>
+              {orderItems.length === 0 ? (
+                <p style={{ color: '#999' }}>No items yet. Add items from the menu.</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#e9ecef' }}>
+                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'left' }}>Item</th>
+                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>Qty</th>
+                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>Price</th>
+                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>Total</th>
+                      <th style={{ padding: '8px', border: '1px solid #dee2e6' }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orderItems.map(item => (
+                      <tr key={item.id}>
+                        <td style={{ padding: '8px', border: '1px solid #dee2e6' }}>{item.menuItemName}</td>
+                        <td style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>{item.quantity}</td>
+                        <td style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(item.unitPrice)}</td>
+                        <td style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(item.totalPrice)}</td>
+                        <td style={{ padding: '8px', border: '1px solid #dee2e6' }}>
+                          <button onClick={() => handleRemoveItem(item.id)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer' }}>&times;</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              <div style={{ marginTop: '15px', fontSize: '15px' }}>
+                <div><strong>Subtotal:</strong> {formatCurrency(currentOrder.subtotal)}</div>
+                <div>Tax: {formatCurrency(currentOrder.taxAmount)}</div>
+                <div>Service Fee: {formatCurrency(currentOrder.serviceFeeAmount)}</div>
+                <div style={{ fontSize: '18px' }}><strong>Total: {formatCurrency(currentOrder.total)}</strong></div>
+              </div>
+            </div>
+
+            <div style={{ flex: 1 }}>
+              <h3>Menu Items</h3>
+              {menuCategories.map(cat => (
+                <div key={cat} style={{ marginBottom: '15px' }}>
+                  <h4 style={{ margin: '0 0 8px 0', color: '#495057' }}>{cat}</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {menuItems.filter(m => m.category === cat && m.isAvailable).map(item => (
+                      <div key={item.id} style={{
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        padding: '6px 10px', border: '1px solid #dee2e6', borderRadius: '4px',
+                        backgroundColor: '#fff'
+                      }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.name}</div>
+                          <div style={{ fontSize: '12px', color: '#666' }}>{formatCurrency(item.price)}</div>
+                        </div>
+                        <input type="number" min="0" value={orderQuantities[item.id] || 0}
+                          onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                          style={{ width: '50px', padding: '4px', textAlign: 'center' }} />
+                        <button onClick={() => handleAddItem(item)}
+                          disabled={!orderQuantities[item.id] || orderQuantities[item.id] <= 0}
+                          style={{
+                            padding: '4px 12px', backgroundColor: orderQuantities[item.id] > 0 ? '#007bff' : '#6c757d',
+                            color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'
+                          }}>Add</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {menuItems.length === 0 && <p style={{ color: '#999' }}>No menu items found.</p>}
+            </div>
+          </div>
+        </div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Order ID</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Created</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Status</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Subtotal</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Tax</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Service Fee</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Tip</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Total</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id}>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  <strong>{order.id.substring(0, 8)}...</strong>
-                </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  {formatDateTime(order.createdAt)}
-                </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  <span style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: getStatusColor(order.status), color: 'white', fontSize: '12px' }}>
-                    {order.status}
-                  </span>
-                </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{formatCurrency(order.subtotal)}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{formatCurrency(order.taxAmount)}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{formatCurrency(order.serviceFeeAmount)}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{formatCurrency(order.tip)}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  <strong>{formatCurrency(order.total)}</strong>
-                </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  {order.status === 'OPEN' && (
-                    <>
-                      <button onClick={() => window.location.href = `/orders/${order.id}`} style={{ marginRight: '10px' }}>
-                        Add Items
-                      </button>
-                      <button onClick={() => handleClose(order.id)} style={{ marginRight: '10px', backgroundColor: '#28a745', color: 'white' }}>
-                        Close
-                      </button>
-                    </>
-                  )}
-                  <button onClick={() => handleDelete(order.id)} style={{ color: 'red' }}>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          <h2>Seated Customers</h2>
+          {seatedBookings.length === 0 ? (
+            <p>No seated customers.</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '30px' }}>
+              {seatedBookings.map(booking => {
+                const hasOrder = orders.some(o => o.bookingId === booking.id && o.status === 'OPEN');
+                return (
+                  <div key={booking.id} style={{
+                    border: '1px solid #dee2e6', borderRadius: '8px', padding: '16px',
+                    backgroundColor: hasOrder ? '#e8f5e9' : '#fff'
+                  }}>
+                    <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{booking.customerName}</div>
+                    <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
+                      Party: {booking.partySize} | Tables: {getTableNames(booking)}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>
+                      {booking.source === 'walk-in' ? 'Walk-in' : 'Pre-booking'} &middot; {formatDateTime(booking.scheduledStart)}
+                    </div>
+                    <button onClick={() => handleStartOrder(booking)}
+                      style={{
+                        marginTop: '10px', padding: '6px 16px', cursor: 'pointer',
+                        backgroundColor: hasOrder ? '#28a745' : '#007bff',
+                        color: 'white', border: 'none', borderRadius: '4px'
+                      }}>
+                      {hasOrder ? 'Manage Order' : 'Start Order'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <h2>Open Orders</h2>
+          {openOrders.length === 0 ? (
+            <p>No open orders.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '30px' }}>
+              {openOrders.map(order => {
+                const booking = getBookingForOrder(order);
+                return (
+                <div key={order.id} onClick={() => handleSelectOrder(order)} style={{
+                  display: 'flex', alignItems: 'center', gap: '15px',
+                  padding: '12px 16px', border: '1px solid #dee2e6', borderRadius: '8px',
+                  backgroundColor: '#fff', cursor: 'pointer'
+                }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 'bold' }}>{booking ? booking.customerName : 'Unknown'}</div>
+                    <div style={{ fontSize: '12px', color: '#666' }}>
+                      Table{booking && booking.tables && booking.tables.length > 1 ? 's' : ''}: {getTableNames(booking)} &middot; {order.status}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{formatCurrency(order.total)}</div>
+                  <button onClick={(e) => { e.stopPropagation(); handleDeleteOrder(order.id); }} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', fontSize: '18px' }}>&times;</button>
+                </div>
+                );
+              })}
+            </div>
+          )}
+
+          <h2>Closed Orders</h2>
+          {closedOrders.length === 0 ? (
+            <p>No closed orders.</p>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f8f9fa' }}>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Order ID</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Created</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Status</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Subtotal</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Tax</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Fee</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Tip</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Total</th>
+                  <th style={{ padding: '12px', border: '1px solid #dee2e6' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {closedOrders.map(order => (
+                  <tr key={order.id}>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}><strong>{order.id.substring(0, 8)}...</strong></td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{formatDateTime(order.createdAt)}</td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: '#28a745', color: 'white', fontSize: '12px' }}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.subtotal)}</td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.taxAmount)}</td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.serviceFeeAmount)}</td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.tip)}</td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}><strong>{formatCurrency(order.total)}</strong></td>
+                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                      <button onClick={() => handleDeleteOrder(order.id)} style={{ color: 'red' }}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
       )}
     </div>
   );

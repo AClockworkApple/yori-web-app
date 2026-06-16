@@ -14,6 +14,7 @@ import TablesPage from './pages/TablesPage';
 import BookingsPage from './pages/BookingsPage';
 import WalkInPage from './pages/WalkInPage';
 import MenuItemsPage from './pages/MenuItemsPage';
+import CategoriesPage from './pages/CategoriesPage';
 import OrdersPage from './pages/OrdersPage';
 import UsersPage from './pages/UsersPage';
 import RestaurantHoursPage from './pages/RestaurantHoursPage';
@@ -27,7 +28,7 @@ function ProtectedRoute({ children }) {
 
 function AppNav() {
   const { isAuthenticated, user, hasRole, logout } = useAuth();
-  const { selectedRestaurantId, selectedRestaurant, setSelectedRestaurantId, fetchRestaurants } = useRestaurants();
+  const { fetchRestaurants } = useRestaurants();
   if (!isAuthenticated) return null;
 
   useEffect(() => {
@@ -40,12 +41,6 @@ function AppNav() {
       <a href="/menu-items" style={{ marginRight: '20px' }}>Menu Items</a>
       {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        {selectedRestaurant && (
-          <span style={{ fontSize: '13px', backgroundColor: '#e9ecef', padding: '4px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {selectedRestaurant.name}
-            <button onClick={() => setSelectedRestaurantId('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc3545', fontSize: '16px', padding: '0', lineHeight: '1' }} title="Deselect">&times;</button>
-          </span>
-        )}
         <span style={{ fontSize: '13px', color: '#666' }}>{user?.name} ({user?.role})</span>
         <button onClick={logout} style={{ padding: '4px 12px', cursor: 'pointer', fontSize: '13px' }}>Logout</button>
       </div>
@@ -72,6 +67,7 @@ function AppRoutes() {
                           <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
                           <Route path="/walk-ins" element={<ProtectedRoute><WalkInPage /></ProtectedRoute>} />
                           <Route path="/menu-items" element={<ProtectedRoute><MenuItemsPage /></ProtectedRoute>} />
+                          <Route path="/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
                           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
                           <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
                           <Route path="/restaurant-hours" element={<ProtectedRoute><RestaurantHoursPage /></ProtectedRoute>} />

@@ -75,9 +75,9 @@ const orderController = {
 
   async addItem(req, res) {
     try {
-      const { orderId, menuItemId, menuItemName, quantity, unitPrice, notes, splitGroup } = req.body;
+      const { menuItemId, menuItemName, quantity, unitPrice, notes, splitGroup } = req.body;
       const orderItem = await OrderItem.create({
-        orderId,
+        orderId: req.params.id,
         menuItemId,
         menuItemName,
         quantity,
@@ -86,7 +86,7 @@ const orderController = {
         splitGroup
       });
       
-      await Order.calculateTotals(orderId);
+      await Order.calculateTotals(req.params.id);
       res.status(201).json(orderItem);
     } catch (error) {
       res.status(500).json({ error: error.message });

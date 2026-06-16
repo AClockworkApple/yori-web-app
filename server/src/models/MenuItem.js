@@ -2,6 +2,7 @@ const { db } = require('../config/firebase');
 const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'menuItems';
+const DEFAULT_CATEGORIES = ['General', 'Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Side Dish', 'Soup', 'Salad'];
 
 class MenuItem {
   static async create(data) {
@@ -128,8 +129,9 @@ class MenuItem {
 
   static async getCategories(restaurantId) {
     const menuItems = await this.getRestaurantMenu(restaurantId);
-    const categories = [...new Set(menuItems.map(item => item.category))];
-    return categories.sort();
+    const existingCategories = [...new Set(menuItems.map(item => item.category))];
+    const allCategories = [...new Set([...DEFAULT_CATEGORIES, ...existingCategories])];
+    return allCategories.sort();
   }
 
   static async update(id, data) {
@@ -157,6 +159,25 @@ class MenuItem {
     await deleteDoc(doc(db, COLLECTION_NAME, id));
     return { success: true };
   }
+
+  static async deleteCategory(restaurantId, category) {
+    const items = await this.getByRestaurant(restaurantId);
+    const toUpdate = items.filter(i => i.category === category);
+    for (const item of toUpdate) {
+      await this.update(item.id, { category: 'General' });
+    }
+    return { renamed: toUpdate.length };
+  }
+
+  static async renameCategory(restaurantId, oldName, newName) {
+    const items = await this.getByRestaurant(restaurantId);
+    const toUpdate = items.filter(i => i.category === oldName);
+    for (const item of toUpdate) {
+      await this.update(item.id, { category: newName });
+    }
+    return { renamed: toUpdate.length };
+  }
 }
 
 module.exports = MenuItem;
+module.exports.DEFAULT_CATEGORIES = DEFAULT_CATEGORIES;

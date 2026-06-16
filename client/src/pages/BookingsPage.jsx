@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useBookings } from '../context/BookingContext';
 import { useTables } from '../context/TableContext';
 import { useRestaurants } from '../context/RestaurantContext';
@@ -187,6 +188,7 @@ export default function BookingsPage() {
   return (
     <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
       <h1>Bookings — {selectedRestaurant?.name}</h1>
+      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
@@ -336,7 +338,7 @@ export default function BookingsPage() {
                           display: 'inline-flex', alignItems: 'center', gap: '4px',
                           padding: '2px 8px', backgroundColor: '#e9ecef', borderRadius: '4px', fontSize: '12px'
                         }}>
-                          {t.tableId}
+                          {(() => { const t2 = tables.find(x => x.id === t.tableId); return t2 ? t2.name : t.tableId; })()}
                           <button onClick={() => handleRemoveTable(booking.id, t.tableId)}
                             style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc3545', padding: '0', fontSize: '14px', lineHeight: '1' }}
                             title="Remove table">&times;</button>

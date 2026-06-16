@@ -1,19 +1,25 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useMenuItems } from '../context/MenuItemContext';
 import { useRestaurants } from '../context/RestaurantContext';
+
+const DEFAULT_CATEGORIES = ['General', 'Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Side Dish', 'Soup', 'Salad'];
 
 export default function MenuItemsPage() {
   const {
     menuItems, generalMenuItems, categories, loading, error,
     fetchGeneralMenu, fetchMenuItemsByRestaurant,
     fetchCategories, importGeneralMenu, createMenuItem,
-    updateMenuItem, toggleMenuItemAvailability, deleteMenuItem
+    updateMenuItem, toggleMenuItemAvailability, deleteMenuItem, deleteCategory
   } = useMenuItems();
   const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
+
+  const allCategories = [...new Set([...DEFAULT_CATEGORIES, ...categories])];
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('');
+  const [newCategory, setNewCategory] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -41,6 +47,7 @@ export default function MenuItemsPage() {
     e.preventDefault();
     try {
       const payload = { ...formData, price: parseFloat(formData.price), itemNumber: formData.itemNumber };
+      if (formData.category === '__new__') payload.category = newCategory;
       if (selectedRestaurantId) {
         payload.restaurantId = selectedRestaurantId;
       } else {
@@ -120,6 +127,9 @@ export default function MenuItemsPage() {
           ? `Menu Items — ${selectedRestaurant?.name}`
           : 'General Menu Items'}
       </h1>
+      {selectedRestaurantId && (
+        <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+      )}
 
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
@@ -134,13 +144,19 @@ export default function MenuItemsPage() {
           </button>
         )}
 
+        {selectedRestaurantId && (
+          <Link to="/categories" style={{ padding: '8px 14px', backgroundColor: '#6f42c1', color: 'white', textDecoration: 'none', borderRadius: '4px', fontSize: '13px' }}>
+            Manage Categories
+          </Link>
+        )}
+
         <select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
           style={{ padding: '8px' }}
         >
           <option value="">All Categories</option>
-          {categories.map(cat => (
+          {allCategories.map(cat => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
@@ -148,6 +164,28 @@ export default function MenuItemsPage() {
           <button onClick={() => setFilterCategory('')} style={{ padding: '8px' }}>
             Clear Filter
           </button>
+        )}
+
+        {selectedRestaurantId && (
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {allCategories.map(cat => (
+              <span key={cat} style={{
+                display: 'inline-flex', alignItems: 'center', gap: '4px',
+                padding: '2px 8px', backgroundColor: '#f8d7da', borderRadius: '4px', fontSize: '12px'
+              }}>
+                {cat}
+                <button onClick={async () => {
+                  if (confirm(`Delete category "${cat}"? Items will be moved to "General".`)) {
+                    try {
+                      await deleteCategory(selectedRestaurantId, cat);
+                    } catch (err) {
+                      alert('Error: ' + err.message);
+                    }
+                  }
+                }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc3545', padding: '0', fontSize: '14px', lineHeight: '1' }} title="Delete category">&times;</button>
+              </span>
+            ))}
+          </div>
         )}
 
         <span style={{ fontSize: '13px', color: '#666' }}>
@@ -170,9 +208,25 @@ export default function MenuItemsPage() {
             </div>
             <div>
               <label>Category *</label>
-              <input type="text" name="category" value={formData.category}
-                onChange={handleInputChange} placeholder="e.g., Main Course" required
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
+              {formData.category === '__new__' ? (
+                <input type="text" value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter new category name" required
+                  style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
+              ) : (
+                  <select name="category" value={formData.category}
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      if (e.target.value !== '__new__') setNewCategory('');
+                    }} required
+                    style={{ width: '100%', padding: '8px', marginTop: '5px' }}>
+                    <option value="">Select category...</option>
+                    {allCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                    <option value="__new__">+ Add new category...</option>
+                  </select>
+              )}
             </div>
             <div>
               <label>Price *</label>
@@ -260,7 +314,7 @@ export default function MenuItemsPage() {
                     {item.category}
                   </span>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>${item.price.toFixed(2)}</td>
+                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>€{item.price.toFixed(2)}</td>
                 {selectedRestaurantId && (
                   <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
                     <span style={{

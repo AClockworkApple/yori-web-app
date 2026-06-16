@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useRestaurants } from '../context/RestaurantContext';
 import { useBookings } from '../context/BookingContext';
 import { useTables } from '../context/TableContext';
@@ -11,8 +12,6 @@ export default function WalkInPage() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     customerName: '',
-    customerPhone: '',
-    customerEmail: '',
     partySize: 2,
     tableIds: [],
   });
@@ -52,8 +51,6 @@ export default function WalkInPage() {
       await createBooking({
         restaurantId: selectedRestaurantId,
         customerName: formData.customerName,
-        customerPhone: formData.customerPhone,
-        customerEmail: formData.customerEmail,
         partySize: parseInt(formData.partySize),
         scheduledStart: now.toISOString(),
         scheduledEnd: end.toISOString(),
@@ -61,7 +58,7 @@ export default function WalkInPage() {
         source: 'walk-in',
         status: 'PENDING',
       });
-      setFormData({ customerName: '', customerPhone: '', customerEmail: '', partySize: 2, tableIds: [] });
+      setFormData({ customerName: '', partySize: 2, tableIds: [] });
       setShowForm(false);
       loadWalkIns();
     } catch (err) {
@@ -101,6 +98,7 @@ export default function WalkInPage() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Walk-in Management — {selectedRestaurant?.name}</h1>
+      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
       <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}>
         {showForm ? 'Cancel' : 'Register Walk-in'}
@@ -113,14 +111,6 @@ export default function WalkInPage() {
             <div>
               <label>Name: </label>
               <input name="customerName" value={formData.customerName} onChange={handleInputChange} required style={{ width: '100%' }} />
-            </div>
-            <div>
-              <label>Phone: </label>
-              <input name="customerPhone" value={formData.customerPhone} onChange={handleInputChange} required style={{ width: '100%' }} />
-            </div>
-            <div>
-              <label>Email: </label>
-              <input name="customerEmail" type="email" value={formData.customerEmail} onChange={handleInputChange} style={{ width: '100%' }} />
             </div>
             <div>
               <label>Party Size: </label>
@@ -156,7 +146,6 @@ export default function WalkInPage() {
           <tr style={{ backgroundColor: '#f8f9fa' }}>
             <th>Time</th>
             <th>Name</th>
-            <th>Phone</th>
             <th>Party Size</th>
             <th>Status</th>
             <th>Actions</th>
@@ -167,7 +156,6 @@ export default function WalkInPage() {
             <tr key={w.id}>
               <td>{new Date(w.createdAt).toLocaleTimeString()}</td>
               <td>{w.customerName}</td>
-              <td>{w.customerPhone}</td>
               <td>{w.partySize}</td>
               <td>{w.status}</td>
               <td>

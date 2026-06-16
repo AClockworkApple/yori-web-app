@@ -121,6 +121,28 @@ const menuItemController = {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
+  },
+
+  async deleteCategory(req, res) {
+    try {
+      const { restaurantId, category } = req.params;
+      const result = await MenuItem.deleteCategory(restaurantId, category);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async renameCategory(req, res) {
+    try {
+      const { restaurantId, category } = req.params;
+      const { newName } = req.body;
+      if (!newName) return res.status(400).json({ error: 'newName is required' });
+      const result = await MenuItem.renameCategory(restaurantId, category, newName);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 };
 

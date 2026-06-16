@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useRestaurantHours } from '../context/RestaurantHourContext';
 import { useRestaurants } from '../context/RestaurantContext';
 
@@ -94,6 +95,7 @@ export default function RestaurantHoursPage() {
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Restaurant Hours — {selectedRestaurant?.name}</h1>
+      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
