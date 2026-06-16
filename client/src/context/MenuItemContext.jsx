@@ -142,6 +142,32 @@ export function MenuItemProvider({ children }) {
     }
   };
 
+  const deleteCategory = async (restaurantId, category) => {
+    setError(null);
+    try {
+      const result = await menuItemService.deleteCategory(restaurantId, category);
+      await fetchCategories(restaurantId);
+      await fetchMenuItemsByRestaurant(restaurantId);
+      return result;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const renameCategory = async (restaurantId, category, newName) => {
+    setError(null);
+    try {
+      const result = await menuItemService.renameCategory(restaurantId, category, newName);
+      await fetchCategories(restaurantId);
+      await fetchMenuItemsByRestaurant(restaurantId);
+      return result;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   return (
     <MenuItemContext.Provider value={{
       menuItems,
@@ -159,6 +185,8 @@ export function MenuItemProvider({ children }) {
       updateMenuItem,
       toggleMenuItemAvailability,
       deleteMenuItem,
+      deleteCategory,
+      renameCategory,
     }}>
       {children}
     </MenuItemContext.Provider>

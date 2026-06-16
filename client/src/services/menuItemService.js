@@ -91,4 +91,23 @@ export const menuItemService = {
     if (!response.ok) throw new Error('Failed to delete menu item');
     return response.json();
   },
+
+  async deleteCategory(restaurantId, category) {
+    const response = await fetch(`${API_URL}/restaurant/${restaurantId}/category/${category}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to delete category');
+    return response.json();
+  },
+
+  async renameCategory(restaurantId, category, newName) {
+    const response = await fetch(`${API_URL}/restaurant/${restaurantId}/category/${category}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ newName }),
+    });
+    if (!response.ok) throw new Error('Failed to rename category');
+    return response.json();
+  },
 };

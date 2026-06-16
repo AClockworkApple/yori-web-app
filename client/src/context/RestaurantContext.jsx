@@ -1,12 +1,24 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { restaurantService } from '../services/restaurantService';
 
 const RestaurantContext = createContext();
 
 export function RestaurantProvider({ children }) {
   const [restaurants, setRestaurants] = useState([]);
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState(
+    () => localStorage.getItem('yori_selected_restaurant') || ''
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleSetSelectedRestaurant = useCallback((id) => {
+    setSelectedRestaurantId(id);
+    if (id) {
+      localStorage.setItem('yori_selected_restaurant', id);
+    } else {
+      localStorage.removeItem('yori_selected_restaurant');
+    }
+  }, []);
 
   const fetchRestaurants = async () => {
     setLoading(true);
@@ -57,6 +69,9 @@ export function RestaurantProvider({ children }) {
     try {
       await restaurantService.delete(id);
       setRestaurants(restaurants.filter(r => r.id !== id));
+      if (selectedRestaurantId === id) {
+        handleSetSelectedRestaurant('');
+      }
     } catch (err) {
       setError(err.message);
       throw err;
@@ -65,9 +80,14 @@ export function RestaurantProvider({ children }) {
     }
   };
 
+  const selectedRestaurant = restaurants.find(r => r.id === selectedRestaurantId) || null;
+
   return (
     <RestaurantContext.Provider value={{
       restaurants,
+      selectedRestaurantId,
+      selectedRestaurant,
+      setSelectedRestaurantId: handleSetSelectedRestaurant,
       loading,
       error,
       fetchRestaurants,

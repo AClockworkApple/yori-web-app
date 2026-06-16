@@ -27,6 +27,12 @@ export const bookingService = {
     return response.json();
   },
 
+  async getByStatus(restaurantId, status) {
+    const response = await fetch(`${API_URL}/restaurant/${restaurantId}/status/${status}`, { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error('Failed to fetch bookings');
+    return response.json();
+  },
+
   async getWalkIns(restaurantId) {
     const response = await fetch(`${API_URL}/restaurant/${restaurantId}/walk-ins`, { headers: getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch walk-ins');

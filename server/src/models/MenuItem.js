@@ -2,6 +2,7 @@ const { db } = require('../config/firebase');
 const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'menuItems';
+const DEFAULT_CATEGORIES = ['General', 'Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Side Dish', 'Soup', 'Salad'];
 
 class MenuItem {
   static async create(data) {
@@ -11,6 +12,7 @@ class MenuItem {
       description: data.description || '',
       price: data.price,
       category: data.category || 'General',
+      itemNumber: data.itemNumber || '',
       isAvailable: data.isAvailable !== false,
       isGeneral: data.isGeneral || false,
       createdAt: new Date().toISOString(),
@@ -79,22 +81,45 @@ class MenuItem {
 
   static async importGeneralMenu(restaurantId) {
     const generalItems = await this.getGeneralMenu();
-    const importedItems = [];
-    
-    for (const item of generalItems) {
-      const imported = await this.create({
-        restaurantId,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        category: item.category,
-        isAvailable: item.isAvailable,
-        isGeneral: false,
-      });
-      importedItems.push(imported);
+    const restaurantItems = await this.getByRestaurant(restaurantId);
+    const results = [];
+
+    for (const general of generalItems) {
+      const existing = restaurantItems.find(r => r.name === general.name);
+
+      if (!existing) {
+        const created = await this.create({
+          restaurantId,
+          name: general.name,
+          description: general.description,
+          price: general.price,
+          category: general.category,
+          itemNumber: general.itemNumber || '',
+          isAvailable: general.isAvailable,
+          isGeneral: false,
+        });
+        results.push({ action: 'created', item: created });
+      } else if (
+        existing.itemNumber !== (general.itemNumber || '') ||
+        existing.price !== general.price ||
+        existing.description !== (general.description || '') ||
+        existing.category !== general.category
+      ) {
+        const updated = await this.update(existing.id, {
+          name: general.name,
+          description: general.description,
+          price: general.price,
+          category: general.category,
+          itemNumber: general.itemNumber || '',
+          isAvailable: general.isAvailable,
+        });
+        results.push({ action: 'updated', item: updated });
+      } else {
+        results.push({ action: 'skipped', item: existing });
+      }
     }
-    
-    return importedItems;
+
+    return results;
   }
 
   static async getByCategory(restaurantId, category) {
@@ -104,8 +129,9 @@ class MenuItem {
 
   static async getCategories(restaurantId) {
     const menuItems = await this.getRestaurantMenu(restaurantId);
-    const categories = [...new Set(menuItems.map(item => item.category))];
-    return categories.sort();
+    const existingCategories = [...new Set(menuItems.map(item => item.category))];
+    const allCategories = [...new Set([...DEFAULT_CATEGORIES, ...existingCategories])];
+    return allCategories.sort();
   }
 
   static async update(id, data) {
@@ -133,6 +159,25 @@ class MenuItem {
     await deleteDoc(doc(db, COLLECTION_NAME, id));
     return { success: true };
   }
+
+  static async deleteCategory(restaurantId, category) {
+    const items = await this.getByRestaurant(restaurantId);
+    const toUpdate = items.filter(i => i.category === category);
+    for (const item of toUpdate) {
+      await this.update(item.id, { category: 'General' });
+    }
+    return { renamed: toUpdate.length };
+  }
+
+  static async renameCategory(restaurantId, oldName, newName) {
+    const items = await this.getByRestaurant(restaurantId);
+    const toUpdate = items.filter(i => i.category === oldName);
+    for (const item of toUpdate) {
+      await this.update(item.id, { category: newName });
+    }
+    return { renamed: toUpdate.length };
+  }
 }
 
 module.exports = MenuItem;
+module.exports.DEFAULT_CATEGORIES = DEFAULT_CATEGORIES;
