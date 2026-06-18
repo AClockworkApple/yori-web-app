@@ -18,6 +18,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import OrdersPage from './pages/OrdersPage';
 import UsersPage from './pages/UsersPage';
 import RestaurantHoursPage from './pages/RestaurantHoursPage';
+import ReceiptPage from './pages/ReceiptPage';
 import LoginPage from './pages/LoginPage';
 
 function ProtectedRoute({ children }) {
@@ -71,6 +72,7 @@ function AppRoutes() {
                           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
                           <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
                           <Route path="/restaurant-hours" element={<ProtectedRoute><RestaurantHoursPage /></ProtectedRoute>} />
+                          <Route path="/receipts/:orderId" element={<ProtectedRoute><ReceiptPage /></ProtectedRoute>} />
                         </Routes>
                       </Router>
                     </RestaurantHourProvider>

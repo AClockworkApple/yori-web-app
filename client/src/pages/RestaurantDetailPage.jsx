@@ -18,9 +18,12 @@ export default function RestaurantDetailPage() {
       setFormData({
         name: restaurant.name,
         address: restaurant.address || '',
+        phone: restaurant.phone || '',
+        taxNumber: restaurant.taxNumber || '',
         mode: restaurant.mode || 'SEMI_AUTO',
         slotDurationMinutes: restaurant.slotDurationMinutes || 120,
         bufferMinutes: restaurant.bufferMinutes || 30,
+        overbookingPercentage: restaurant.overbookingPercentage || 30,
         taxRate: restaurant.taxRate || 0,
         serviceFeeRate: restaurant.serviceFeeRate || 0,
         maxExtensionMinutes: restaurant.maxExtensionMinutes || 60,
@@ -38,6 +41,30 @@ export default function RestaurantDetailPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
+      if (formData.slotDurationMinutes < 15 || formData.slotDurationMinutes > 480) {
+        return alert('Slot duration must be between 15 and 480 minutes.');
+      }
+      if (formData.bufferMinutes < 0 || formData.bufferMinutes > 240) {
+        return alert('Buffer must be between 0 and 240 minutes.');
+      }
+      if (formData.maxExtensionMinutes < 0 || formData.maxExtensionMinutes > 480) {
+        return alert('Max extension must be between 0 and 480 minutes.');
+      }
+      if (formData.warningBeforeMinutes < 0 || formData.warningBeforeMinutes > 120) {
+        return alert('Warning before must be between 0 and 120 minutes.');
+      }
+      if (formData.taxRate < 0 || formData.taxRate > 100) {
+        return alert('Tax rate must be between 0 and 100%.');
+      }
+      if (formData.serviceFeeRate < 0 || formData.serviceFeeRate > 100) {
+        return alert('Service fee must be between 0 and 100%.');
+      }
+      if (formData.dataRetentionDays < 1 || formData.dataRetentionDays > 365) {
+        return alert('Data retention must be between 1 and 365 days.');
+      }
+      if (formData.overbookingPercentage < 0 || formData.overbookingPercentage > 200) {
+        return alert('Overbooking percentage must be between 0 and 200%.');
+      }
       await updateRestaurant(id, formData);
       setEditing(false);
     } catch (err) {
@@ -67,11 +94,14 @@ export default function RestaurantDetailPage() {
 
   const infoRows = [
     { label: 'Address', value: restaurant.address || '-' },
+    { label: 'Phone', value: restaurant.phone || '-' },
+    { label: 'Tax Number', value: restaurant.taxNumber || '-' },
     { label: 'Mode', value: restaurant.mode },
     { label: 'Slot Duration', value: `${restaurant.slotDurationMinutes} min` },
     { label: 'Buffer', value: `${restaurant.bufferMinutes} min` },
     { label: 'Max Extension', value: `${restaurant.maxExtensionMinutes} min` },
     { label: 'Warning Before', value: `${restaurant.warningBeforeMinutes} min` },
+    { label: 'Overbooking', value: `${restaurant.overbookingPercentage || 30}%` },
     { label: 'Tax Rate', value: `${restaurant.taxRate}%` },
     { label: 'Service Fee', value: `${restaurant.serviceFeeRate}%` },
     { label: 'Data Retention', value: `${restaurant.dataRetentionDays} days` },
@@ -103,21 +133,82 @@ export default function RestaurantDetailPage() {
         <form onSubmit={handleSave} style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px', marginTop: '20px' }}>
           <h3>Edit Restaurant</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            {Object.entries(formData).map(([key, val]) => (
-              <div key={key}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px' }}>
-                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
-                </label>
-                <input
-                  type={typeof val === 'number' ? 'number' : 'text'}
-                  name={key}
-                  value={val}
-                  onChange={handleInputChange}
-                  step={typeof val === 'number' ? '0.01' : undefined}
-                  style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-              </div>
-            ))}
+            <div>
+              <label>Name *</label>
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Address</label>
+              <input type="text" name="address" value={formData.address} onChange={handleInputChange}
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Phone</label>
+              <input type="text" name="phone" value={formData.phone} onChange={handleInputChange}
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Tax Number (Steuernummer)</label>
+              <input type="text" name="taxNumber" value={formData.taxNumber} onChange={handleInputChange}
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Mode</label>
+              <select name="mode" value={formData.mode} onChange={handleInputChange}
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
+                <option value="SEMI_AUTO">Semi-Auto</option>
+                <option value="FULL_AUTO">Full Auto</option>
+              </select>
+            </div>
+            <div>
+              <label>Slot Duration (min)</label>
+              <input type="number" name="slotDurationMinutes" value={formData.slotDurationMinutes}
+                onChange={handleInputChange} min="15" max="480"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Buffer (min)</label>
+              <input type="number" name="bufferMinutes" value={formData.bufferMinutes}
+                onChange={handleInputChange} min="0" max="240"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Max Extension (min)</label>
+              <input type="number" name="maxExtensionMinutes" value={formData.maxExtensionMinutes}
+                onChange={handleInputChange} min="0" max="480"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Warning Before (min)</label>
+              <input type="number" name="warningBeforeMinutes" value={formData.warningBeforeMinutes}
+                onChange={handleInputChange} min="0" max="120"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Overbooking (%)</label>
+              <input type="number" name="overbookingPercentage" value={formData.overbookingPercentage}
+                onChange={handleInputChange} min="0" max="200"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Tax Rate (%)</label>
+              <input type="number" name="taxRate" value={formData.taxRate}
+                onChange={handleInputChange} min="0" max="100" step="0.01"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Service Fee (%)</label>
+              <input type="number" name="serviceFeeRate" value={formData.serviceFeeRate}
+                onChange={handleInputChange} min="0" max="100" step="0.01"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Data Retention (days)</label>
+              <input type="number" name="dataRetentionDays" value={formData.dataRetentionDays}
+                onChange={handleInputChange} min="1" max="365"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
           </div>
           <button type="submit" disabled={loading} style={{ marginTop: '20px', padding: '10px 30px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
             {loading ? 'Saving...' : 'Save'}

@@ -346,7 +346,8 @@ export default function OrdersPage() {
                     <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.tip)}</td>
                     <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}><strong>{formatCurrency(order.total)}</strong></td>
                     <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                      <button onClick={() => handleDeleteOrder(order.id)} style={{ color: 'red' }}>Delete</button>
+                      <button onClick={() => handleDeleteOrder(order.id)} style={{ color: 'red', marginRight: '8px' }}>Delete</button>
+                      <a href={`/receipts/${order.id}`} style={{ color: '#007bff' }}>Receipt</a>
                     </td>
                   </tr>
                 ))}

@@ -1,10 +1,124 @@
 const Booking = require('../models/Booking');
 const BookingTable = require('../models/BookingTable');
+const Restaurant = require('../models/Restaurant');
+const RestaurantHour = require('../models/RestaurantHour');
+const Table = require('../models/Table');
+
+function doTimeRangesOverlap(startA, endA, startB, endB) {
+  return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
+}
+
+async function validateBookingTime(scheduledStart, restaurantId) {
+  const restaurant = await Restaurant.getById(restaurantId);
+  if (!restaurant) {
+    return { error: 'Restaurant not found' };
+  }
+
+  const startDate = new Date(scheduledStart);
+  const dayOfWeek = startDate.getDay();
+  const hours = await RestaurantHour.getByRestaurantAndDay(restaurantId, dayOfWeek);
+
+  const toTimeStr = (d) =>
+    `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+  if (hours) {
+    const startTimeStr = toTimeStr(startDate);
+
+    if (startTimeStr < hours.openTime || startTimeStr >= hours.closeTime) {
+      return { error: `Restaurant is closed at ${startTimeStr}. Operating hours: ${hours.openTime} - ${hours.closeTime}` };
+    }
+
+    if (hours.breakStart && hours.breakEnd) {
+      if (startTimeStr >= hours.breakStart && startTimeStr < hours.breakEnd) {
+        return { error: `Cannot book during break time (${hours.breakStart} - ${hours.breakEnd})` };
+      }
+    }
+  }
+
+  const slotDuration = restaurant.slotDurationMinutes || 120;
+  const endDate = new Date(startDate.getTime() + slotDuration * 60000);
+  const scheduledEnd = endDate.toISOString();
+
+  if (hours) {
+    const endTimeStr = toTimeStr(endDate);
+
+    if (endTimeStr > hours.closeTime) {
+      return { error: `Booking end time (${endTimeStr}) exceeds closing time (${hours.closeTime})` };
+    }
+
+    if (hours.breakStart && hours.breakEnd) {
+      if (endTimeStr > hours.breakStart && endTimeStr <= hours.breakEnd) {
+        return { error: `Booking end time (${endTimeStr}) falls within break time (${hours.breakStart} - ${hours.breakEnd})` };
+      }
+    }
+  }
+
+  return { scheduledEnd };
+}
 
 const bookingController = {
   async create(req, res) {
     try {
-      const booking = await Booking.create(req.body);
+      const { scheduledStart, restaurantId, customerEmail, partySize } = req.body;
+
+      if (!scheduledStart) {
+        return res.status(400).json({ error: 'scheduledStart is required' });
+      }
+
+      if (!customerEmail) {
+        return res.status(400).json({ error: 'customerEmail is required' });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customerEmail)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      const result = await validateBookingTime(scheduledStart, restaurantId);
+      if (result.error) {
+        return res.status(400).json({ error: result.error });
+      }
+
+      const scheduledEnd = result.scheduledEnd;
+
+      const restaurant = await Restaurant.getById(restaurantId);
+
+      const tables = await Table.getByRestaurant(restaurantId);
+      const totalCapacity = tables.reduce((sum, t) => sum + (t.seats || 2), 0);
+
+      const allBookings = await Booking.getByRestaurant(restaurantId);
+      const overlapping = allBookings.filter(b => {
+        if (b.status === 'CANCELLED' || b.status === 'NO_SHOW') return false;
+        return doTimeRangesOverlap(b.scheduledStart, b.scheduledEnd, scheduledStart, scheduledEnd);
+      });
+
+      const activeSeats = overlapping
+        .filter(b => b.status !== 'WAITLISTED')
+        .reduce((sum, b) => sum + (b.partySize || 0), 0);
+
+      const waitlistedSeats = overlapping
+        .filter(b => b.status === 'WAITLISTED')
+        .reduce((sum, b) => sum + (b.partySize || 0), 0);
+
+      const isOverbooked = activeSeats + (partySize || 0) > totalCapacity;
+      const overbookingLimit = Math.round(totalCapacity * (restaurant.overbookingPercentage || 30) / 100);
+
+      if (isOverbooked && waitlistedSeats + (partySize || 0) > overbookingLimit) {
+        if (!req.body.confirmedOverbook) {
+          return res.json({
+            requiresConfirmation: true,
+            message: `This time slot already exceeds the overbooking limit (${overbookingLimit} waitlisted seats on ${totalCapacity} total capacity). Confirm to proceed as waitlisted.`,
+            details: { totalCapacity, activeSeats, waitlistedSeats, partySize, overbookingLimit }
+          });
+        }
+      }
+
+      const booking = await Booking.create({
+        ...req.body,
+        scheduledEnd,
+        isOverbooked: isOverbooked || false,
+        status: isOverbooked ? 'WAITLISTED' : (req.body.status || 'PENDING')
+      });
       res.status(201).json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -73,6 +187,30 @@ const bookingController = {
 
   async update(req, res) {
     try {
+      const { scheduledStart, customerEmail } = req.body;
+
+      if (customerEmail !== undefined) {
+        if (!customerEmail) {
+          return res.status(400).json({ error: 'customerEmail is required' });
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(customerEmail)) {
+          return res.status(400).json({ error: 'Invalid email format' });
+        }
+      }
+
+      if (scheduledStart) {
+        const existing = await Booking.getById(req.params.id);
+        if (!existing) {
+          return res.status(404).json({ error: 'Booking not found' });
+        }
+        const result = await validateBookingTime(scheduledStart, existing.restaurantId);
+        if (result.error) {
+          return res.status(400).json({ error: result.error });
+        }
+        req.body.scheduledEnd = result.scheduledEnd;
+      }
+
       const booking = await Booking.update(req.params.id, req.body);
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });

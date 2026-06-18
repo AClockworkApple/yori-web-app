@@ -8,6 +8,8 @@ class Restaurant {
     const restaurantData = {
       name: data.name,
       address: data.address || '',
+      phone: data.phone || '',
+      taxNumber: data.taxNumber || '',
       mode: data.mode || 'SEMI_AUTO',
       maxExtensionMinutes: data.maxExtensionMinutes || 60,
       warningBeforeMinutes: data.warningBeforeMinutes || 15,
@@ -15,6 +17,7 @@ class Restaurant {
       bufferMinutes: data.bufferMinutes || 30,
       taxRate: data.taxRate || 0,
       serviceFeeRate: data.serviceFeeRate || 0,
+      overbookingPercentage: data.overbookingPercentage || 30,
       dataRetentionDays: data.dataRetentionDays || 30,
       ownerId: data.ownerId,
       managerId: data.managerId || null,

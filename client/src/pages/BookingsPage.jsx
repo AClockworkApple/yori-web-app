@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useBookings } from '../context/BookingContext';
 import { useTables } from '../context/TableContext';
 import { useRestaurants } from '../context/RestaurantContext';
+import { bookingService } from '../services/bookingService';
 
 export default function BookingsPage() {
   const { bookings, loading, error, fetchBookingsByRestaurant, createBooking, updateBooking, seatCustomer, completeBooking, deleteBooking, removeBookingTable, addBookingTable } = useBookings();
@@ -18,8 +19,6 @@ export default function BookingsPage() {
     customerEmail: '',
     partySize: 2,
     scheduledStart: '',
-    scheduledEnd: '',
-    isOverbooked: false,
   });
 
   useEffect(() => {
@@ -30,12 +29,8 @@ export default function BookingsPage() {
   }, [selectedRestaurantId]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (type === 'checkbox' && name === 'isOverbooked') {
-      setFormData({ ...formData, isOverbooked: checked });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleTableToggle = (tableId) => {
@@ -47,17 +42,33 @@ export default function BookingsPage() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e, confirmedOverbook = false) => {
+    if (e) e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.customerEmail)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
     try {
       const payload = { ...formData, restaurantId: selectedRestaurantId };
+      if (confirmedOverbook) {
+        payload.confirmedOverbook = true;
+      }
       if (editingId) {
         const { tableIds, ...bookingData } = payload;
         await updateBooking(editingId, bookingData);
+        resetForm();
       } else {
-        await createBooking(payload);
+        const result = await bookingService.create(payload);
+        if (result.requiresConfirmation) {
+          if (confirm(result.message)) {
+            return handleSubmit(null, true);
+          }
+          return;
+        }
+        fetchBookingsByRestaurant(selectedRestaurantId);
+        resetForm();
       }
-      resetForm();
     } catch (err) {
       alert('Error: ' + err.message);
     }
@@ -71,8 +82,6 @@ export default function BookingsPage() {
       customerEmail: booking.customerEmail,
       partySize: booking.partySize,
       scheduledStart: booking.scheduledStart,
-      scheduledEnd: booking.scheduledEnd,
-      isOverbooked: booking.isOverbooked,
     });
     setEditingId(booking.id);
     setShowForm(true);
@@ -145,8 +154,6 @@ export default function BookingsPage() {
       customerEmail: '',
       partySize: 2,
       scheduledStart: '',
-      scheduledEnd: '',
-      isOverbooked: false,
     });
   };
 
@@ -223,9 +230,9 @@ export default function BookingsPage() {
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Phone *</label>
+              <label>Phone</label>
               <input type="tel" name="customerPhone" value={formData.customerPhone}
-                onChange={handleInputChange} required
+                onChange={handleInputChange}
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
@@ -239,17 +246,6 @@ export default function BookingsPage() {
               <input type="datetime-local" name="scheduledStart" value={formData.scheduledStart}
                 onChange={handleInputChange} required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
-            </div>
-            <div>
-              <label>Scheduled End *</label>
-              <input type="datetime-local" name="scheduledEnd" value={formData.scheduledEnd}
-                onChange={handleInputChange} required
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: '25px' }}>
-              <input type="checkbox" name="isOverbooked" checked={formData.isOverbooked}
-                onChange={handleInputChange} style={{ marginRight: '10px' }} />
-              <label>Waitlisted (Overbooked)</label>
             </div>
           </div>
 
