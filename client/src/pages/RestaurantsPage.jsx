@@ -13,6 +13,7 @@ export default function RestaurantsPage() {
     warningBeforeMinutes: 15,
     slotDurationMinutes: 120,
     bufferMinutes: 30,
+    overbookingPercentage: 30,
     taxRate: 0,
     serviceFeeRate: 0,
     dataRetentionDays: 30,
@@ -50,6 +51,7 @@ export default function RestaurantsPage() {
       warningBeforeMinutes: 15,
       slotDurationMinutes: 120,
       bufferMinutes: 30,
+      overbookingPercentage: 30,
       taxRate: 0,
       serviceFeeRate: 0,
       dataRetentionDays: 30,
@@ -119,6 +121,7 @@ export default function RestaurantsPage() {
                 name="slotDurationMinutes"
                 value={formData.slotDurationMinutes}
                 onChange={handleInputChange}
+                min="15" max="480"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               />
             </div>
@@ -130,6 +133,7 @@ export default function RestaurantsPage() {
                 name="bufferMinutes"
                 value={formData.bufferMinutes}
                 onChange={handleInputChange}
+                min="0" max="240"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               />
             </div>
@@ -141,6 +145,7 @@ export default function RestaurantsPage() {
                 name="maxExtensionMinutes"
                 value={formData.maxExtensionMinutes}
                 onChange={handleInputChange}
+                min="0" max="480"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               />
             </div>
@@ -152,6 +157,19 @@ export default function RestaurantsPage() {
                 name="warningBeforeMinutes"
                 value={formData.warningBeforeMinutes}
                 onChange={handleInputChange}
+                min="0" max="120"
+                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+              />
+            </div>
+
+            <div>
+              <label>Overbooking (%)</label>
+              <input
+                type="number"
+                name="overbookingPercentage"
+                value={formData.overbookingPercentage}
+                onChange={handleInputChange}
+                min="0" max="200"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               />
             </div>
@@ -163,7 +181,7 @@ export default function RestaurantsPage() {
                 name="taxRate"
                 value={formData.taxRate}
                 onChange={handleInputChange}
-                step="0.01"
+                min="0" max="100" step="0.01"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               />
             </div>
@@ -175,7 +193,7 @@ export default function RestaurantsPage() {
                 name="serviceFeeRate"
                 value={formData.serviceFeeRate}
                 onChange={handleInputChange}
-                step="0.01"
+                min="0" max="100" step="0.01"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               />
             </div>
@@ -187,6 +205,7 @@ export default function RestaurantsPage() {
                 name="dataRetentionDays"
                 value={formData.dataRetentionDays}
                 onChange={handleInputChange}
+                min="1" max="365"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               />
             </div>
@@ -221,6 +240,12 @@ export default function RestaurantsPage() {
             }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', minWidth: '180px' }}>{restaurant.name}</div>
               <div style={{ fontSize: '13px', color: '#666', flex: 1 }}>{restaurant.address || '-'}</div>
+              <span style={{
+                padding: '4px 10px', borderRadius: '4px', fontSize: '12px',
+                backgroundColor: '#6f42c1', color: 'white', fontWeight: 'bold', marginRight: '6px'
+              }}>
+                {restaurant.overbookingPercentage || 30}% OB
+              </span>
               <span style={{
                 padding: '4px 10px', borderRadius: '4px', fontSize: '12px',
                 backgroundColor: restaurant.mode === 'FULL_AUTO' ? '#28a745' : '#ffc107',

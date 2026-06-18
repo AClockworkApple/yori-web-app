@@ -10,7 +10,7 @@ export default function MenuItemsPage() {
     menuItems, generalMenuItems, categories, loading, error,
     fetchGeneralMenu, fetchMenuItemsByRestaurant,
     fetchCategories, importGeneralMenu, createMenuItem,
-    updateMenuItem, toggleMenuItemAvailability, deleteMenuItem, deleteCategory
+    updateMenuItem, toggleMenuItemAvailability, deleteMenuItem
   } = useMenuItems();
   const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
 
@@ -164,28 +164,6 @@ export default function MenuItemsPage() {
           <button onClick={() => setFilterCategory('')} style={{ padding: '8px' }}>
             Clear Filter
           </button>
-        )}
-
-        {selectedRestaurantId && (
-          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-            {allCategories.map(cat => (
-              <span key={cat} style={{
-                display: 'inline-flex', alignItems: 'center', gap: '4px',
-                padding: '2px 8px', backgroundColor: '#f8d7da', borderRadius: '4px', fontSize: '12px'
-              }}>
-                {cat}
-                <button onClick={async () => {
-                  if (confirm(`Delete category "${cat}"? Items will be moved to "General".`)) {
-                    try {
-                      await deleteCategory(selectedRestaurantId, cat);
-                    } catch (err) {
-                      alert('Error: ' + err.message);
-                    }
-                  }
-                }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc3545', padding: '0', fontSize: '14px', lineHeight: '1' }} title="Delete category">&times;</button>
-              </span>
-            ))}
-          </div>
         )}
 
         <span style={{ fontSize: '13px', color: '#666' }}>
