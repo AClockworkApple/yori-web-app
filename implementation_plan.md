@@ -43,6 +43,7 @@
 | Automatic email reminders | ✅ | nodemailer + SMTP (Gmail App Password), cron every 15 min, confirmation/reminder/status/cancellation emails |
 | Internal announcements | ✅ | Announcement model/controller/routes, AnnouncementsPage, live banner in AppNav, auto-refresh every 30s |
 | Real-time table status board | ✅ | TableStatusBoard — visual grid, color-coded by status, polling every 5s, click to change status |
+| Daily summary report | ✅ | Server endpoint + DailyReportPage with revenue, covers, tips, payment breakdown, averages |
 
 ### Infrastructure
 
@@ -52,7 +53,7 @@
 | Firebase Firestore connection | ✅ | Real project `yori-web-app` |
 | React 18 + Vite + Router | ✅ | Port 3000, proxy to backend |
 | 9 Context providers | ✅ | Restaurant, Table, Booking, MenuItem, Order, User, Auth, RestaurantHour, Announcement |
-| 11 Service modules | ✅ | Full HTTP wrappers incl. receipt, restaurantHour, announcement |
+| 12 Service modules | ✅ | Full HTTP wrappers incl. receipt, restaurantHour, announcement, report |
 | nodemailer + node-cron | ✅ | SMTP email (Gmail App Password), cron reminders every 15 min |
 | SearchBar component + hybridSearch | ✅ | Reusable debounced search with 3 auto-scaling algorithms |
 | Self-contained JWT auth | ✅ | `jsonwebtoken` + `crypto.scryptSync`, no Firebase Auth dependency |
@@ -67,30 +68,29 @@
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
 | 1 | **Customer-facing booking** | Large | Public booking page, cancel/rebook flow |
-| 2 | **Daily summary report** | Medium | Covers, revenue, tips |
-| 3 | **GDPR compliance** | Medium | Data minimization, right to erasure |
+| 2 | **GDPR compliance** | Medium | Data minimization, right to erasure |
 
 ### Should Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 4 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
-| 5 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
-| 6 | **Audit logs** | Medium | Immutable action logs |
-| 7 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
-| 8 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
+| 3 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
+| 4 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
+| 5 | **Audit logs** | Medium | Immutable action logs |
+| 6 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
+| 7 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
 
 ### Could Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 9 | **Google Sheets integration** | Medium | Export financial data |
-| 10 | **Automatic tax calculation** | Medium | Requires expense input |
-| 11 | **Manual tax rate reconfiguration** | Small | Emergency override |
-| 12 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
-| 13 | **Inventory management** | Large | Stock tracking |
-| 14 | **Predictive analytics** | Large | Busy period forecasting |
-| 15 | **Offline mode** | Large | WiFi reliability |
+| 8 | **Google Sheets integration** | Medium | Export financial data |
+| 9 | **Automatic tax calculation** | Medium | Requires expense input |
+| 10 | **Manual tax rate reconfiguration** | Small | Emergency override |
+| 11 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
+| 12 | **Inventory management** | Large | Stock tracking |
+| 13 | **Predictive analytics** | Large | Busy period forecasting |
+| 14 | **Offline mode** | Large | WiFi reliability |
 
 ### Won't Have (by design)
 

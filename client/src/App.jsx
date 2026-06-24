@@ -23,6 +23,7 @@ import ReceiptPage from './pages/ReceiptPage';
 import LoginPage from './pages/LoginPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import TableStatusBoard from './pages/TableStatusBoard';
+import DailyReportPage from './pages/DailyReportPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -75,6 +76,7 @@ function AppNav() {
         <a href="/" style={{ marginRight: '20px' }}>Restaurants</a>
         <a href="/menu-items" style={{ marginRight: '20px' }}>Menu Items</a>
         <a href="/table-status" style={{ marginRight: '20px' }}>Table Status</a>
+        <a href="/daily-report" style={{ marginRight: '20px' }}>Daily Report</a>
         {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
         {hasRole('OWNER', 'MANAGER') && <a href="/announcements" style={{ marginRight: '20px' }}>Announcements</a>}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -111,6 +113,7 @@ function AppRoutes() {
                         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
                         <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
                         <Route path="/announcements" element={<ProtectedRoute><AnnouncementsPage /></ProtectedRoute>} />
+                        <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
                         <Route path="/restaurant-hours" element={<ProtectedRoute><RestaurantHoursPage /></ProtectedRoute>} />
                         <Route path="/receipts/:orderId" element={<ProtectedRoute><ReceiptPage /></ProtectedRoute>} />
                       </Routes>

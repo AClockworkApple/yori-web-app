@@ -15,6 +15,7 @@ const authRoutes = require('./routes/authRoutes');
 const receiptRoutes = require('./routes/receiptRoutes');
 const restaurantHourRoutes = require('./routes/restaurantHourRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const { startReminderScheduler } = require('./utils/bookingReminderScheduler');
 
 const app = express();
@@ -66,6 +67,7 @@ app.use('/api/users', ...authenticatedApi, userRoutes);
 app.use('/api/receipts', ...authenticatedApi, receiptRoutes);
 app.use('/api/restaurant-hours', ...authenticatedApi, restaurantHourRoutes);
 app.use('/api/announcements', ...authenticatedApi, announcementRoutes);
+app.use('/api/reports', ...authenticatedApi, reportRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Yori Web App API is running' });
