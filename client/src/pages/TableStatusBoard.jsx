@@ -1,0 +1,159 @@
+import { useState, useEffect, useCallback } from 'react';
+import { tableService } from '../services/tableService';
+import { useRestaurants } from '../context/RestaurantContext';
+import { useAuth } from '../context/AuthContext';
+
+const STATUS_COLORS = {
+  AVAILABLE: '#28a745',
+  OCCUPIED: '#dc3545',
+  CLEANING: '#ffc107',
+  MAINTENANCE: '#6c757d',
+};
+
+const STATUS_LABELS = {
+  AVAILABLE: 'Free',
+  OCCUPIED: 'Occupied',
+  CLEANING: 'Cleaning',
+  MAINTENANCE: 'Maintenance',
+};
+
+const NEXT_STATUSES = {
+  AVAILABLE: ['OCCUPIED', 'CLEANING', 'MAINTENANCE'],
+  OCCUPIED: ['CLEANING', 'AVAILABLE', 'MAINTENANCE'],
+  CLEANING: ['AVAILABLE', 'OCCUPIED', 'MAINTENANCE'],
+  MAINTENANCE: ['AVAILABLE', 'OCCUPIED', 'CLEANING'],
+};
+
+const POLL_INTERVAL = 5000;
+
+export default function TableStatusBoard() {
+  const [tables, setTables] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [statusMenu, setStatusMenu] = useState(null);
+  const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
+  const { hasRole } = useAuth();
+
+  const fetchTables = useCallback(async () => {
+    if (!selectedRestaurantId) return;
+    try {
+      const data = await tableService.getByRestaurant(selectedRestaurantId);
+      setTables(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedRestaurantId]);
+
+  useEffect(() => {
+    fetchTables();
+    const interval = setInterval(fetchTables, POLL_INTERVAL);
+    return () => clearInterval(interval);
+  }, [fetchTables]);
+
+  const handleStatusChange = async (tableId, newStatus) => {
+    try {
+      await tableService.updateStatus(tableId, newStatus);
+      setTables(prev => prev.map(t => t.id === tableId ? { ...t, status: newStatus } : t));
+      setStatusMenu(null);
+    } catch (err) {
+      alert('Failed to update status: ' + err.message);
+    }
+  };
+
+  if (!selectedRestaurantId) {
+    return (
+      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <h1>Table Status Board</h1>
+        <p>Select a restaurant from the navigation bar to view the table status board.</p>
+      </div>
+    );
+  }
+
+  const canChangeStatus = hasRole('OWNER', 'MANAGER', 'STAFF');
+
+  return (
+    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 style={{ margin: 0 }}>Table Status — {selectedRestaurant?.name}</h1>
+        <div style={{ display: 'flex', gap: '16px', fontSize: '13px', alignItems: 'center' }}>
+          {Object.entries(STATUS_LABELS).map(([key, label]) => (
+            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ width: '14px', height: '14px', borderRadius: '3px', backgroundColor: STATUS_COLORS[key] }} />
+              <span>{label}</span>
+            </div>
+          ))}
+          {!loading && <span style={{ color: '#999' }}>({tables.length} tables)</span>}
+        </div>
+      </div>
+
+      {error && <p style={{ color: 'red', background: '#fff', padding: '8px', borderRadius: '4px' }}>Error: {error}</p>}
+
+      {loading ? (
+        <p>Loading tables...</p>
+      ) : tables.length === 0 ? (
+        <p>No tables found for this restaurant.</p>
+      ) : (
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: '16px', position: 'relative'
+        }}>
+          {tables.map(table => (
+            <div key={table.id} style={{
+              border: `3px solid ${STATUS_COLORS[table.status] || '#ccc'}`,
+              borderRadius: '12px', padding: '24px 16px',
+              backgroundColor: STATUS_COLORS[table.status] || '#fff',
+              color: table.status === 'CLEANING' ? '#000' : '#fff',
+              textAlign: 'center', position: 'relative',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              cursor: canChangeStatus ? 'pointer' : 'default',
+            }}
+              onClick={() => canChangeStatus && setStatusMenu(statusMenu === table.id ? null : table.id)}
+            >
+              <div style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '4px' }}>
+                {table.name || table.id}
+              </div>
+              <div style={{ fontSize: '16px', opacity: 0.9 }}>
+                {table.seats} {table.seats === 1 ? 'seat' : 'seats'}
+              </div>
+              <div style={{
+                fontSize: '13px', marginTop: '8px', opacity: 0.85,
+                backgroundColor: 'rgba(0,0,0,0.15)', padding: '4px 12px', borderRadius: '20px',
+                display: 'inline-block'
+              }}>
+                {STATUS_LABELS[table.status] || table.status}
+              </div>
+
+              {statusMenu === table.id && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
+                  marginTop: '8px', backgroundColor: '#fff', borderRadius: '8px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 10,
+                  padding: '8px', minWidth: '140px',
+                }} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ fontSize: '12px', color: '#666', marginBottom: '6px', padding: '0 8px' }}>
+                    Change to:
+                  </div>
+                  {(NEXT_STATUSES[table.status] || []).map(newStatus => (
+                    <button key={newStatus} onClick={() => handleStatusChange(table.id, newStatus)}
+                      style={{
+                        display: 'block', width: '100%', padding: '8px 12px', border: 'none',
+                        backgroundColor: STATUS_COLORS[newStatus], color: newStatus === 'CLEANING' ? '#000' : '#fff',
+                        borderRadius: '4px', cursor: 'pointer', marginBottom: '4px',
+                        fontSize: '13px', fontWeight: 'bold', textAlign: 'left'
+                      }}>
+                      {STATUS_LABELS[newStatus]}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
