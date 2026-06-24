@@ -3,6 +3,7 @@ const BookingTable = require('../models/BookingTable');
 const Restaurant = require('../models/Restaurant');
 const RestaurantHour = require('../models/RestaurantHour');
 const Table = require('../models/Table');
+const { sendConfirmation, sendCancellation, sendStatusUpdate } = require('../utils/emailService');
 
 function doTimeRangesOverlap(startA, endA, startB, endB) {
   return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
@@ -119,6 +120,13 @@ const bookingController = {
         isOverbooked: isOverbooked || false,
         status: isOverbooked ? 'WAITLISTED' : (req.body.status || 'PENDING')
       });
+
+      sendConfirmation(booking, restaurant).then(result => {
+        if (result.success) {
+          Booking.update(booking.id, { confirmationEmailSentAt: new Date().toISOString() });
+        }
+      }).catch(err => console.error('[email] Confirmation send error:', err.message));
+
       res.status(201).json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -232,6 +240,17 @@ const bookingController = {
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
+
+      if (status === 'CANCELLED') {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (restaurant) sendCancellation(booking, restaurant);
+        }).catch(() => {});
+      } else if (!['PENDING', 'WAITLISTED'].includes(status)) {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (restaurant) sendStatusUpdate(booking, restaurant);
+        }).catch(() => {});
+      }
+
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -279,8 +298,17 @@ const bookingController = {
 
   async delete(req, res) {
     try {
+      const booking = await Booking.getById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ error: 'Booking not found' });
+      }
       await BookingTable.removeByBooking(req.params.id);
       await Booking.delete(req.params.id);
+
+      Restaurant.getById(booking.restaurantId).then(restaurant => {
+        if (restaurant && booking.customerEmail) sendCancellation(booking, restaurant);
+      }).catch(() => {});
+
       res.json({ message: 'Booking deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
