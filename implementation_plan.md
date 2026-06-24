@@ -40,6 +40,7 @@
 | Category management | ✅ | CategoriesPage, rename/delete, default + custom categories |
 | Search/filter on all list pages | ✅ | SearchBar + hybridSearch on Bookings, MenuItems, Orders, Users |
 | RestaurantHours client | ✅ | Context, service, page (RestaurantHoursPage) |
+| Automatic email reminders | ✅ | nodemailer + SMTP (Gmail App Password), cron every 15 min, confirmation/reminder/status/cancellation emails |
 
 ### Infrastructure
 
@@ -50,6 +51,7 @@
 | React 18 + Vite + Router | ✅ | Port 3000, proxy to backend |
 | 8 Context providers | ✅ | Restaurant, Table, Booking, MenuItem, Order, User, Auth, RestaurantHour |
 | 10 Service modules | ✅ | Full HTTP wrappers incl. receipt, restaurantHour |
+| nodemailer + node-cron | ✅ | SMTP email (Gmail App Password), cron reminders every 15 min |
 | SearchBar component + hybridSearch | ✅ | Reusable debounced search with 3 auto-scaling algorithms |
 | Self-contained JWT auth | ✅ | `jsonwebtoken` + `crypto.scryptSync`, no Firebase Auth dependency |
 | ESLint | ✅ | Both client and server |
@@ -63,11 +65,10 @@
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
 | 1 | **Customer-facing booking** | Large | Public booking page, cancel/rebook flow |
-| 2 | **Automatic email reminders** | Large | Email service (SendGrid?), cron trigger |
-| 3 | **Real-time table status board** | Medium | TV display view, polling/WebSocket |
-| 4 | **Internal announcements** | Medium | Announcement model, broadcast UI |
-| 5 | **Daily summary report** | Medium | Covers, revenue, tips |
-| 6 | **GDPR compliance** | Medium | Data minimization, right to erasure |
+| 2 | **Real-time table status board** | Medium | TV display view, polling/WebSocket |
+| 3 | **Internal announcements** | Medium | Announcement model, broadcast UI |
+| 4 | **Daily summary report** | Medium | Covers, revenue, tips |
+| 5 | **GDPR compliance** | Medium | Data minimization, right to erasure |
 
 ### Should Have
 

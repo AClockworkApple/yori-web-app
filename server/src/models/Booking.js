@@ -22,6 +22,8 @@ class Booking {
       source: rest.source || 'pre-booking',
       isOverbooked: rest.isOverbooked || false,
       employeeId: rest.employeeId || null,
+      confirmationEmailSentAt: null,
+      reminderEmailSentAt: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
