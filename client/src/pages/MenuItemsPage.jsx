@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useMenuItems } from '../context/MenuItemContext';
 import { useRestaurants } from '../context/RestaurantContext';
+import SearchBar from '../components/SearchBar';
 
 const DEFAULT_CATEGORIES = ['General', 'Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Side Dish', 'Soup', 'Salad'];
 
@@ -20,6 +21,8 @@ export default function MenuItemsPage() {
   const [editingId, setEditingId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('');
   const [newCategory, setNewCategory] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
+  const [searchedItems, setSearchedItems] = useState([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -119,6 +122,7 @@ export default function MenuItemsPage() {
   const filteredItems = filterCategory
     ? displayedItems.filter(item => item.category === filterCategory)
     : displayedItems;
+  const displayItems = searchActive ? searchedItems : filteredItems;
 
   return (
     <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
@@ -132,6 +136,17 @@ export default function MenuItemsPage() {
       )}
 
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+
+      <SearchBar
+        items={filteredItems}
+        fields={['name', 'description', 'category', 'itemNumber']}
+        weights={{ name: 3, description: 1, category: 2, itemNumber: 2 }}
+        placeholder="Search by name, category, item number..."
+        onResults={(results, q) => {
+          setSearchedItems(results);
+          setSearchActive(q.length > 0);
+        }}
+      />
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
         <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px' }}>
@@ -250,7 +265,7 @@ export default function MenuItemsPage() {
 
       {loading ? (
         <p>Loading...</p>
-      ) : filteredItems.length === 0 ? (
+      ) : displayItems.length === 0 ? (
         <p>No menu items found.</p>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
@@ -271,7 +286,7 @@ export default function MenuItemsPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredItems.map((item) => (
+            {displayItems.map((item) => (
               <tr key={item.id} style={{ opacity: item.isAvailable ? 1 : 0.5 }}>
                 <td style={{ padding: '12px', border: '1px solid #dee2e6', color: '#666', fontSize: '13px' }}>
                   {item.itemNumber || '-'}

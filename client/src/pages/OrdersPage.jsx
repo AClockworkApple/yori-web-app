@@ -7,6 +7,7 @@ import { useMenuItems } from '../context/MenuItemContext';
 import { useTables } from '../context/TableContext';
 import { useAuth } from '../context/AuthContext';
 import { bookingService } from '../services/bookingService';
+import SearchBar from '../components/SearchBar';
 
 export default function OrdersPage() {
   const { orders, orderItems, error, fetchOrdersByRestaurant, fetchOrder, createOrder, addItem, removeItem, closeOrder, deleteOrder, setCurrentOrder, currentOrder } = useOrders();
@@ -20,6 +21,10 @@ export default function OrdersPage() {
   const [allBookings, setAllBookings] = useState([]);
   const [activeOrderId, setActiveOrderId] = useState(null);
   const [orderQuantities, setOrderQuantities] = useState({});
+  const [searchActiveOpen, setSearchActiveOpen] = useState(false);
+  const [searchedOpenOrders, setSearchedOpenOrders] = useState([]);
+  const [searchActiveClosed, setSearchActiveClosed] = useState(false);
+  const [searchedClosedOrders, setSearchedClosedOrders] = useState([]);
 
   useEffect(() => {
     if (selectedRestaurantId) {
@@ -155,6 +160,8 @@ export default function OrdersPage() {
 
   const openOrders = orders.filter(o => o.status === 'OPEN');
   const closedOrders = orders.filter(o => o.status === 'CLOSED' || o.status === 'SPLIT');
+  const displayOpenOrders = searchActiveOpen ? searchedOpenOrders : openOrders;
+  const displayClosedOrders = searchActiveClosed ? searchedClosedOrders : closedOrders;
   const menuCategories = [...new Set(menuItems.filter(m => m.isAvailable).map(m => m.category))];
 
   return (
@@ -286,11 +293,21 @@ export default function OrdersPage() {
           )}
 
           <h2>Open Orders</h2>
-          {openOrders.length === 0 ? (
+          <SearchBar
+            items={openOrders}
+            fields={['id']}
+            weights={{ id: 1 }}
+            placeholder="Search open orders by ID..."
+            onResults={(results, q) => {
+              setSearchedOpenOrders(results);
+              setSearchActiveOpen(q.length > 0);
+            }}
+          />
+          {displayOpenOrders.length === 0 ? (
             <p>No open orders.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '30px' }}>
-              {openOrders.map(order => {
+              {displayOpenOrders.map(order => {
                 const booking = getBookingForOrder(order);
                 return (
                 <div key={order.id} onClick={() => handleSelectOrder(order)} style={{
@@ -313,7 +330,17 @@ export default function OrdersPage() {
           )}
 
           <h2>Closed Orders</h2>
-          {closedOrders.length === 0 ? (
+          <SearchBar
+            items={closedOrders}
+            fields={['id']}
+            weights={{ id: 1 }}
+            placeholder="Search closed orders by ID..."
+            onResults={(results, q) => {
+              setSearchedClosedOrders(results);
+              setSearchActiveClosed(q.length > 0);
+            }}
+          />
+          {displayClosedOrders.length === 0 ? (
             <p>No closed orders.</p>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -331,7 +358,7 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {closedOrders.map(order => (
+                {displayClosedOrders.map(order => (
                   <tr key={order.id}>
                     <td style={{ padding: '12px', border: '1px solid #dee2e6' }}><strong>{order.id.substring(0, 8)}...</strong></td>
                     <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{formatDateTime(order.createdAt)}</td>
