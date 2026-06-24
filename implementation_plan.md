@@ -41,6 +41,8 @@
 | Search/filter on all list pages | ✅ | SearchBar + hybridSearch on Bookings, MenuItems, Orders, Users |
 | RestaurantHours client | ✅ | Context, service, page (RestaurantHoursPage) |
 | Automatic email reminders | ✅ | nodemailer + SMTP (Gmail App Password), cron every 15 min, confirmation/reminder/status/cancellation emails |
+| Internal announcements | ✅ | Announcement model/controller/routes, AnnouncementsPage, live banner in AppNav, auto-refresh every 30s |
+| Real-time table status board | ✅ | TableStatusBoard — visual grid, color-coded by status, polling every 5s, click to change status |
 
 ### Infrastructure
 
@@ -49,8 +51,8 @@
 | Express server with CORS | ✅ | Port 3001 |
 | Firebase Firestore connection | ✅ | Real project `yori-web-app` |
 | React 18 + Vite + Router | ✅ | Port 3000, proxy to backend |
-| 8 Context providers | ✅ | Restaurant, Table, Booking, MenuItem, Order, User, Auth, RestaurantHour |
-| 10 Service modules | ✅ | Full HTTP wrappers incl. receipt, restaurantHour |
+| 9 Context providers | ✅ | Restaurant, Table, Booking, MenuItem, Order, User, Auth, RestaurantHour, Announcement |
+| 11 Service modules | ✅ | Full HTTP wrappers incl. receipt, restaurantHour, announcement |
 | nodemailer + node-cron | ✅ | SMTP email (Gmail App Password), cron reminders every 15 min |
 | SearchBar component + hybridSearch | ✅ | Reusable debounced search with 3 auto-scaling algorithms |
 | Self-contained JWT auth | ✅ | `jsonwebtoken` + `crypto.scryptSync`, no Firebase Auth dependency |
@@ -65,32 +67,30 @@
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
 | 1 | **Customer-facing booking** | Large | Public booking page, cancel/rebook flow |
-| 2 | **Real-time table status board** | Medium | TV display view, polling/WebSocket |
-| 3 | **Internal announcements** | Medium | Announcement model, broadcast UI |
-| 4 | **Daily summary report** | Medium | Covers, revenue, tips |
-| 5 | **GDPR compliance** | Medium | Data minimization, right to erasure |
+| 2 | **Daily summary report** | Medium | Covers, revenue, tips |
+| 3 | **GDPR compliance** | Medium | Data minimization, right to erasure |
 
 ### Should Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 7 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
-| 8 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
-| 9 | **Audit logs** | Medium | Immutable action logs |
-| 10 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
-| 11 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
+| 4 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
+| 5 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
+| 6 | **Audit logs** | Medium | Immutable action logs |
+| 7 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
+| 8 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
 
 ### Could Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 12 | **Google Sheets integration** | Medium | Export financial data |
-| 13 | **Automatic tax calculation** | Medium | Requires expense input |
-| 14 | **Manual tax rate reconfiguration** | Small | Emergency override |
-| 15 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
-| 16 | **Inventory management** | Large | Stock tracking |
-| 17 | **Predictive analytics** | Large | Busy period forecasting |
-| 18 | **Offline mode** | Large | WiFi reliability |
+| 9 | **Google Sheets integration** | Medium | Export financial data |
+| 10 | **Automatic tax calculation** | Medium | Requires expense input |
+| 11 | **Manual tax rate reconfiguration** | Small | Emergency override |
+| 12 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
+| 13 | **Inventory management** | Large | Stock tracking |
+| 14 | **Predictive analytics** | Large | Busy period forecasting |
+| 15 | **Offline mode** | Large | WiFi reliability |
 
 ### Won't Have (by design)
 
