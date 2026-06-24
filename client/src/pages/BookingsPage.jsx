@@ -4,6 +4,7 @@ import { useBookings } from '../context/BookingContext';
 import { useTables } from '../context/TableContext';
 import { useRestaurants } from '../context/RestaurantContext';
 import { bookingService } from '../services/bookingService';
+import SearchBar from '../components/SearchBar';
 
 export default function BookingsPage() {
   const { bookings, loading, error, fetchBookingsByRestaurant, createBooking, updateBooking, seatCustomer, completeBooking, deleteBooking, removeBookingTable, addBookingTable } = useBookings();
@@ -12,6 +13,8 @@ export default function BookingsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [filterDate, setFilterDate] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
+  const [searchedBookings, setSearchedBookings] = useState([]);
   const [formData, setFormData] = useState({
     tableIds: [],
     customerName: '',
@@ -183,6 +186,8 @@ export default function BookingsPage() {
       })
     : bookings;
 
+  const displayBookings = searchActive ? searchedBookings : filteredBookings;
+
   if (!selectedRestaurantId) {
     return (
       <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
@@ -198,6 +203,17 @@ export default function BookingsPage() {
       <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+
+      <SearchBar
+        items={filteredBookings}
+        fields={['customerName', 'customerPhone', 'customerEmail', 'id']}
+        weights={{ customerName: 3, customerPhone: 2, customerEmail: 1, id: 1 }}
+        placeholder="Search by name, phone, email..."
+        onResults={(results, q) => {
+          setSearchedBookings(results);
+          setSearchActive(q.length > 0);
+        }}
+      />
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
         <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px' }}>
@@ -282,7 +298,7 @@ export default function BookingsPage() {
 
       {loading ? (
         <p>Loading...</p>
-      ) : filteredBookings.length === 0 ? (
+      ) : displayBookings.length === 0 ? (
         <p>No bookings found.</p>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
@@ -297,7 +313,7 @@ export default function BookingsPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredBookings.map((booking) => (
+            {displayBookings.map((booking) => (
               <tr key={booking.id}>
                 <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
                   <div><strong>{booking.customerName}</strong></div>

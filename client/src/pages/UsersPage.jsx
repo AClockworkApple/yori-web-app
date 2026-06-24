@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useUsers } from '../context/UserContext';
 import { useRestaurants } from '../context/RestaurantContext';
 import { useAuth } from '../context/AuthContext';
+import SearchBar from '../components/SearchBar';
 
 const CREATE_ROLE_OPTIONS = ['MANAGER', 'STAFF'];
 const FILTER_ROLE_OPTIONS = ['OWNER', 'MANAGER', 'STAFF', 'CUSTOMER'];
@@ -13,6 +14,8 @@ export default function UsersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [filterRole, setFilterRole] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
+  const [searchedUsers, setSearchedUsers] = useState([]);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -105,11 +108,24 @@ export default function UsersPage() {
     return colors[role] || '#6c757d';
   };
 
+  const displayUsers = searchActive ? searchedUsers : users;
+
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>User Management</h1>
 
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+
+      <SearchBar
+        items={users}
+        fields={['name', 'email', 'role']}
+        weights={{ name: 3, email: 2, role: 1 }}
+        placeholder="Search by name, email, role..."
+        onResults={(results, q) => {
+          setSearchedUsers(results);
+          setSearchActive(q.length > 0);
+        }}
+      />
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
         {hasRole('OWNER') && (
@@ -225,7 +241,7 @@ export default function UsersPage() {
 
       {loading ? (
         <p>Loading...</p>
-      ) : users.length === 0 ? (
+      ) : displayUsers.length === 0 ? (
         <p>No users found.</p>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
@@ -239,7 +255,7 @@ export default function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {displayUsers.map((user) => (
               <tr key={user.id}>
                 <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
                   <strong>{user.name}</strong>
