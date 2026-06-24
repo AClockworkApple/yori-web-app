@@ -24,6 +24,7 @@ import LoginPage from './pages/LoginPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import TableStatusBoard from './pages/TableStatusBoard';
 import DailyReportPage from './pages/DailyReportPage';
+import GdprPage from './pages/GdprPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -79,6 +80,7 @@ function AppNav() {
         <a href="/daily-report" style={{ marginRight: '20px' }}>Daily Report</a>
         {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
         {hasRole('OWNER', 'MANAGER') && <a href="/announcements" style={{ marginRight: '20px' }}>Announcements</a>}
+        {hasRole('OWNER', 'MANAGER') && <a href="/gdpr" style={{ marginRight: '20px' }}>GDPR</a>}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '13px', color: '#666' }}>{user?.name} ({user?.role})</span>
           <button onClick={logout} style={{ padding: '4px 12px', cursor: 'pointer', fontSize: '13px' }}>Logout</button>
@@ -114,6 +116,7 @@ function AppRoutes() {
                         <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
                         <Route path="/announcements" element={<ProtectedRoute><AnnouncementsPage /></ProtectedRoute>} />
                         <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
+                        <Route path="/gdpr" element={<ProtectedRoute><GdprPage /></ProtectedRoute>} />
                         <Route path="/restaurant-hours" element={<ProtectedRoute><RestaurantHoursPage /></ProtectedRoute>} />
                         <Route path="/receipts/:orderId" element={<ProtectedRoute><ReceiptPage /></ProtectedRoute>} />
                       </Routes>
