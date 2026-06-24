@@ -16,7 +16,9 @@ const receiptRoutes = require('./routes/receiptRoutes');
 const restaurantHourRoutes = require('./routes/restaurantHourRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const gdprRoutes = require('./routes/gdprRoutes');
 const { startReminderScheduler } = require('./utils/bookingReminderScheduler');
+const { startDataRetentionScheduler } = require('./utils/dataRetentionScheduler');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -68,6 +70,7 @@ app.use('/api/receipts', ...authenticatedApi, receiptRoutes);
 app.use('/api/restaurant-hours', ...authenticatedApi, restaurantHourRoutes);
 app.use('/api/announcements', ...authenticatedApi, announcementRoutes);
 app.use('/api/reports', ...authenticatedApi, reportRoutes);
+app.use('/api/gdpr', ...authenticatedApi, gdprRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Yori Web App API is running' });
@@ -76,4 +79,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   startReminderScheduler();
+  startDataRetentionScheduler();
 });
