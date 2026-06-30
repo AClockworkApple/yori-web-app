@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDocs, getDoc, deleteDoc, query, where } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'booking_tables';
 
@@ -10,13 +9,12 @@ class BookingTable {
       tableId,
       createdAt: new Date().toISOString()
     };
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), data);
+    const docRef = await db.collection(COLLECTION_NAME).add(data);
     return { id: docRef.id, ...data };
   }
 
   static async getByBooking(bookingId) {
-    const q = query(collection(db, COLLECTION_NAME), where('bookingId', '==', bookingId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('bookingId', '==', bookingId).get();
     const results = [];
     querySnapshot.forEach((doc) => {
       results.push({ id: doc.id, ...doc.data() });
@@ -25,8 +23,7 @@ class BookingTable {
   }
 
   static async getByTable(tableId) {
-    const q = query(collection(db, COLLECTION_NAME), where('tableId', '==', tableId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('tableId', '==', tableId).get();
     const results = [];
     querySnapshot.forEach((doc) => {
       results.push({ id: doc.id, ...doc.data() });
@@ -35,20 +32,18 @@ class BookingTable {
   }
 
   static async remove(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 
   static async removeByBookingAndTable(bookingId, tableId) {
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('bookingId', '==', bookingId),
-      where('tableId', '==', tableId)
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME)
+      .where('bookingId', '==', bookingId)
+      .where('tableId', '==', tableId)
+      .get();
     const deletions = [];
     querySnapshot.forEach((doc) => {
-      deletions.push(deleteDoc(doc.ref));
+      deletions.push(doc.ref.delete());
     });
     await Promise.all(deletions);
     return { success: true };
@@ -56,7 +51,7 @@ class BookingTable {
 
   static async removeByBooking(bookingId) {
     const records = await this.getByBooking(bookingId);
-    const deletions = records.map(r => deleteDoc(doc(db, COLLECTION_NAME, r.id)));
+    const deletions = records.map(r => db.collection(COLLECTION_NAME).doc(r.id).delete());
     await Promise.all(deletions);
     return { success: true };
   }

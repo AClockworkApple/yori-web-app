@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 const BookingTable = require('./BookingTable');
 
 const COLLECTION_NAME = 'bookings';
@@ -28,7 +27,7 @@ class Booking {
       updatedAt: new Date().toISOString()
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), bookingData);
+    const docRef = await db.collection(COLLECTION_NAME).add(bookingData);
     const booking = { id: docRef.id, ...bookingData };
 
     if (tableIds && tableIds.length > 0) {
@@ -42,8 +41,8 @@ class Booking {
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       const booking = { id: docSnap.id, ...docSnap.data() };
       booking.tables = await BookingTable.getByBooking(id);
       return booking;
@@ -52,7 +51,7 @@ class Booking {
   }
 
   static async getAll() {
-    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const querySnapshot = await db.collection(COLLECTION_NAME).get();
     const bookings = [];
     querySnapshot.forEach((doc) => {
       bookings.push({ id: doc.id, ...doc.data() });
@@ -64,8 +63,7 @@ class Booking {
   }
 
   static async getByRestaurant(restaurantId) {
-    const q = query(collection(db, COLLECTION_NAME), where('restaurantId', '==', restaurantId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('restaurantId', '==', restaurantId).get();
     const bookings = [];
     querySnapshot.forEach((doc) => {
       bookings.push({ id: doc.id, ...doc.data() });
@@ -77,12 +75,10 @@ class Booking {
   }
 
   static async getByStatus(restaurantId, status) {
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('restaurantId', '==', restaurantId),
-      where('status', '==', status)
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME)
+      .where('restaurantId', '==', restaurantId)
+      .where('status', '==', status)
+      .get();
     const bookings = [];
     querySnapshot.forEach((doc) => {
       bookings.push({ id: doc.id, ...doc.data() });
@@ -99,12 +95,10 @@ class Booking {
   }
 
   static async getWalkInsByRestaurant(restaurantId) {
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('restaurantId', '==', restaurantId),
-      where('source', '==', 'walk-in')
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME)
+      .where('restaurantId', '==', restaurantId)
+      .where('source', '==', 'walk-in')
+      .get();
     const walkIns = [];
     querySnapshot.forEach((doc) => {
       walkIns.push({ id: doc.id, ...doc.data() });
@@ -118,7 +112,7 @@ class Booking {
       ...data,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
@@ -127,7 +121,7 @@ class Booking {
       status,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
@@ -137,7 +131,7 @@ class Booking {
       actualStart: actualStart || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
@@ -147,7 +141,7 @@ class Booking {
       actualEnd: actualEnd || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
@@ -165,12 +159,12 @@ class Booking {
       extensions,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
   static async delete(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 }

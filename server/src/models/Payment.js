@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'payments';
 
@@ -14,21 +13,20 @@ class Payment {
       paidAt: new Date().toISOString()
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), paymentData);
+    const docRef = await db.collection(COLLECTION_NAME).add(paymentData);
     return { id: docRef.id, ...paymentData };
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   }
 
   static async getByOrder(orderId) {
-    const q = query(collection(db, COLLECTION_NAME), where('orderId', '==', orderId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('orderId', '==', orderId).get();
     const payments = [];
     querySnapshot.forEach((doc) => {
       payments.push({ id: doc.id, ...doc.data() });
@@ -37,28 +35,27 @@ class Payment {
   }
 
   static async getByDate(restaurantId, date) {
-    const restaurantRef = collection(db, 'restaurants');
-    const ordersRef = collection(db, COLLECTION_NAME);
-    
-    const restaurantSnapshot = await getDocs(restaurantRef);
+    const restaurantSnapshot = await db.collection('restaurants').get();
     const paymentsData = [];
-    
+
     for (const restDoc of restaurantSnapshot.docs) {
       if (restDoc.id !== restaurantId) continue;
-      
-      const q = query(ordersRef, where('paidAt', '>=', `${date}T00:00:00`), where('paidAt', '<=', `${date}T23:59:59`));
-      const paymentsSnapshot = await getDocs(q);
-      
+
+      const paymentsSnapshot = await db.collection(COLLECTION_NAME)
+        .where('paidAt', '>=', `${date}T00:00:00`)
+        .where('paidAt', '<=', `${date}T23:59:59`)
+        .get();
+
       paymentsSnapshot.forEach((doc) => {
         paymentsData.push({ id: doc.id, ...doc.data() });
       });
     }
-    
+
     return paymentsData;
   }
 
   static async delete(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 }

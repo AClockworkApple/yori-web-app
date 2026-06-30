@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'users';
 
@@ -21,13 +20,12 @@ class User {
       throw new Error(`Invalid role. Must be one of: ${validRoles.join(', ')}`);
     }
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), userData);
+    const docRef = await db.collection(COLLECTION_NAME).add(userData);
     return { id: docRef.id, ...userData };
   }
 
   static async getByFirebaseUid(firebaseUid) {
-    const q = query(collection(db, COLLECTION_NAME), where('firebaseUid', '==', firebaseUid));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('firebaseUid', '==', firebaseUid).get();
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0];
       return { id: doc.id, ...doc.data() };
@@ -36,15 +34,15 @@ class User {
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   }
 
   static async getAll() {
-    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const querySnapshot = await db.collection(COLLECTION_NAME).get();
     const users = [];
     querySnapshot.forEach((doc) => {
       users.push({ id: doc.id, ...doc.data() });
@@ -53,8 +51,7 @@ class User {
   }
 
   static async getByRole(role) {
-    const q = query(collection(db, COLLECTION_NAME), where('role', '==', role));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('role', '==', role).get();
     const users = [];
     querySnapshot.forEach((doc) => {
       users.push({ id: doc.id, ...doc.data() });
@@ -63,8 +60,7 @@ class User {
   }
 
   static async getByRestaurant(restaurantId) {
-    const q = query(collection(db, COLLECTION_NAME), where('restaurantId', '==', restaurantId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('restaurantId', '==', restaurantId).get();
     const users = [];
     querySnapshot.forEach((doc) => {
       users.push({ id: doc.id, ...doc.data() });
@@ -73,8 +69,7 @@ class User {
   }
 
   static async getByEmail(email) {
-    const q = query(collection(db, COLLECTION_NAME), where('email', '==', email));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('email', '==', email).get();
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0];
       return { id: doc.id, ...doc.data() };
@@ -87,12 +82,12 @@ class User {
       ...data,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
   static async delete(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 }

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -17,6 +18,7 @@ const restaurantHourRoutes = require('./routes/restaurantHourRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const gdprRoutes = require('./routes/gdprRoutes');
+const publicRoutes = require('./routes/publicRoutes');
 const { startReminderScheduler } = require('./utils/bookingReminderScheduler');
 const { startDataRetentionScheduler } = require('./utils/dataRetentionScheduler');
 
@@ -26,14 +28,15 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      frameSrc: ["'none'"],
+      defaultSrc: ['\'self\''],
+      scriptSrc: ['\'self\''],
+      styleSrc: ['\'self\'', '\'unsafe-inline\''],
+      imgSrc: ['\'self\'', 'data:', 'https:'],
+      mediaSrc: ['\'self\'', 'https:'],
+      connectSrc: ['\'self\''],
+      fontSrc: ['\'self\''],
+      objectSrc: ['\'none\''],
+      frameSrc: ['\'none\''],
     },
   },
 }));
@@ -58,6 +61,10 @@ const apiLimiter = rateLimit({
 });
 
 app.use('/api/auth', authLimiter, authRoutes);
+
+app.use('/assets/images', express.static(path.join(__dirname, '..', '..', 'resources', 'images')));
+
+app.use('/api/public', apiLimiter, publicRoutes);
 
 const authenticatedApi = [apiLimiter, verifyToken];
 app.use('/api/restaurants', ...authenticatedApi, restaurantRoutes);
