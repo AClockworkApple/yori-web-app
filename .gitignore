@@ -40,3 +40,8 @@ logs/
 
 # Firebase
 .firebase/
+firebase-adminsdk-*.json
+
+# Resource images (placeholders — replace with your own)
+resources/images/*
+!resources/images/.gitkeep

@@ -1,0 +1,242 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+const API_URL = '/api/public';
+const ASSETS_URL = '/assets/images';
+
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .menu-fade { animation: fadeUp 0.6s ease-out forwards; opacity: 0; }
+  .menu-fade:nth-child(1) { animation-delay: 0.05s; }
+  .menu-fade:nth-child(2) { animation-delay: 0.1s; }
+  .menu-fade:nth-child(3) { animation-delay: 0.15s; }
+  .menu-fade:nth-child(4) { animation-delay: 0.2s; }
+  .menu-fade:nth-child(5) { animation-delay: 0.25s; }
+  .menu-fade:nth-child(6) { animation-delay: 0.3s; }
+  .menu-fade:nth-child(7) { animation-delay: 0.35s; }
+  .menu-fade:nth-child(8) { animation-delay: 0.4s; }
+  .menu-fade:nth-child(9) { animation-delay: 0.45s; }
+  .menu-fade:nth-child(10) { animation-delay: 0.5s; }
+  .menu-fade:nth-child(11) { animation-delay: 0.55s; }
+  .menu-fade:nth-child(12) { animation-delay: 0.6s; }
+  .menu-fade:nth-child(13) { animation-delay: 0.65s; }
+  .menu-fade:nth-child(14) { animation-delay: 0.7s; }
+  .menu-fade:nth-child(15) { animation-delay: 0.75s; }
+  .menu-fade:nth-child(16) { animation-delay: 0.8s; }
+  .menu-fade:nth-child(17) { animation-delay: 0.85s; }
+  .menu-fade:nth-child(18) { animation-delay: 0.9s; }
+  .menu-fade:nth-child(19) { animation-delay: 0.95s; }
+  .menu-fade:nth-child(20) { animation-delay: 1s; }
+`;
+document.head.appendChild(style);
+
+export default function CustomerMenuPage() {
+  const [restaurants, setRestaurants] = useState([]);
+  const [selectedId, setSelectedId] = useState('');
+  const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [menuLoading, setMenuLoading] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_URL}/restaurants`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setRestaurants(data);
+          if (data.length > 0) setSelectedId(data[0].id);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    setMenuLoading(true);
+    fetch(`${API_URL}/restaurants/${selectedId}/menu`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setMenuItems(data);
+        setMenuLoading(false);
+      })
+      .catch(() => setMenuLoading(false));
+  }, [selectedId]);
+
+  const categories = Array.isArray(menuItems) ? [...new Set(menuItems.map(i => i.category))] : [];
+
+  const currentRestaurant = Array.isArray(restaurants) ? restaurants.find(r => r.id === selectedId) : null;
+
+  return (
+    <div style={{
+      backgroundColor: '#000', color: '#fff', minHeight: '100vh',
+      fontFamily: "'Segoe UI', sans-serif"
+    }}>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '16px 40px', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        <Link to="/" style={{
+          fontSize: '22px', fontWeight: 'bold', color: '#fff', textDecoration: 'none', letterSpacing: '2px'
+        }}>
+          YORI
+        </Link>
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+          <Link to="/" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px', letterSpacing: '1px' }}>HOME</Link>
+          <Link to="/menu" style={{ color: '#fff', textDecoration: 'none', fontSize: '14px', letterSpacing: '1px' }}>MENU</Link>
+          <Link to="/booking" style={{
+            color: '#fff', textDecoration: 'none', fontSize: '14px', letterSpacing: '1px',
+            padding: '8px 20px', border: '1px solid #fff', borderRadius: '4px',
+          }}>RESERVE</Link>
+        </div>
+      </nav>
+
+      <div style={{ paddingTop: '100px', paddingLeft: '40px', paddingRight: '40px', maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <span style={{
+            fontSize: '12px', letterSpacing: '3px', color: 'rgba(255,255,255,0.4)',
+            marginBottom: '12px', display: 'block'
+          }}>
+            OUR MENU
+          </span>
+          <h1 style={{
+            fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: '200',
+            letterSpacing: '4px', margin: '0 0 32px'
+          }}>
+            CULINARY SELECTIONS
+          </h1>
+
+          {loading ? (
+            <p style={{ color: 'rgba(255,255,255,0.4)' }}>Loading restaurants...</p>
+          ) : restaurants.length === 0 ? (
+            <p style={{ color: 'rgba(255,255,255,0.4)' }}>No restaurants available.</p>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              {restaurants.map(r => (
+                <button key={r.id} onClick={() => setSelectedId(r.id)}
+                  style={{
+                    padding: '10px 28px', cursor: 'pointer', fontSize: '13px', letterSpacing: '1px',
+                    backgroundColor: selectedId === r.id ? '#fff' : 'transparent',
+                    color: selectedId === r.id ? '#000' : 'rgba(255,255,255,0.6)',
+                    border: selectedId === r.id ? '1px solid #fff' : '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '4px', transition: 'all 0.3s',
+                  }}>
+                  {r.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {currentRestaurant && (
+          <div style={{
+            textAlign: 'center', marginBottom: '48px', fontSize: '13px', color: 'rgba(255,255,255,0.4)'
+          }}>
+            {currentRestaurant.address && <span>{currentRestaurant.address} &middot; </span>}
+            {currentRestaurant.phone && <span>{currentRestaurant.phone}</span>}
+          </div>
+        )}
+
+        {menuLoading ? (
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>Loading menu...</p>
+        ) : menuItems.length === 0 ? (
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>No menu items available for this restaurant.</p>
+        ) : (
+          categories.map(category => (
+            <div key={category} style={{ marginBottom: '48px' }}>
+              <h2 style={{
+                fontSize: '16px', fontWeight: '400', letterSpacing: '2px',
+                margin: '0 0 20px', paddingBottom: '12px',
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                color: 'rgba(255,255,255,0.5)'
+              }}>
+                {category.toUpperCase()}
+              </h2>
+              <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
+                {menuItems.filter(i => i.category === category).map((item, idx) => (
+                  <div key={item.id} className="menu-fade" style={{
+                    display: 'flex', alignItems: 'stretch',
+                    backgroundColor: 'rgba(255,255,255,0.02)',
+                    borderRadius: '8px', overflow: 'hidden',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    transition: 'all 0.3s',
+                  }}>
+                    <div style={{
+                      width: '130px', minHeight: '130px', flexShrink: 0,
+                      overflow: 'hidden', position: 'relative',
+                    }}>
+                      <img src={item.imageUrl || `${ASSETS_URL}/dish-placeholder.svg`}
+                        alt={item.name}
+                        onError={(e) => { e.target.onerror = null; e.target.src = `${ASSETS_URL}/dish-placeholder.svg`; }}
+                        style={{
+                          width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+                        }} />
+                    </div>
+                    <div style={{
+                      flex: 1, padding: '16px 20px',
+                      display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                    }}>
+                      <div>
+                        <div style={{
+                          fontSize: '17px', fontWeight: '700', marginBottom: '6px',
+                          color: '#F5C518', letterSpacing: '0.3px',
+                        }}>
+                          {item.name}
+                          {item.itemNumber && (
+                            <span style={{
+                              fontSize: '11px', color: 'rgba(255,255,255,0.2)',
+                              marginLeft: '8px', fontWeight: '400'
+                            }}>
+                              #{item.itemNumber}
+                            </span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <div style={{
+                            fontSize: '13px', color: 'rgba(255,255,255,0.45)',
+                            lineHeight: '1.5', marginBottom: '8px'
+                          }}>
+                            {item.description}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{
+                        fontSize: '19px', fontWeight: '600', color: '#fff',
+                        marginTop: '8px',
+                      }}>
+                        €{item.price.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <Link to="/booking" style={{
+            display: 'inline-block', padding: '16px 48px', backgroundColor: '#fff',
+            color: '#000', textDecoration: 'none', borderRadius: '4px', fontWeight: '600',
+            fontSize: '14px', letterSpacing: '1px',
+          }}>
+            BOOK A TABLE
+          </Link>
+        </div>
+      </div>
+
+      <footer style={{
+        padding: '48px 40px', borderTop: '1px solid rgba(255,255,255,0.06)', textAlign: 'center'
+      }}>
+        <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', margin: 0 }}>
+          &copy; {new Date().getFullYear()} Yori Deggendorf. All rights reserved.
+        </p>
+      </footer>
+    </div>
+  );
+}
