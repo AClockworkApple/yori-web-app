@@ -40,7 +40,29 @@ logs/
 
 # Firebase
 .firebase/
-firebase-adminsdk-*.json
+*firebase-adminsdk*.json
+*-firebase-adminsdk-*.json
+service-account*.json
+*-service-account*.json
+*serviceAccount*.json
+*-serviceAccount*.json
+
+# Secrets / Credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.secret
+*.token
+credentials*
+*credentials*
+secrets*
+*secrets*
+oauth*
+*oauth*
+*.cred
+*-cred.*
 
 # Resource images (placeholders — replace with your own)
 resources/images/*
