@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, orderBy } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'restaurants';
 
@@ -19,26 +18,30 @@ class Restaurant {
       serviceFeeRate: data.serviceFeeRate || 0,
       overbookingPercentage: data.overbookingPercentage || 30,
       dataRetentionDays: data.dataRetentionDays || 30,
+      logoUrl: data.logoUrl || '',
+      heroImageUrl: data.heroImageUrl || '',
+      heroVideoUrl: data.heroVideoUrl || '',
+      storyImageUrl: data.storyImageUrl || '',
       ownerId: data.ownerId,
       managerId: data.managerId || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), restaurantData);
+    const docRef = await db.collection(COLLECTION_NAME).add(restaurantData);
     return { id: docRef.id, ...restaurantData };
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   }
 
   static async getAll() {
-    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const querySnapshot = await db.collection(COLLECTION_NAME).get();
     const restaurants = [];
     querySnapshot.forEach((doc) => {
       restaurants.push({ id: doc.id, ...doc.data() });
@@ -47,8 +50,7 @@ class Restaurant {
   }
 
   static async getByOwner(ownerId) {
-    const q = query(collection(db, COLLECTION_NAME), where('ownerId', '==', ownerId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('ownerId', '==', ownerId).get();
     const restaurants = [];
     querySnapshot.forEach((doc) => {
       restaurants.push({ id: doc.id, ...doc.data() });
@@ -57,8 +59,7 @@ class Restaurant {
   }
 
   static async getByManager(managerId) {
-    const q = query(collection(db, COLLECTION_NAME), where('managerId', '==', managerId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('managerId', '==', managerId).get();
     const restaurants = [];
     querySnapshot.forEach((doc) => {
       restaurants.push({ id: doc.id, ...doc.data() });
@@ -71,12 +72,12 @@ class Restaurant {
       ...data,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
   static async delete(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 }

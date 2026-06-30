@@ -15,7 +15,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(formData.email, formData.password);
-      navigate('/');
+      navigate('/restaurants');
     } catch (err) {
       setError(err.message);
     } finally {

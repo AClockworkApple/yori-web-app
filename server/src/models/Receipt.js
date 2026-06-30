@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 const Order = require('./Order');
 const OrderItem = require('./OrderItem');
 const Payment = require('./Payment');
@@ -99,25 +98,24 @@ class Receipt {
 
     const existing = await this.getByOrder(orderId);
     if (existing) {
-      await updateDoc(doc(db, COLLECTION_NAME, existing.id), { ...data, updatedAt: new Date().toISOString() });
+      await db.collection(COLLECTION_NAME).doc(existing.id).update({ ...data, updatedAt: new Date().toISOString() });
       return { id: existing.id, ...data };
     }
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), { ...data, createdAt: new Date().toISOString() });
+    const docRef = await db.collection(COLLECTION_NAME).add({ ...data, createdAt: new Date().toISOString() });
     return { id: docRef.id, ...data };
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   }
 
   static async getByOrder(orderId) {
-    const q = query(collection(db, COLLECTION_NAME), where('orderId', '==', orderId));
-    const snapshot = await getDocs(q);
+    const snapshot = await db.collection(COLLECTION_NAME).where('orderId', '==', orderId).get();
     if (!snapshot.empty) {
       return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
     }
@@ -125,22 +123,21 @@ class Receipt {
   }
 
   static async getAll() {
-    const snapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const snapshot = await db.collection(COLLECTION_NAME).get();
     const receipts = [];
     snapshot.forEach(doc => receipts.push({ id: doc.id, ...doc.data() }));
     return receipts;
   }
 
   static async getByRestaurant(restaurantId) {
-    const q = query(collection(db, COLLECTION_NAME), where('restaurant.id', '==', restaurantId));
-    const snapshot = await getDocs(q);
+    const snapshot = await db.collection(COLLECTION_NAME).where('restaurant.id', '==', restaurantId).get();
     const receipts = [];
     snapshot.forEach(doc => receipts.push({ id: doc.id, ...doc.data() }));
     return receipts;
   }
 
   static async delete(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 }

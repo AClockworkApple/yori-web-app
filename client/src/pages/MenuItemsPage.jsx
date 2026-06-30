@@ -30,6 +30,7 @@ export default function MenuItemsPage() {
     price: 0,
     category: 'General',
     itemNumber: '',
+    imageUrl: '',
   });
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export default function MenuItemsPage() {
       price: item.price,
       category: item.category,
       itemNumber: item.itemNumber || '',
+      imageUrl: item.imageUrl || '',
     });
     setEditingId(item.id);
     setShowForm(true);
@@ -115,6 +117,7 @@ export default function MenuItemsPage() {
       price: 0,
       category: 'General',
       itemNumber: '',
+      imageUrl: '',
     });
   };
 
@@ -152,6 +155,17 @@ export default function MenuItemsPage() {
         <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px' }}>
           {showForm ? 'Cancel' : 'Add Menu Item'}
         </button>
+
+        <select
+          value={selectedRestaurantId}
+          onChange={(e) => setSelectedRestaurantId(e.target.value)}
+          style={{ padding: '8px', minWidth: '200px' }}
+        >
+          <option value="">General Menu (shared)</option>
+          {restaurants.map(r => (
+            <option key={r.id} value={r.id}>{r.name}</option>
+          ))}
+        </select>
 
         {selectedRestaurantId && (
           <button onClick={handleImport} style={{ padding: '8px', backgroundColor: '#28a745', color: 'white' }}>
@@ -231,6 +245,12 @@ export default function MenuItemsPage() {
               <label>Item Number</label>
               <input type="text" name="itemNumber" value={formData.itemNumber}
                 onChange={handleInputChange} placeholder="e.g., M-001"
+                style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
+            </div>
+            <div>
+              <label>Image URL</label>
+              <input type="text" name="imageUrl" value={formData.imageUrl}
+                onChange={handleInputChange} placeholder="https://example.com/image.jpg"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '25px' }}>

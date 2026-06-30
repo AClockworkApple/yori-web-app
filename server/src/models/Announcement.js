@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where, orderBy } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'announcements';
 
@@ -16,21 +15,20 @@ class Announcement {
       updatedAt: new Date().toISOString()
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), announcementData);
+    const docRef = await db.collection(COLLECTION_NAME).add(announcementData);
     return { id: docRef.id, ...announcementData };
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   }
 
   static async getAll() {
-    const q = query(collection(db, COLLECTION_NAME), orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).orderBy('createdAt', 'desc').get();
     const announcements = [];
     querySnapshot.forEach((doc) => {
       announcements.push({ id: doc.id, ...doc.data() });
@@ -39,11 +37,7 @@ class Announcement {
   }
 
   static async getByRestaurant(restaurantId) {
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('restaurantId', '==', restaurantId)
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('restaurantId', '==', restaurantId).get();
     const announcements = [];
     querySnapshot.forEach((doc) => {
       announcements.push({ id: doc.id, ...doc.data() });
@@ -53,12 +47,10 @@ class Announcement {
   }
 
   static async getActiveByRestaurant(restaurantId) {
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('restaurantId', '==', restaurantId),
-      where('active', '==', true)
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME)
+      .where('restaurantId', '==', restaurantId)
+      .where('active', '==', true)
+      .get();
     const now = new Date().toISOString();
     const announcements = [];
     querySnapshot.forEach((doc) => {
@@ -78,12 +70,12 @@ class Announcement {
       ...data,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
   static async delete(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 }

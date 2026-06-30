@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { RestaurantProvider, useRestaurants } from './context/RestaurantContext';
 import { TableProvider } from './context/TableContext';
@@ -25,6 +25,9 @@ import AnnouncementsPage from './pages/AnnouncementsPage';
 import TableStatusBoard from './pages/TableStatusBoard';
 import DailyReportPage from './pages/DailyReportPage';
 import GdprPage from './pages/GdprPage';
+import CustomerHomePage from './pages/CustomerHomePage';
+import CustomerMenuPage from './pages/CustomerMenuPage';
+import CustomerBookingPage from './pages/CustomerBookingPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -33,6 +36,8 @@ function ProtectedRoute({ children }) {
 }
 
 function AppNav() {
+  const location = useLocation();
+  const publicPaths = ['/', '/menu', '/booking'];
   const { isAuthenticated, user, hasRole, logout } = useAuth();
   const { fetchRestaurants, selectedRestaurantId } = useRestaurants();
   const { activeAnnouncements, fetchActive } = useAnnouncements();
@@ -49,7 +54,7 @@ function AppNav() {
     return () => clearInterval(interval);
   }, [isAuthenticated, selectedRestaurantId]);
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || publicPaths.includes(location.pathname)) return null;
 
   const priorityColors = { IMPORTANT: '#dc3545', WARNING: '#ffc107', INFO: '#17a2b8' };
 
@@ -74,7 +79,7 @@ function AppNav() {
         </div>
       )}
       <nav style={{ padding: '10px', backgroundColor: '#f8f9fa', marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
-        <a href="/" style={{ marginRight: '20px' }}>Restaurants</a>
+        <a href="/restaurants" style={{ marginRight: '20px' }}>Restaurants</a>
         <a href="/menu-items" style={{ marginRight: '20px' }}>Menu Items</a>
         <a href="/table-status" style={{ marginRight: '20px' }}>Table Status</a>
         <a href="/daily-report" style={{ marginRight: '20px' }}>Daily Report</a>
@@ -101,10 +106,15 @@ function AppRoutes() {
                 <RestaurantHourProvider>
                   <AnnouncementProvider>
                     <Router>
+                      <Routes>
+                        <Route path="/" element={<CustomerHomePage />} />
+                        <Route path="/menu" element={<CustomerMenuPage />} />
+                        <Route path="/booking" element={<CustomerBookingPage />} />
+                      </Routes>
                       <AppNav />
                       <Routes>
                         <Route path="/login" element={<LoginPage />} />
-                        <Route path="/" element={<ProtectedRoute><RestaurantsPage /></ProtectedRoute>} />
+                        <Route path="/restaurants" element={<ProtectedRoute><RestaurantsPage /></ProtectedRoute>} />
                         <Route path="/restaurants/:id" element={<ProtectedRoute><RestaurantDetailPage /></ProtectedRoute>} />
                         <Route path="/tables" element={<ProtectedRoute><TablesPage /></ProtectedRoute>} />
                         <Route path="/table-status" element={<ProtectedRoute><TableStatusBoard /></ProtectedRoute>} />

@@ -20,6 +20,10 @@ export default function RestaurantDetailPage() {
         address: restaurant.address || '',
         phone: restaurant.phone || '',
         taxNumber: restaurant.taxNumber || '',
+        logoUrl: restaurant.logoUrl || '',
+        heroImageUrl: restaurant.heroImageUrl || '',
+        heroVideoUrl: restaurant.heroVideoUrl || '',
+        storyImageUrl: restaurant.storyImageUrl || '',
         mode: restaurant.mode || 'SEMI_AUTO',
         slotDurationMinutes: restaurant.slotDurationMinutes || 120,
         bufferMinutes: restaurant.bufferMinutes || 30,
@@ -207,6 +211,33 @@ export default function RestaurantDetailPage() {
               <label>Data Retention (days)</label>
               <input type="number" name="dataRetentionDays" value={formData.dataRetentionDays}
                 onChange={handleInputChange} min="1" max="365"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ gridColumn: '1 / -1', borderTop: '1px solid #ddd', paddingTop: '15px', marginTop: '5px' }}>
+              <strong>Customer Website Images</strong>
+            </div>
+            <div>
+              <label>Logo URL</label>
+              <input type="text" name="logoUrl" value={formData.logoUrl}
+                onChange={handleInputChange} placeholder="https://example.com/logo.png"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Hero Image URL</label>
+              <input type="text" name="heroImageUrl" value={formData.heroImageUrl}
+                onChange={handleInputChange} placeholder="https://example.com/hero.jpg"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Hero Video URL (MP4)</label>
+              <input type="text" name="heroVideoUrl" value={formData.heroVideoUrl}
+                onChange={handleInputChange} placeholder="https://example.com/hero.mp4"
+                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+            </div>
+            <div>
+              <label>Story Image URL</label>
+              <input type="text" name="storyImageUrl" value={formData.storyImageUrl}
+                onChange={handleInputChange} placeholder="https://example.com/story.jpg"
                 style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
             </div>
           </div>

@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'orders';
 
@@ -22,20 +21,20 @@ class Order {
       closedAt: null
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), orderData);
+    const docRef = await db.collection(COLLECTION_NAME).add(orderData);
     return { id: docRef.id, ...orderData };
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   }
 
   static async getAll() {
-    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const querySnapshot = await db.collection(COLLECTION_NAME).get();
     const orders = [];
     querySnapshot.forEach((doc) => {
       orders.push({ id: doc.id, ...doc.data() });
@@ -44,8 +43,7 @@ class Order {
   }
 
   static async getByRestaurant(restaurantId) {
-    const q = query(collection(db, COLLECTION_NAME), where('restaurantId', '==', restaurantId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('restaurantId', '==', restaurantId).get();
     const orders = [];
     querySnapshot.forEach((doc) => {
       orders.push({ id: doc.id, ...doc.data() });
@@ -54,8 +52,7 @@ class Order {
   }
 
   static async getByBooking(bookingId) {
-    const q = query(collection(db, COLLECTION_NAME), where('bookingId', '==', bookingId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('bookingId', '==', bookingId).get();
     const orders = [];
     querySnapshot.forEach((doc) => {
       orders.push({ id: doc.id, ...doc.data() });
@@ -75,9 +72,7 @@ class Order {
     const order = await this.getById(orderId);
     if (!order) return null;
 
-    const orderItemsRef = collection(db, 'orderItems');
-    const q = query(orderItemsRef, where('orderId', '==', orderId));
-    const itemsSnapshot = await getDocs(q);
+    const itemsSnapshot = await db.collection('orderItems').where('orderId', '==', orderId).get();
     
     let subtotal = 0;
     itemsSnapshot.forEach((doc) => {
@@ -96,7 +91,7 @@ class Order {
       updatedAt: new Date().toISOString()
     };
 
-    await updateDoc(doc(db, COLLECTION_NAME, orderId), updateData);
+    await db.collection(COLLECTION_NAME).doc(orderId).update(updateData);
     return this.getById(orderId);
   }
 
@@ -105,7 +100,7 @@ class Order {
       ...data,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
@@ -115,7 +110,7 @@ class Order {
       total: await this.calculateTotalWithTip(id, tip),
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
@@ -131,7 +126,7 @@ class Order {
       closedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
@@ -140,20 +135,18 @@ class Order {
       status: 'SPLIT',
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
   static async delete(id) {
-    const orderItemsRef = collection(db, 'orderItems');
-    const q = query(orderItemsRef, where('orderId', '==', id));
-    const itemsSnapshot = await getDocs(q);
+    const itemsSnapshot = await db.collection('orderItems').where('orderId', '==', id).get();
     
     for (const itemDoc of itemsSnapshot.docs) {
-      await deleteDoc(doc(db, 'orderItems', itemDoc.id));
+      await db.collection('orderItems').doc(itemDoc.id).delete();
     }
 
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 }

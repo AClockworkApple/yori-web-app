@@ -45,6 +45,7 @@
 | Real-time table status board | ✅ | TableStatusBoard — visual grid, color-coded by status, polling every 5s, click to change status |
 | Daily summary report | ✅ | Server endpoint + DailyReportPage with revenue, covers, tips, payment breakdown, averages |
 | GDPR compliance | ✅ | Data retention scheduler (auto-anonymize old data), GDPR page with lookup/export/erase by email |
+| Customer-facing website | ✅ | Public home/ menu/ booking pages with black theme, scroll animations, separate nav; public API endpoints |
 
 ### Infrastructure
 
@@ -58,39 +59,35 @@
 | node-cron | ✅ | Reminder scheduler, data retention scheduler |
 | SearchBar component + hybridSearch | ✅ | Reusable debounced search with 3 auto-scaling algorithms |
 | Self-contained JWT auth | ✅ | `jsonwebtoken` + `crypto.scryptSync`, no Firebase Auth dependency |
+| Public API mount (`/api/public`) | ✅ | Separate from JWT-protected routes; exposes restaurants, menu, booking creation |
+| Customer site (3 pages) | ✅ | Home (hero/about/features/animations), Menu (restaurant dropdown + category groups), Booking (form + confirmation) |
 | ESLint | ✅ | Both client and server |
-| GitHub CI pipeline | ✅ | Lint + build |
-| .git with remote tracking | ✅ | 3 branches, 4 commits |
+| GitHub CI pipeline | ✅ | Lint + build + server-verify |
+| .git with remote tracking | ✅ | Multiple branches |
 
 ---
-
-## ❌ Not Started — Ordered by Priority
-
-| # | Feature | Effort | Notes |
-|---|---------|--------|-------|
-| 1 | **Customer-facing booking** | Large | Public booking page, cancel/rebook flow |
 
 ### Should Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 2 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
-| 3 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
-| 4 | **Audit logs** | Medium | Immutable action logs |
-| 5 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
-| 6 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
+| 1 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
+| 2 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
+| 3 | **Audit logs** | Medium | Immutable action logs |
+| 4 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
+| 5 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
 
 ### Could Have
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 7 | **Google Sheets integration** | Medium | Export financial data |
-| 8 | **Automatic tax calculation** | Medium | Requires expense input |
-| 9 | **Manual tax rate reconfiguration** | Small | Emergency override |
-| 10 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
-| 11 | **Inventory management** | Large | Stock tracking |
-| 12 | **Predictive analytics** | Large | Busy period forecasting |
-| 13 | **Offline mode** | Large | WiFi reliability |
+| 6 | **Google Sheets integration** | Medium | Export financial data |
+| 7 | **Automatic tax calculation** | Medium | Requires expense input |
+| 8 | **Manual tax rate reconfiguration** | Small | Emergency override |
+| 9 | **Kitchen Display System (KDS)** | Large | Kitchen order display |
+| 10 | **Inventory management** | Large | Stock tracking |
+| 11 | **Predictive analytics** | Large | Busy period forecasting |
+| 12 | **Offline mode** | Large | WiFi reliability |
 
 ### Won't Have (by design)
 
@@ -117,3 +114,4 @@
 | State management | React Context API (no Redux) |
 | API style | RESTful, nested where natural |
 | No ORM | Raw Firestore SDK |
+| Firestore access | Admin SDK when credentials available (via service account), falls back to Client SDK |

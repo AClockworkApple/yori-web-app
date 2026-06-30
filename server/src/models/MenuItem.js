@@ -1,5 +1,4 @@
 const { db } = require('../config/firebase');
-const { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, where } = require('firebase/firestore');
 
 const COLLECTION_NAME = 'menuItems';
 const DEFAULT_CATEGORIES = ['General', 'Appetizer', 'Main Course', 'Dessert', 'Beverage', 'Side Dish', 'Soup', 'Salad'];
@@ -13,26 +12,27 @@ class MenuItem {
       price: data.price,
       category: data.category || 'General',
       itemNumber: data.itemNumber || '',
+      imageUrl: data.imageUrl || '',
       isAvailable: data.isAvailable !== false,
       isGeneral: data.isGeneral || false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), menuItemData);
+    const docRef = await db.collection(COLLECTION_NAME).add(menuItemData);
     return { id: docRef.id, ...menuItemData };
   }
 
   static async getById(id) {
-    const docSnap = await getDoc(doc(db, COLLECTION_NAME, id));
-    if (docSnap.exists()) {
+    const docSnap = await db.collection(COLLECTION_NAME).doc(id).get();
+    if (docSnap.exists) {
       return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   }
 
   static async getAll() {
-    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const querySnapshot = await db.collection(COLLECTION_NAME).get();
     const menuItems = [];
     querySnapshot.forEach((doc) => {
       menuItems.push({ id: doc.id, ...doc.data() });
@@ -41,8 +41,7 @@ class MenuItem {
   }
 
   static async getGeneralMenu() {
-    const q = query(collection(db, COLLECTION_NAME), where('isGeneral', '==', true));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('isGeneral', '==', true).get();
     const menuItems = [];
     querySnapshot.forEach((doc) => {
       menuItems.push({ id: doc.id, ...doc.data() });
@@ -51,8 +50,7 @@ class MenuItem {
   }
 
   static async getByRestaurant(restaurantId) {
-    const q = query(collection(db, COLLECTION_NAME), where('restaurantId', '==', restaurantId));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await db.collection(COLLECTION_NAME).where('restaurantId', '==', restaurantId).get();
     const menuItems = [];
     querySnapshot.forEach((doc) => {
       menuItems.push({ id: doc.id, ...doc.data() });
@@ -61,14 +59,11 @@ class MenuItem {
   }
 
   static async getRestaurantMenu(restaurantId) {
-    const q1 = query(collection(db, COLLECTION_NAME), where('isGeneral', '==', true));
-    const q2 = query(collection(db, COLLECTION_NAME), where('restaurantId', '==', restaurantId));
-    
     const [generalSnapshot, customSnapshot] = await Promise.all([
-      getDocs(q1),
-      getDocs(q2)
+      db.collection(COLLECTION_NAME).where('isGeneral', '==', true).get(),
+      db.collection(COLLECTION_NAME).where('restaurantId', '==', restaurantId).get()
     ]);
-    
+
     const menuItems = [];
     generalSnapshot.forEach((doc) => {
       menuItems.push({ id: doc.id, ...doc.data(), source: 'general' });
@@ -95,6 +90,7 @@ class MenuItem {
           price: general.price,
           category: general.category,
           itemNumber: general.itemNumber || '',
+          imageUrl: general.imageUrl || '',
           isAvailable: general.isAvailable,
           isGeneral: false,
         });
@@ -111,6 +107,7 @@ class MenuItem {
           price: general.price,
           category: general.category,
           itemNumber: general.itemNumber || '',
+          imageUrl: general.imageUrl || '',
           isAvailable: general.isAvailable,
         });
         results.push({ action: 'updated', item: updated });
@@ -139,24 +136,24 @@ class MenuItem {
       ...data,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
   static async toggleAvailability(id) {
     const menuItem = await this.getById(id);
     if (!menuItem) return null;
-    
+
     const updateData = {
       isAvailable: !menuItem.isAvailable,
       updatedAt: new Date().toISOString()
     };
-    await updateDoc(doc(db, COLLECTION_NAME, id), updateData);
+    await db.collection(COLLECTION_NAME).doc(id).update(updateData);
     return this.getById(id);
   }
 
   static async delete(id) {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
     return { success: true };
   }
 
