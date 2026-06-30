@@ -31,24 +31,24 @@ function formatDateTime(isoString) {
 function buildBookingHtml(booking, restaurant, template) {
   const lines = [];
   if (template === 'confirmation') {
-    lines.push(`<h2>Bestätigung Ihrer Reservierung</h2>`);
+    lines.push('<h2>Bestätigung Ihrer Reservierung</h2>');
     lines.push(`<p>Sehr geehrte/r ${booking.customerName},</p>`);
     lines.push(`<p>vielen Dank für Ihre Reservierung bei <strong>${restaurant.name}</strong>.</p>`);
   } else if (template === 'reminder') {
-    lines.push(`<h2>Erinnerung an Ihre bevorstehende Reservierung</h2>`);
+    lines.push('<h2>Erinnerung an Ihre bevorstehende Reservierung</h2>');
     lines.push(`<p>Sehr geehrte/r ${booking.customerName},</p>`);
     lines.push(`<p>dies ist eine freundliche Erinnerung an Ihre Reservierung bei <strong>${restaurant.name}</strong>.</p>`);
   } else if (template === 'cancellation') {
-    lines.push(`<h2>Reservierung storniert</h2>`);
+    lines.push('<h2>Reservierung storniert</h2>');
     lines.push(`<p>Sehr geehrte/r ${booking.customerName},</p>`);
     lines.push(`<p>Ihre Reservierung bei <strong>${restaurant.name}</strong> wurde storniert.</p>`);
   } else if (template === 'status_update') {
-    lines.push(`<h2>Status-Update Ihrer Reservierung</h2>`);
+    lines.push('<h2>Status-Update Ihrer Reservierung</h2>');
     lines.push(`<p>Sehr geehrte/r ${booking.customerName},</p>`);
     lines.push(`<p>der Status Ihrer Reservierung bei <strong>${restaurant.name}</strong> wurde aktualisiert.</p>`);
   }
 
-  lines.push(`<table style="border-collapse:collapse;width:100%;max-width:500px;margin-top:16px">`);
+  lines.push('<table style="border-collapse:collapse;width:100%;max-width:500px;margin-top:16px">');
   lines.push(`<tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Datum</td><td style="padding:8px;border:1px solid #ddd">${formatDateTime(booking.scheduledStart)}</td></tr>`);
   lines.push(`<tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Personen</td><td style="padding:8px;border:1px solid #ddd">${booking.partySize}</td></tr>`);
   if (booking.customerPhone) {
@@ -61,10 +61,10 @@ function buildBookingHtml(booking, restaurant, template) {
     lines.push(`<tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Kontakt</td><td style="padding:8px;border:1px solid #ddd">${restaurant.phone}</td></tr>`);
   }
   lines.push(`<tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold">Status</td><td style="padding:8px;border:1px solid #ddd">${booking.status}</td></tr>`);
-  lines.push(`</table>`);
+  lines.push('</table>');
 
-  lines.push(`<p style="margin-top:20px;font-size:13px;color:#666">Vielen Dank für Ihren Besuch!</p>`);
-  lines.push(`<p style="font-size:12px;color:#999">Yori Deggendorf &middot; Reservierungssystem</p>`);
+  lines.push('<p style="margin-top:20px;font-size:13px;color:#666">Vielen Dank für Ihren Besuch!</p>');
+  lines.push('<p style="font-size:12px;color:#999">Yori Deggendorf &middot; Reservierungssystem</p>');
 
   return lines.join('\n');
 }
