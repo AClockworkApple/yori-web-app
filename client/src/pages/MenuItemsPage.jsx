@@ -13,7 +13,7 @@ export default function MenuItemsPage() {
     fetchCategories, importGeneralMenu, createMenuItem,
     updateMenuItem, toggleMenuItemAvailability, deleteMenuItem
   } = useMenuItems();
-  const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
+  const { restaurants, selectedRestaurantId, selectedRestaurant, setSelectedRestaurantId } = useRestaurants();
 
   const allCategories = [...new Set([...DEFAULT_CATEGORIES, ...categories])];
 

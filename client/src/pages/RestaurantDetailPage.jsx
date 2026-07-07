@@ -122,7 +122,7 @@ export default function RestaurantDetailPage() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-      <Link to="/" style={{ fontSize: '14px', color: '#007bff' }}>&larr; All Restaurants</Link>
+      <Link to="/restaurants" style={{ fontSize: '14px', color: '#007bff' }}>&larr; All Restaurants</Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
         <h1 style={{ margin: 0 }}>{restaurant.name}</h1>
         <button onClick={() => setEditing(!editing)} style={{ padding: '6px 16px', fontSize: '13px' }}>

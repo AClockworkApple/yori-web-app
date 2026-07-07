@@ -59,16 +59,11 @@ class MenuItem {
   }
 
   static async getRestaurantMenu(restaurantId) {
-    const [generalSnapshot, customSnapshot] = await Promise.all([
-      db.collection(COLLECTION_NAME).where('isGeneral', '==', true).get(),
-      db.collection(COLLECTION_NAME).where('restaurantId', '==', restaurantId).get()
-    ]);
+    const snapshot = await db.collection(COLLECTION_NAME)
+      .where('restaurantId', '==', restaurantId).get();
 
     const menuItems = [];
-    generalSnapshot.forEach((doc) => {
-      menuItems.push({ id: doc.id, ...doc.data(), source: 'general' });
-    });
-    customSnapshot.forEach((doc) => {
+    snapshot.forEach((doc) => {
       menuItems.push({ id: doc.id, ...doc.data(), source: 'custom' });
     });
     return menuItems;

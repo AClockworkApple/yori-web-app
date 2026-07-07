@@ -3,7 +3,8 @@ const Restaurant = require('../models/Restaurant');
 const restaurantController = {
   async create(req, res) {
     try {
-      const restaurant = await Restaurant.create(req.body);
+      const data = { ...req.body, ownerId: req.body.ownerId || req.userId };
+      const restaurant = await Restaurant.create(data);
       res.status(201).json(restaurant);
     } catch (error) {
       res.status(500).json({ error: error.message });

@@ -91,7 +91,11 @@ export function MenuItemProvider({ children }) {
     setError(null);
     try {
       const newItem = await menuItemService.create(data);
-      setMenuItems([...menuItems, newItem]);
+      if (newItem.isGeneral) {
+        setGeneralMenuItems(prev => [...prev, newItem]);
+      } else {
+        setMenuItems(prev => [...prev, newItem]);
+      }
       return newItem;
     } catch (err) {
       setError(err.message);
@@ -106,7 +110,8 @@ export function MenuItemProvider({ children }) {
     setError(null);
     try {
       const updated = await menuItemService.update(id, data);
-      setMenuItems(menuItems.map(item => item.id === id ? updated : item));
+      setMenuItems(prev => prev.map(item => item.id === id ? updated : item));
+      setGeneralMenuItems(prev => prev.map(item => item.id === id ? updated : item));
       return updated;
     } catch (err) {
       setError(err.message);
@@ -120,7 +125,8 @@ export function MenuItemProvider({ children }) {
     setError(null);
     try {
       const updated = await menuItemService.toggleAvailability(id);
-      setMenuItems(menuItems.map(item => item.id === id ? updated : item));
+      setMenuItems(prev => prev.map(item => item.id === id ? updated : item));
+      setGeneralMenuItems(prev => prev.map(item => item.id === id ? updated : item));
       return updated;
     } catch (err) {
       setError(err.message);
@@ -133,7 +139,8 @@ export function MenuItemProvider({ children }) {
     setError(null);
     try {
       await menuItemService.delete(id);
-      setMenuItems(menuItems.filter(item => item.id !== id));
+      setMenuItems(prev => prev.filter(item => item.id !== id));
+      setGeneralMenuItems(prev => prev.filter(item => item.id !== id));
     } catch (err) {
       setError(err.message);
       throw err;

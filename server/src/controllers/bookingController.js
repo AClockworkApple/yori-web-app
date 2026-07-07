@@ -66,13 +66,14 @@ const bookingController = {
         return res.status(400).json({ error: 'scheduledStart is required' });
       }
 
-      if (!customerEmail) {
-        return res.status(400).json({ error: 'customerEmail is required' });
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(customerEmail)) {
-        return res.status(400).json({ error: 'Invalid email format' });
+      if (req.body.source !== 'walk-in') {
+        if (!customerEmail) {
+          return res.status(400).json({ error: 'customerEmail is required' });
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(customerEmail)) {
+          return res.status(400).json({ error: 'Invalid email format' });
+        }
       }
 
       const result = await validateBookingTime(scheduledStart, restaurantId);
@@ -121,11 +122,13 @@ const bookingController = {
         status: isOverbooked ? 'WAITLISTED' : (req.body.status || 'PENDING')
       });
 
-      sendConfirmation(booking, restaurant).then(result => {
-        if (result.success) {
-          Booking.update(booking.id, { confirmationEmailSentAt: new Date().toISOString() });
-        }
-      }).catch(err => console.error('[email] Confirmation send error:', err.message));
+      if (req.body.source !== 'walk-in') {
+        sendConfirmation(booking, restaurant).then(result => {
+          if (result.success) {
+            Booking.update(booking.id, { confirmationEmailSentAt: new Date().toISOString() });
+          }
+        }).catch(err => console.error('[email] Confirmation send error:', err.message));
+      }
 
       res.status(201).json(booking);
     } catch (error) {
@@ -219,9 +222,17 @@ const bookingController = {
         req.body.scheduledEnd = result.scheduledEnd;
       }
 
+      const oldBooking = await Booking.getById(req.params.id);
       const booking = await Booking.update(req.params.id, req.body);
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
+      }
+      if (booking.customerEmail && req.body.status && oldBooking?.status !== req.body.status) {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (!restaurant) return;
+          if (req.body.status === 'CANCELLED') sendCancellation(booking, restaurant);
+          else sendStatusUpdate(booking, restaurant);
+        }).catch(() => {});
       }
       res.json(booking);
     } catch (error) {
@@ -264,6 +275,11 @@ const bookingController = {
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
+      if (booking.customerEmail) {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (restaurant) sendStatusUpdate(booking, restaurant);
+        }).catch(() => {});
+      }
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -276,6 +292,11 @@ const bookingController = {
       const booking = await Booking.completeBooking(req.params.id, actualEnd);
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
+      }
+      if (booking.customerEmail) {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (restaurant) sendStatusUpdate(booking, restaurant);
+        }).catch(() => {});
       }
       res.json(booking);
     } catch (error) {

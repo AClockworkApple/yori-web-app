@@ -85,6 +85,7 @@ export default function WalkInPage() {
   };
 
   const availableTables = tables.filter(t => t.status === 'AVAILABLE');
+  const occupiedTables = tables.filter(t => t.status === 'OCCUPIED');
 
   if (!selectedRestaurantId) {
     return (
@@ -121,7 +122,7 @@ export default function WalkInPage() {
           <div style={{ marginTop: '12px' }}>
             <label>Assign Tables: </label>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
-              {availableTables.length === 0 && <span style={{ color: '#999' }}>No available tables</span>}
+              {availableTables.length === 0 && occupiedTables.length === 0 && <span style={{ color: '#999' }}>No tables found</span>}
               {availableTables.map(table => (
                 <label key={table.id} style={{
                   padding: '6px 12px', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer',
@@ -131,6 +132,14 @@ export default function WalkInPage() {
                   <input type="checkbox" checked={formData.tableIds.includes(table.id)} onChange={() => handleTableToggle(table.id)} style={{ display: 'none' }} />
                   {table.name || table.id} ({table.seats} seats)
                 </label>
+              ))}
+              {occupiedTables.map(table => (
+                <span key={table.id} style={{
+                  padding: '6px 12px', border: '1px solid #dc3545', borderRadius: '4px',
+                  backgroundColor: '#f8d7da', color: '#dc3545', fontSize: '13px',
+                }}>
+                  {table.name || table.id} ({table.seats} seats) &mdash; occupied
+                </span>
               ))}
             </div>
           </div>

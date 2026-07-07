@@ -3,7 +3,7 @@ const Booking = require('../models/Booking');
 const Restaurant = require('../models/Restaurant');
 const { sendReminder } = require('./emailService');
 
-const REMINDER_HOURS = parseInt(process.env.REMINDER_HOURS_BEFORE || '2', 10);
+const REMINDER_HOURS = parseInt(process.env.REMINDER_HOURS_BEFORE || '1', 10);
 const CRON_SCHEDULE = process.env.REMINDER_CRON || '*/15 * * * *';
 
 async function processReminders() {

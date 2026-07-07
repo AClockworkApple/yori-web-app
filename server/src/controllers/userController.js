@@ -5,6 +5,13 @@ const userController = {
   async create(req, res) {
     try {
       const data = { ...req.body };
+      if (!data.email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+      const existing = await User.getByEmail(data.email);
+      if (existing) {
+        return res.status(409).json({ error: 'A user with this email already exists' });
+      }
       if (data.password) {
         data.passwordHash = hashPassword(data.password);
         delete data.password;
