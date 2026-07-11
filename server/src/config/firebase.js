@@ -1,42 +1,30 @@
-let db;
+const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
+const path = require('path');
 
-const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+const credentialsPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
 
-if (credentialsPath) {
+if (!credentialsPath) {
+  console.error('[firebase] FIREBASE_SERVICE_ACCOUNT_PATH not set in .env');
+  process.exit(1);
+}
+
+if (admin.getApps().length === 0) {
+  const resolvedPath = path.resolve(__dirname, '..', '..', credentialsPath);
+  let serviceAccount;
   try {
-    const admin = require('firebase-admin');
-    const { getFirestore } = require('firebase-admin/firestore');
-    if (admin.getApps().length === 0) {
-      const serviceAccountPath = require('path').resolve(__dirname, '..', '..', credentialsPath);
-      const serviceAccount = require(serviceAccountPath);
-      admin.initializeApp({
-        credential: admin.cert(serviceAccount),
-        projectId: process.env.FIREBASE_PROJECT_ID,
-      });
-    }
-    db = getFirestore();
-    console.log('[firebase] Using Admin SDK');
+    serviceAccount = require(resolvedPath);
   } catch (e) {
-    console.log('[firebase] Admin SDK init failed, falling back to Client SDK:', e.message);
+    console.error(`[firebase] Failed to load service account from ${resolvedPath}:`, e.message);
+    process.exit(1);
   }
-}
-
-if (!db) {
-  const { initializeApp } = require('firebase/app');
-  const { getFirestore } = require('firebase/firestore');
-
-  const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  admin.initializeApp({
+    credential: admin.cert(serviceAccount),
     projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID
-  };
-
-  const firebase = initializeApp(firebaseConfig);
-  db = getFirestore(firebase);
-  console.log('[firebase] Using Client SDK');
+  });
+  console.log('[firebase] Admin SDK initialized successfully');
 }
+
+const db = getFirestore();
 
 module.exports = { db };

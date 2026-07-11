@@ -269,7 +269,15 @@ export default function BookingsPage() {
             <label style={{ fontWeight: 'bold' }}>Assigned Tables</label>
             {tables.length > 0 ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-                {tables.map(table => (
+                {tables.map(table => table.status === 'OCCUPIED' ? (
+                  <span key={table.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                    padding: '6px 12px', border: '1px solid #dc3545', borderRadius: '4px',
+                    backgroundColor: '#f8d7da', color: '#dc3545', fontSize: '13px'
+                  }}>
+                    {table.name || table.id} ({table.seats} seats) &mdash; occupied
+                  </span>
+                ) : (
                   <label key={table.id} style={{
                     display: 'flex', alignItems: 'center', gap: '4px',
                     padding: '6px 12px', border: '1px solid #ccc', borderRadius: '4px',

@@ -4,6 +4,7 @@ const Restaurant = require('../models/Restaurant');
 const RestaurantHour = require('../models/RestaurantHour');
 const Table = require('../models/Table');
 const { sendConfirmation, sendCancellation, sendStatusUpdate } = require('../utils/emailService');
+const { logAction } = require('../utils/auditLogger');
 
 function doTimeRangesOverlap(startA, endA, startB, endB) {
   return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
@@ -66,13 +67,14 @@ const bookingController = {
         return res.status(400).json({ error: 'scheduledStart is required' });
       }
 
-      if (!customerEmail) {
-        return res.status(400).json({ error: 'customerEmail is required' });
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(customerEmail)) {
-        return res.status(400).json({ error: 'Invalid email format' });
+      if (req.body.source !== 'walk-in') {
+        if (!customerEmail) {
+          return res.status(400).json({ error: 'customerEmail is required' });
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(customerEmail)) {
+          return res.status(400).json({ error: 'Invalid email format' });
+        }
       }
 
       const result = await validateBookingTime(scheduledStart, restaurantId);
@@ -121,12 +123,17 @@ const bookingController = {
         status: isOverbooked ? 'WAITLISTED' : (req.body.status || 'PENDING')
       });
 
-      sendConfirmation(booking, restaurant).then(result => {
-        if (result.success) {
-          Booking.update(booking.id, { confirmationEmailSentAt: new Date().toISOString() });
-        }
-      }).catch(err => console.error('[email] Confirmation send error:', err.message));
+      if (req.body.source !== 'walk-in') {
+        sendConfirmation(booking, restaurant).then(result => {
+          if (result.success) {
+            Booking.update(booking.id, { confirmationEmailSentAt: new Date().toISOString() });
+          }
+        }).catch(err => console.error('[email] Confirmation send error:', err.message));
+      }
 
+      logAction(req.user, 'CREATE', 'Booking', booking.id, {
+        customerName: booking.customerName, partySize: booking.partySize, source: booking.source
+      }, booking.restaurantId);
       res.status(201).json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -219,10 +226,22 @@ const bookingController = {
         req.body.scheduledEnd = result.scheduledEnd;
       }
 
+      const oldBooking = await Booking.getById(req.params.id);
       const booking = await Booking.update(req.params.id, req.body);
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
+      if (booking.customerEmail && req.body.status && oldBooking?.status !== req.body.status) {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (!restaurant) return;
+          if (req.body.status === 'CANCELLED') sendCancellation(booking, restaurant);
+          else sendStatusUpdate(booking, restaurant);
+        }).catch(() => {});
+      }
+      logAction(req.user, 'UPDATE', 'Booking', booking.id, {
+        changes: Object.keys(req.body),
+        ...(req.body.status && oldBooking ? { fromStatus: oldBooking.status, toStatus: req.body.status } : {})
+      }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -251,6 +270,7 @@ const bookingController = {
         }).catch(() => {});
       }
 
+      logAction(req.user, 'STATUS_CHANGE', 'Booking', booking.id, { toStatus: status }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -264,6 +284,12 @@ const bookingController = {
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
+      if (booking.customerEmail) {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (restaurant) sendStatusUpdate(booking, restaurant);
+        }).catch(() => {});
+      }
+      logAction(req.user, 'SEAT', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -277,6 +303,12 @@ const bookingController = {
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
+      if (booking.customerEmail) {
+        Restaurant.getById(booking.restaurantId).then(restaurant => {
+          if (restaurant) sendStatusUpdate(booking, restaurant);
+        }).catch(() => {});
+      }
+      logAction(req.user, 'COMPLETE', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -290,6 +322,7 @@ const bookingController = {
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
+      logAction(req.user, 'EXTEND', 'Booking', booking.id, { newEndTime, employeeId }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -309,6 +342,7 @@ const bookingController = {
         if (restaurant && booking.customerEmail) sendCancellation(booking, restaurant);
       }).catch(() => {});
 
+      logAction(req.user, 'DELETE', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
       res.json({ message: 'Booking deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
