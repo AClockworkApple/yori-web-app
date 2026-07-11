@@ -39,7 +39,7 @@ jobs:
           FIREBASE_MESSAGING_SENDER_ID: '000000000000'
           FIREBASE_APP_ID: '1:000000000000:web:0000000000000000000000'
         run: |
-          echo '{"type":"service_account","project_id":"test-project","private_key_id":"test","private_key":"-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8\n-----END PRIVATE KEY-----\n","client_email":"test@test-project.iam.gserviceaccount.com","client_id":"000000000000000000000"}' > ci-service-account.json
+          node -e 'const c=require("crypto"),k=c.generateKeyPairSync("rsa",{modulusLength:2048}),p=k.privateKey.export({type:"pkcs8",format:"pem"}),sa={type:"service_account",project_id:"test-project",private_key_id:"test",private_key:p,client_email:"test@test-project.iam.gserviceaccount.com",client_id:"000000000000000000000"};require("fs").writeFileSync("ci-service-account.json",JSON.stringify(sa,null,2))'
           if timeout 5 node src/index.js; then exit 0; else code=$?; [ $code -eq 124 ] && exit 0; exit $code; fi
 
   lint-client:
