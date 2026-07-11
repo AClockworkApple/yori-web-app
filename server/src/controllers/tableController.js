@@ -1,11 +1,13 @@
 const Table = require('../models/Table');
 const { logAction } = require('../utils/auditLogger');
+const { emitTableUpdate } = require('../socket/setup');
 
 const tableController = {
   async create(req, res) {
     try {
       const table = await Table.create(req.body);
       logAction(req.user, 'CREATE', 'Table', table.id, { name: table.name, restaurantId: table.restaurantId }, table.restaurantId);
+      emitTableUpdate(table.restaurantId, { action: 'created', table });
       res.status(201).json(table);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -49,6 +51,7 @@ const tableController = {
         return res.status(404).json({ error: 'Table not found' });
       }
       logAction(req.user, 'UPDATE', 'Table', table.id, { changes: Object.keys(req.body) }, table.restaurantId);
+      emitTableUpdate(table.restaurantId, { action: 'updated', table });
       res.json(table);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -67,6 +70,7 @@ const tableController = {
         return res.status(404).json({ error: 'Table not found' });
       }
       logAction(req.user, 'STATUS_CHANGE', 'Table', table.id, { toStatus: status }, table.restaurantId);
+      emitTableUpdate(table.restaurantId, { action: 'statusChanged', table });
       res.json(table);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -78,6 +82,9 @@ const tableController = {
       const deletedTable = await Table.getById(req.params.id);
       await Table.delete(req.params.id);
       logAction(req.user, 'DELETE', 'Table', req.params.id, deletedTable ? { name: deletedTable.name } : {});
+      if (deletedTable) {
+        emitTableUpdate(deletedTable.restaurantId, { action: 'deleted', tableId: req.params.id });
+      }
       res.json({ message: 'Table deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });

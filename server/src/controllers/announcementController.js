@@ -1,4 +1,5 @@
 const Announcement = require('../models/Announcement');
+const { emitAnnouncementUpdate } = require('../socket/setup');
 
 const announcementController = {
   async create(req, res) {
@@ -17,6 +18,7 @@ const announcementController = {
         createdBy: req.userId,
         expiresAt: expiresAt || null,
       });
+      emitAnnouncementUpdate(req.body.restaurantId, announcement);
       res.status(201).json(announcement);
     } catch (error) {
       res.status(500).json({ error: error.message });

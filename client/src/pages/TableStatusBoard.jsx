@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { tableService } from '../services/tableService';
 import { useRestaurants } from '../context/RestaurantContext';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 
 const STATUS_COLORS = {
   AVAILABLE: '#28a745',
@@ -24,8 +25,6 @@ const NEXT_STATUSES = {
   MAINTENANCE: ['AVAILABLE', 'OCCUPIED', 'CLEANING'],
 };
 
-const POLL_INTERVAL = 5000;
-
 export default function TableStatusBoard() {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +32,7 @@ export default function TableStatusBoard() {
   const [statusMenu, setStatusMenu] = useState(null);
   const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
   const { hasRole } = useAuth();
+  const { socket } = useSocket();
 
   const fetchTables = useCallback(async () => {
     if (!selectedRestaurantId) return;
@@ -49,9 +49,30 @@ export default function TableStatusBoard() {
 
   useEffect(() => {
     fetchTables();
-    const interval = setInterval(fetchTables, POLL_INTERVAL);
-    return () => clearInterval(interval);
   }, [fetchTables]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleTableUpdate = (data) => {
+      if (data.action === 'created' || data.action === 'updated' || data.action === 'statusChanged') {
+        setTables(prev => {
+          const idx = prev.findIndex(t => t.id === data.table.id);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = data.table;
+            return next;
+          }
+          return [...prev, data.table];
+        });
+      } else if (data.action === 'deleted') {
+        setTables(prev => prev.filter(t => t.id !== data.tableId));
+      }
+    };
+
+    socket.on('table:updated', handleTableUpdate);
+    return () => socket.off('table:updated', handleTableUpdate);
+  }, [socket]);
 
   const handleStatusChange = async (tableId, newStatus) => {
     try {

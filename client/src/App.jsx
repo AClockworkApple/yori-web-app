@@ -9,6 +9,7 @@ import { UserProvider } from './context/UserContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { RestaurantHourProvider } from './context/RestaurantHourContext';
 import { AnnouncementProvider, useAnnouncements } from './context/AnnouncementContext';
+import { SocketProvider } from './context/SocketContext';
 import RestaurantsPage from './pages/RestaurantsPage';
 import RestaurantDetailPage from './pages/RestaurantDetailPage';
 import TablesPage from './pages/TablesPage';
@@ -26,6 +27,7 @@ import TableStatusBoard from './pages/TableStatusBoard';
 import DailyReportPage from './pages/DailyReportPage';
 import GdprPage from './pages/GdprPage';
 import AuditLogPage from './pages/AuditLogPage';
+import DailyReconciliationPage from './pages/DailyReconciliationPage';
 import CustomerHomePage from './pages/CustomerHomePage';
 import CustomerMenuPage from './pages/CustomerMenuPage';
 import CustomerBookingPage from './pages/CustomerBookingPage';
@@ -84,6 +86,7 @@ function AppNav() {
         <a href="/menu-items" style={{ marginRight: '20px' }}>Menu Items</a>
         <a href="/table-status" style={{ marginRight: '20px' }}>Table Status</a>
         <a href="/daily-report" style={{ marginRight: '20px' }}>Daily Report</a>
+        <a href="/reconciliation" style={{ marginRight: '20px' }}>Reconciliation</a>
         {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
         {hasRole('OWNER', 'MANAGER') && <a href="/announcements" style={{ marginRight: '20px' }}>Announcements</a>}
         {hasRole('OWNER', 'MANAGER') && <a href="/gdpr" style={{ marginRight: '20px' }}>GDPR</a>}
@@ -100,6 +103,7 @@ function AppNav() {
 function AppRoutes() {
   return (
     <RestaurantProvider>
+      <SocketProvider>
       <TableProvider>
         <BookingProvider>
           <MenuItemProvider>
@@ -130,6 +134,7 @@ function AppRoutes() {
                         <Route path="/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
                         <Route path="/gdpr" element={<ProtectedRoute><GdprPage /></ProtectedRoute>} />
                         <Route path="/audit-log" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
+                        <Route path="/reconciliation" element={<ProtectedRoute><DailyReconciliationPage /></ProtectedRoute>} />
                         <Route path="/restaurant-hours" element={<ProtectedRoute><RestaurantHoursPage /></ProtectedRoute>} />
                         <Route path="/receipts/:orderId" element={<ProtectedRoute><ReceiptPage /></ProtectedRoute>} />
                       </Routes>
@@ -140,7 +145,8 @@ function AppRoutes() {
             </OrderProvider>
           </MenuItemProvider>
         </BookingProvider>
-      </TableProvider>
+        </TableProvider>
+      </SocketProvider>
     </RestaurantProvider>
   );
 }

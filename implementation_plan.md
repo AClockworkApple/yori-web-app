@@ -40,27 +40,35 @@
 | Category management | ✅ | CategoriesPage, rename/delete, default + custom categories |
 | Search/filter on all list pages | ✅ | SearchBar + hybridSearch on Bookings, MenuItems, Orders, Users |
 | RestaurantHours client | ✅ | Context, service, page (RestaurantHoursPage) |
-| Automatic email reminders | ✅ | nodemailer + SMTP (Gmail App Password), cron every 15 min, confirmation/reminder/status/cancellation emails |
-| Internal announcements | ✅ | Announcement model/controller/routes, AnnouncementsPage, live banner in AppNav, auto-refresh every 30s |
-| Real-time table status board | ✅ | TableStatusBoard — visual grid, color-coded by status, polling every 5s, click to change status |
-| Daily summary report | ✅ | Server endpoint + DailyReportPage with revenue, covers, tips, payment breakdown, averages |
-| GDPR compliance | ✅ | Data retention scheduler (auto-anonymize old data), GDPR page with lookup/export/erase by email |
-| Customer-facing website | ✅ | Public home/ menu/ booking pages with black theme, scroll animations, separate nav; public API endpoints |
-
-### Infrastructure
-
-| Item | Status | Notes |
-|------|--------|-------|
 | Express server with CORS | ✅ | Port 3001 |
 | Firebase Firestore connection | ✅ | Real project `yori-web-app` |
 | React 18 + Vite + Router | ✅ | Port 3000, proxy to backend |
 | 9 Context providers | ✅ | Restaurant, Table, Booking, MenuItem, Order, User, Auth, RestaurantHour, Announcement |
 | 13 Service modules | ✅ | Full HTTP wrappers incl. receipt, restaurantHour, announcement, report, gdpr |
-| node-cron | ✅ | Reminder scheduler, data retention scheduler |
-| SearchBar component + hybridSearch | ✅ | Reusable debounced search with 3 auto-scaling algorithms |
 | Self-contained JWT auth | ✅ | `jsonwebtoken` + `crypto.scryptSync`, no Firebase Auth dependency |
 | Public API mount (`/api/public`) | ✅ | Separate from JWT-protected routes; exposes restaurants, menu, booking creation |
 | Customer site (3 pages) | ✅ | Home (hero/about/features/animations), Menu (restaurant dropdown + category groups), Booking (form + confirmation) |
+
+### Should Have
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Automatic email reminders | ✅ | nodemailer + SMTP (Gmail App Password), cron every 15 min, confirmation/reminder/status/cancellation emails |
+| Internal announcements | ✅ | Announcement model/controller/routes, AnnouncementsPage, live banner in AppNav, auto-refresh every 30s |
+| Real-time table status board | ✅ | TableStatusBoard — visual grid, color-coded by status, polling every 5s, click to change status |
+| Daily summary report | ✅ | Server endpoint + DailyReportPage with revenue, covers, tips, payment breakdown, averages |
+| Daily cash reconciliation | ✅ | End-of-day cash vs card, declared vs expected variance tracking, reconciliation history |
+| Real-time updates | ✅ | Socket.IO with JWT auth, restaurant-scoped rooms, live table/booking/order/announcement events |
+| GDPR compliance | ✅ | Data retention scheduler (auto-anonymize old data), GDPR page with lookup/export/erase by email |
+| Audit logs | ✅ | Immutable action logs for CREATE, UPDATE, DELETE, STATUS_CHANGE across all entities |
+| Customer-facing website | ✅ | Public home/ menu/ booking pages with black theme, scroll animations, separate nav; public API endpoints |
+| node-cron | ✅ | Reminder scheduler, data retention scheduler |
+| SearchBar component + hybridSearch | ✅ | Reusable debounced search with 3 auto-scaling algorithms |
+
+### Could Have
+
+| Feature | Status | Notes |
+|---------|--------|-------|
 | ESLint | ✅ | Both client and server |
 | GitHub CI pipeline | ✅ | Lint + build + server-verify |
 | .git with remote tracking | ✅ | Multiple branches |
@@ -73,9 +81,7 @@
 |---|---------|--------|-------|
 | 1 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
 | 2 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
-| 3 | **Audit logs** | Medium | Immutable action logs |
-| 4 | **Daily cash reconciliation** | Medium | End-of-day cash vs card |
-| 5 | **Real-time updates** | Medium | Firebase listeners / WebSocket for live table status, bookings, orders |
+| 3 | **Wait time estimation** | Medium | Predict wait times based on current occupancy |
 
 ### Could Have
 
@@ -114,4 +120,4 @@
 | State management | React Context API (no Redux) |
 | API style | RESTful, nested where natural |
 | No ORM | Raw Firestore SDK |
-| Firestore access | Admin SDK when credentials available (via service account), falls back to Client SDK |
+| Firestore access | Admin SDK only (via service account); hard-exits if FIREBASE_SERVICE_ACCOUNT_PATH not set |

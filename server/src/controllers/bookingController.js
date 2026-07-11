@@ -5,6 +5,7 @@ const RestaurantHour = require('../models/RestaurantHour');
 const Table = require('../models/Table');
 const { sendConfirmation, sendCancellation, sendStatusUpdate } = require('../utils/emailService');
 const { logAction } = require('../utils/auditLogger');
+const { emitBookingUpdate } = require('../socket/setup');
 
 function doTimeRangesOverlap(startA, endA, startB, endB) {
   return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
@@ -134,6 +135,7 @@ const bookingController = {
       logAction(req.user, 'CREATE', 'Booking', booking.id, {
         customerName: booking.customerName, partySize: booking.partySize, source: booking.source
       }, booking.restaurantId);
+      emitBookingUpdate(booking.restaurantId, { action: 'created', booking });
       res.status(201).json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -242,6 +244,7 @@ const bookingController = {
         changes: Object.keys(req.body),
         ...(req.body.status && oldBooking ? { fromStatus: oldBooking.status, toStatus: req.body.status } : {})
       }, booking.restaurantId);
+      emitBookingUpdate(booking.restaurantId, { action: 'updated', booking });
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -271,6 +274,7 @@ const bookingController = {
       }
 
       logAction(req.user, 'STATUS_CHANGE', 'Booking', booking.id, { toStatus: status }, booking.restaurantId);
+      emitBookingUpdate(booking.restaurantId, { action: 'statusChanged', booking });
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -290,6 +294,7 @@ const bookingController = {
         }).catch(() => {});
       }
       logAction(req.user, 'SEAT', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
+      emitBookingUpdate(booking.restaurantId, { action: 'seated', booking });
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -309,6 +314,7 @@ const bookingController = {
         }).catch(() => {});
       }
       logAction(req.user, 'COMPLETE', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
+      emitBookingUpdate(booking.restaurantId, { action: 'completed', booking });
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -323,6 +329,7 @@ const bookingController = {
         return res.status(404).json({ error: 'Booking not found' });
       }
       logAction(req.user, 'EXTEND', 'Booking', booking.id, { newEndTime, employeeId }, booking.restaurantId);
+      emitBookingUpdate(booking.restaurantId, { action: 'extended', booking });
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -343,6 +350,7 @@ const bookingController = {
       }).catch(() => {});
 
       logAction(req.user, 'DELETE', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
+      emitBookingUpdate(booking.restaurantId, { action: 'deleted', bookingId: req.params.id });
       res.json({ message: 'Booking deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
