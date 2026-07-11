@@ -67,6 +67,9 @@ oauth*
 # Report
 FinalReportTemplate*.md
 
+# CI dummy service account (generated in workflow)
+ci-service-account.json
+
 # Resource images (placeholders — replace with your own)
 resources/images/*
 !resources/images/.gitkeep

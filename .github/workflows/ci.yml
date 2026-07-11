@@ -31,13 +31,16 @@ jobs:
       - name: Verify server loads
         env:
           JWT_SECRET: test
+          FIREBASE_SERVICE_ACCOUNT_PATH: ./ci-service-account.json
           FIREBASE_API_KEY: test
-          FIREBASE_PROJECT_ID: test
-          FIREBASE_AUTH_DOMAIN: test
-          FIREBASE_STORAGE_BUCKET: test
-          FIREBASE_MESSAGING_SENDER_ID: test
-          FIREBASE_APP_ID: test
-        run: if timeout 5 node src/index.js; then exit 0; else code=$?; [ $code -eq 124 ] && exit 0; exit $code; fi
+          FIREBASE_PROJECT_ID: test-project
+          FIREBASE_AUTH_DOMAIN: test.firebaseapp.com
+          FIREBASE_STORAGE_BUCKET: test.appspot.com
+          FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+          FIREBASE_APP_ID: '1:000000000000:web:0000000000000000000000'
+        run: |
+          echo '{"type":"service_account","project_id":"test-project","private_key_id":"test","private_key":"-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8\n-----END PRIVATE KEY-----\n","client_email":"test@test-project.iam.gserviceaccount.com","client_id":"000000000000000000000"}' > ci-service-account.json
+          if timeout 5 node src/index.js; then exit 0; else code=$?; [ $code -eq 124 ] && exit 0; exit $code; fi
 
   lint-client:
     runs-on: ubuntu-latest
