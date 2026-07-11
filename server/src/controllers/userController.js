@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { hashPassword } = require('../utils/auth');
+const { logAction } = require('../utils/auditLogger');
 
 const userController = {
   async create(req, res) {
@@ -17,6 +18,7 @@ const userController = {
         delete data.password;
       }
       const user = await User.create(data);
+      logAction(req.user, 'CREATE', 'User', user.id, { email: user.email, role: user.role }, user.restaurantId);
       res.status(201).json(user);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -68,6 +70,7 @@ const userController = {
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
+      logAction(req.user, 'UPDATE', 'User', user.id, { changes: Object.keys(req.body) }, user.restaurantId);
       res.json(user);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -76,7 +79,9 @@ const userController = {
 
   async delete(req, res) {
     try {
+      const deletedUser = await User.getById(req.params.id);
       await User.delete(req.params.id);
+      logAction(req.user, 'DELETE', 'User', req.params.id, deletedUser ? { email: deletedUser.email } : {}, null);
       res.json({ message: 'User deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });

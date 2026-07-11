@@ -4,6 +4,7 @@ const Restaurant = require('../models/Restaurant');
 const RestaurantHour = require('../models/RestaurantHour');
 const Table = require('../models/Table');
 const { sendConfirmation, sendCancellation, sendStatusUpdate } = require('../utils/emailService');
+const { logAction } = require('../utils/auditLogger');
 
 function doTimeRangesOverlap(startA, endA, startB, endB) {
   return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
@@ -130,6 +131,9 @@ const bookingController = {
         }).catch(err => console.error('[email] Confirmation send error:', err.message));
       }
 
+      logAction(req.user, 'CREATE', 'Booking', booking.id, {
+        customerName: booking.customerName, partySize: booking.partySize, source: booking.source
+      }, booking.restaurantId);
       res.status(201).json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -234,6 +238,10 @@ const bookingController = {
           else sendStatusUpdate(booking, restaurant);
         }).catch(() => {});
       }
+      logAction(req.user, 'UPDATE', 'Booking', booking.id, {
+        changes: Object.keys(req.body),
+        ...(req.body.status && oldBooking ? { fromStatus: oldBooking.status, toStatus: req.body.status } : {})
+      }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -262,6 +270,7 @@ const bookingController = {
         }).catch(() => {});
       }
 
+      logAction(req.user, 'STATUS_CHANGE', 'Booking', booking.id, { toStatus: status }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -280,6 +289,7 @@ const bookingController = {
           if (restaurant) sendStatusUpdate(booking, restaurant);
         }).catch(() => {});
       }
+      logAction(req.user, 'SEAT', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -298,6 +308,7 @@ const bookingController = {
           if (restaurant) sendStatusUpdate(booking, restaurant);
         }).catch(() => {});
       }
+      logAction(req.user, 'COMPLETE', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -311,6 +322,7 @@ const bookingController = {
       if (!booking) {
         return res.status(404).json({ error: 'Booking not found' });
       }
+      logAction(req.user, 'EXTEND', 'Booking', booking.id, { newEndTime, employeeId }, booking.restaurantId);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -330,6 +342,7 @@ const bookingController = {
         if (restaurant && booking.customerEmail) sendCancellation(booking, restaurant);
       }).catch(() => {});
 
+      logAction(req.user, 'DELETE', 'Booking', booking.id, { customerName: booking.customerName }, booking.restaurantId);
       res.json({ message: 'Booking deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });

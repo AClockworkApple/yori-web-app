@@ -64,6 +64,9 @@ oauth*
 *.cred
 *-cred.*
 
+# Report
+FinalReportTemplate*.md
+
 # Resource images (placeholders — replace with your own)
 resources/images/*
 !resources/images/.gitkeep
