@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -20,10 +21,13 @@ const reportRoutes = require('./routes/reportRoutes');
 const gdprRoutes = require('./routes/gdprRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
+const reconciliationRoutes = require('./routes/reconciliationRoutes');
 const { startReminderScheduler } = require('./utils/bookingReminderScheduler');
 const { startDataRetentionScheduler } = require('./utils/dataRetentionScheduler');
+const { createSocketServer } = require('./socket/setup');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 
 app.use(helmet({
@@ -34,7 +38,7 @@ app.use(helmet({
       styleSrc: ['\'self\'', '\'unsafe-inline\''],
       imgSrc: ['\'self\'', 'data:', 'https:'],
       mediaSrc: ['\'self\'', 'https:'],
-      connectSrc: ['\'self\''],
+      connectSrc: ['\'self\'', 'ws://localhost:3001'],
       fontSrc: ['\'self\''],
       objectSrc: ['\'none\''],
       frameSrc: ['\'none\''],
@@ -80,12 +84,15 @@ app.use('/api/announcements', ...authenticatedApi, announcementRoutes);
 app.use('/api/reports', ...authenticatedApi, reportRoutes);
 app.use('/api/gdpr', ...authenticatedApi, gdprRoutes);
 app.use('/api/audit-logs', ...authenticatedApi, auditLogRoutes);
+app.use('/api/reconciliation', ...authenticatedApi, reconciliationRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Yori Web App API is running' });
 });
 
-app.listen(PORT, () => {
+createSocketServer(server);
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   startReminderScheduler();
   startDataRetentionScheduler();

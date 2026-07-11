@@ -1,11 +1,13 @@
 const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 const Payment = require('../models/Payment');
+const { emitOrderUpdate } = require('../socket/setup');
 
 const orderController = {
   async create(req, res) {
     try {
       const order = await Order.create(req.body);
+      emitOrderUpdate(order.restaurantId, { action: 'created', order });
       res.status(201).json(order);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -151,6 +153,11 @@ const orderController = {
         amountReceived,
         changeGiven
       });
+
+      const order = await Order.getById(req.params.id);
+      if (order) {
+        emitOrderUpdate(order.restaurantId, { action: 'payment', orderId: req.params.id, payment });
+      }
       
       res.status(201).json(payment);
     } catch (error) {
@@ -173,6 +180,7 @@ const orderController = {
       if (!order) {
         return res.status(404).json({ error: 'Order not found' });
       }
+      emitOrderUpdate(order.restaurantId, { action: 'closed', order });
       res.json(order);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -185,6 +193,7 @@ const orderController = {
       if (!order) {
         return res.status(404).json({ error: 'Order not found' });
       }
+      emitOrderUpdate(order.restaurantId, { action: 'split', order });
       res.json(order);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -214,7 +223,11 @@ const orderController = {
 
   async delete(req, res) {
     try {
+      const order = await Order.getById(req.params.id);
       await Order.delete(req.params.id);
+      if (order) {
+        emitOrderUpdate(order.restaurantId, { action: 'deleted', orderId: req.params.id });
+      }
       res.json({ message: 'Order deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
