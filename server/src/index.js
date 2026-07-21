@@ -22,6 +22,7 @@ const gdprRoutes = require('./routes/gdprRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
 const reconciliationRoutes = require('./routes/reconciliationRoutes');
+const aiConfigRoutes = require('./routes/aiConfigRoutes');
 const { startReminderScheduler } = require('./utils/bookingReminderScheduler');
 const { startDataRetentionScheduler } = require('./utils/dataRetentionScheduler');
 const { createSocketServer } = require('./socket/setup');
@@ -85,6 +86,7 @@ app.use('/api/reports', ...authenticatedApi, reportRoutes);
 app.use('/api/gdpr', ...authenticatedApi, gdprRoutes);
 app.use('/api/audit-logs', ...authenticatedApi, auditLogRoutes);
 app.use('/api/reconciliation', ...authenticatedApi, reconciliationRoutes);
+app.use('/api/ai', ...authenticatedApi, aiConfigRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Yori Web App API is running' });

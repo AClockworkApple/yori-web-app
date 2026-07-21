@@ -390,3 +390,5 @@ const bookingController = {
 };
 
 module.exports = bookingController;
+module.exports.validateBookingTime = validateBookingTime;
+module.exports.doTimeRangesOverlap = doTimeRangesOverlap;

@@ -79,9 +79,8 @@
 
 | # | Feature | Effort | Notes |
 |---|---------|--------|-------|
-| 1 | **AI chatbot (booking)** | Large | Full flow (auto) / Confirm (semi-auto) |
+| 1 | **AI chatbot (booking)** | Large | ✅ Marker-based booking request in chat, auto-creates via Booking model, semi-auto (asks confirmation first) |
 | 2 | **AI chatbot (support)** | Medium | Toggle on/off (Owner only) |
-| 3 | **Wait time estimation** | Medium | Predict wait times based on current occupancy |
 
 ### Could Have
 
