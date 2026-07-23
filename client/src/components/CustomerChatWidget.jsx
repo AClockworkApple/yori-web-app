@@ -4,8 +4,6 @@ const API_URL = '/api/public';
 
 export default function CustomerChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [restaurants, setRestaurants] = useState([]);
-  const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -14,16 +12,6 @@ export default function CustomerChatWidget() {
   const [unread, setUnread] = useState(0);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    fetch('/api/public/restaurants')
-      .then(r => r.json())
-      .then(data => {
-        setRestaurants(data);
-        if (data.length > 0) setSelectedRestaurantId(data[0].id);
-      })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -35,7 +23,7 @@ export default function CustomerChatWidget() {
 
   const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || sending || !selectedRestaurantId) return;
+    if (!trimmed || sending) return;
 
     const userMessage = { role: 'user', content: trimmed };
     setMessages(prev => [...prev, userMessage]);
@@ -48,7 +36,6 @@ export default function CustomerChatWidget() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          restaurantId: selectedRestaurantId,
           message: trimmed,
           conversationId,
         }),
@@ -112,19 +99,7 @@ export default function CustomerChatWidget() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#28a745' }} />
-              {restaurants.length > 1 ? (
-                <select value={selectedRestaurantId || ''} onChange={e => { setSelectedRestaurantId(e.target.value); handleNewChat(); }}
-                  style={{
-                    background: 'none', border: 'none', color: '#fff', fontSize: '14px', fontWeight: 'bold',
-                    cursor: 'pointer', outline: 'none', maxWidth: '180px',
-                  }}>
-                  {restaurants.map(r => (
-                    <option key={r.id} value={r.id} style={{ background: '#333', color: '#fff' }}>{r.name}</option>
-                  ))}
-                </select>
-              ) : (
-                <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>Support</span>
-              )}
+              <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>Yori Support</span>
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
               <button onClick={handleNewChat} title="New conversation"
@@ -195,13 +170,13 @@ export default function CustomerChatWidget() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask about menu, reservations..."
-              disabled={sending || !selectedRestaurantId}
+              disabled={sending}
               style={{
                 flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid #444',
                 backgroundColor: '#222', color: '#fff', fontSize: '13px', outline: 'none',
               }}
             />
-            <button onClick={handleSend} disabled={sending || !input.trim() || !selectedRestaurantId}
+            <button onClick={handleSend} disabled={sending || !input.trim()}
               style={{
                 padding: '10px 14px', backgroundColor: '#d4af37', color: '#1a1a1a',
                 border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',

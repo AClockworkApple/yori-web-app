@@ -1,4 +1,4 @@
-const { db } = require('../config/firebase');
+const { db, FieldValue } = require('../config/firebase');
 
 const COLLECTION_NAME = 'conversations';
 const MESSAGES_COLLECTION = 'messages';
@@ -47,7 +47,7 @@ class Conversation {
     };
 
     await db.collection(COLLECTION_NAME).doc(conversationId).update({
-      messageCount: db.FieldValue.increment(1),
+      messageCount: FieldValue.increment(1),
       updatedAt: new Date().toISOString(),
     });
 

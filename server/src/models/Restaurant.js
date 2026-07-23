@@ -9,7 +9,7 @@ class Restaurant {
       address: data.address || '',
       phone: data.phone || '',
       taxNumber: data.taxNumber || '',
-      mode: data.mode || 'SEMI_AUTO',
+      mode: data.mode || 'AUTO',
       maxExtensionMinutes: data.maxExtensionMinutes || 60,
       warningBeforeMinutes: data.warningBeforeMinutes || 15,
       slotDurationMinutes: data.slotDurationMinutes || 120,

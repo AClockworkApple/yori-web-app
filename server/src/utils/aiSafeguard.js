@@ -18,6 +18,17 @@ const RESTAURANT_KEYWORDS = [
   'hygiene', 'cleanliness', 'sanitation',
   'online ordering', 'delivery', 'takeaway', 'takeout', 'dine-in',
   'loyalty', 'rewards', 'feedback', 'review', 'rating',
+  'recommend', 'recommendation', 'recommendations', 'popular', 'favorite',
+  'food', 'eat', 'eating', 'drink', 'drinks', 'beverage', 'beverages',
+  'appetizer', 'starter', 'main course', 'dessert', 'side', 'sides',
+  'vegan', 'vegetarian', 'gluten', 'spicy', 'sweet', 'savory',
+  'wine', 'beer', 'cocktail', 'juice', 'coffee', 'tea', 'water',
+  'pasta', 'pizza', 'salad', 'soup', 'steak', 'chicken', 'fish', 'rice',
+  'sauce', 'bread', 'cheese', 'chocolate', 'ice cream', 'cake',
+  'taste', 'flavor', 'fresh', 'organic', 'homemade', 'signature',
+  'try', 'best', 'good', 'great', 'delicious', 'yummy', 'tasty',
+  'hungry', 'thirsty', 'craving', 'portion', 'serving',
+  'yori', 'location', 'address', 'phone', 'where', 'hours', 'open', 'close',
 ];
 
 const BLOCKED_PATTERNS = [

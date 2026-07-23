@@ -8,7 +8,7 @@ export default function RestaurantsPage() {
   const [formData, setFormData] = useState({
     name: '',
     address: '',
-    mode: 'SEMI_AUTO',
+    mode: 'AUTO',
     maxExtensionMinutes: 60,
     warningBeforeMinutes: 15,
     slotDurationMinutes: 120,
@@ -46,7 +46,7 @@ export default function RestaurantsPage() {
     setFormData({
       name: '',
       address: '',
-      mode: 'SEMI_AUTO',
+      mode: 'AUTO',
       maxExtensionMinutes: 60,
       warningBeforeMinutes: 15,
       slotDurationMinutes: 120,
@@ -109,8 +109,8 @@ export default function RestaurantsPage() {
                 onChange={handleInputChange}
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}
               >
-                <option value="SEMI_AUTO">Semi-Auto</option>
-                <option value="FULL_AUTO">Full Auto</option>
+                <option value="AUTO">Auto</option>
+                <option value="MANUAL">Manual</option>
               </select>
             </div>
 
@@ -248,7 +248,7 @@ export default function RestaurantsPage() {
               </span>
               <span style={{
                 padding: '4px 10px', borderRadius: '4px', fontSize: '12px',
-                backgroundColor: restaurant.mode === 'FULL_AUTO' ? '#28a745' : '#ffc107',
+                backgroundColor: restaurant.mode === 'AUTO' ? '#28a745' : '#ffc107',
                 color: 'white', fontWeight: 'bold'
               }}>
                 {restaurant.mode}

@@ -34,7 +34,6 @@ class AiConfig {
   static async getByRestaurant(restaurantId) {
     const querySnapshot = await db.collection(COLLECTION_NAME)
       .where('restaurantId', '==', restaurantId)
-      .orderBy('createdAt', 'desc')
       .get();
     const configs = [];
     querySnapshot.forEach((doc) => {
