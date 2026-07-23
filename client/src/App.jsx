@@ -34,6 +34,40 @@ import CustomerMenuPage from './pages/CustomerMenuPage';
 import CustomerBookingPage from './pages/CustomerBookingPage';
 import CustomerChatWidget from './components/CustomerChatWidget';
 
+const globalStyle = document.createElement('style');
+globalStyle.textContent = `
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body, #root { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
+  body { background: #0a0a0a; color: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  input, select, textarea {
+    background: rgba(255,255,255,0.06) !important; color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 4px !important;
+    padding: 8px 10px !important; font-size: 14px !important; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: rgba(255,215,0,0.4) !important; }
+  select option { background: #1a1a1a !important; color: #fff !important; }
+  table { border-collapse: collapse; width: 100%; }
+  th { background: rgba(255,255,255,0.05) !important; color: rgba(255,255,255,0.7) !important; font-weight: 600 !important; text-transform: uppercase !important; font-size: 11px !important; letter-spacing: 1px !important; }
+  td, th { border: 1px solid rgba(255,255,255,0.08) !important; padding: 10px 12px !important; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  h1, h2, h3, h4 { color: #fff !important; font-weight: 300 !important; letter-spacing: 1px !important; }
+  a { transition: opacity 0.2s; }
+  a:hover { opacity: 0.8; }
+  label { color: rgba(255,255,255,0.5) !important; font-size: 12px !important; letter-spacing: 0.5px !important; }
+  button {
+    background: rgba(255,255,255,0.08) !important; color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 4px !important;
+    padding: 8px 18px !important; cursor: pointer !important; font-size: 13px !important;
+    transition: all 0.2s !important;
+  }
+  button:hover { background: rgba(255,255,255,0.14) !important; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+  p { color: rgba(255,255,255,0.6); }
+`;
+document.head.appendChild(globalStyle);
+
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
   if (loading) return <p style={{ padding: '20px' }}>Loading...</p>;
@@ -61,13 +95,11 @@ function AppNav() {
 
   if (!isAuthenticated || publicPaths.includes(location.pathname)) return null;
 
-  const priorityColors = { IMPORTANT: '#dc3545', WARNING: '#ffc107', INFO: '#17a2b8' };
-
   return (
     <>
       {selectedRestaurantId && activeAnnouncements.length > 0 && (
         <div style={{
-          padding: '8px 16px', backgroundColor: '#fff3cd', borderBottom: '1px solid #ffc107',
+          padding: '8px 16px', backgroundColor: 'rgba(180,120,0,0.15)', borderBottom: '1px solid rgba(255,215,0,0.3)',
           display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px'
         }}>
           {activeAnnouncements.map(a => (
@@ -75,28 +107,46 @@ function AppNav() {
               <span style={{
                 display: 'inline-block', padding: '1px 8px', borderRadius: '3px',
                 fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase',
-                backgroundColor: priorityColors[a.priority],
-                color: a.priority === 'WARNING' ? '#000' : '#fff',
+                backgroundColor: a.priority === 'IMPORTANT' ? '#c0392b' : a.priority === 'WARNING' ? '#d4a017' : '#2980b9',
+                color: '#fff',
               }}>{a.priority}</span>
-              <span>{a.message}</span>
+              <span style={{ color: 'rgba(255,255,255,0.8)' }}>{a.message}</span>
             </div>
           ))}
         </div>
       )}
-      <nav style={{ padding: '10px', backgroundColor: '#f8f9fa', marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
-        <a href="/restaurants" style={{ marginRight: '20px' }}>Restaurants</a>
-        <a href="/menu-items" style={{ marginRight: '20px' }}>Menu Items</a>
-        <a href="/table-status" style={{ marginRight: '20px' }}>Table Status</a>
-        <a href="/daily-report" style={{ marginRight: '20px' }}>Daily Report</a>
-        <a href="/reconciliation" style={{ marginRight: '20px' }}>Reconciliation</a>
-        <a href="/ai-config" style={{ marginRight: '20px' }}>AI</a>
-        {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
-        {hasRole('OWNER', 'MANAGER') && <a href="/announcements" style={{ marginRight: '20px' }}>Announcements</a>}
-        {hasRole('OWNER', 'MANAGER') && <a href="/gdpr" style={{ marginRight: '20px' }}>GDPR</a>}
-        {hasRole('OWNER', 'MANAGER') && <a href="/audit-log" style={{ marginRight: '20px' }}>Audit Log</a>}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '13px', color: '#666' }}>{user?.name} ({user?.role})</span>
-          <button onClick={logout} style={{ padding: '4px 12px', cursor: 'pointer', fontSize: '13px' }}>Logout</button>
+      <nav style={{
+        padding: '10px 20px', backgroundColor: 'rgba(0,0,0,0.9)', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex', alignItems: 'center', position: 'sticky', top: 0, zIndex: 900,
+        backdropFilter: 'blur(8px)',
+      }}>
+        {[
+          { href: '/restaurants', label: 'Restaurants' },
+          { href: '/menu-items', label: 'Menu Items' },
+          { href: '/table-status', label: 'Table Status' },
+          { href: '/daily-report', label: 'Daily Report' },
+          { href: '/reconciliation', label: 'Reconciliation' },
+          { href: '/ai-config', label: 'AI' },
+          ...(hasRole('OWNER', 'MANAGER') ? [
+            { href: '/users', label: 'Users' },
+            { href: '/announcements', label: 'Announcements' },
+            { href: '/gdpr', label: 'GDPR' },
+            { href: '/audit-log', label: 'Audit Log' },
+          ] : []),
+        ].map(item => (
+          <a key={item.href} href={item.href} style={{
+            marginRight: '16px', color: location.pathname === item.href || location.pathname.startsWith(item.href + '/') ? '#ffd700' : 'rgba(255,255,255,0.55)',
+            textDecoration: 'none', fontSize: '13px', letterSpacing: '0.5px', fontWeight: location.pathname === item.href ? '600' : '400',
+            padding: '4px 0', borderBottom: location.pathname === item.href ? '2px solid #ffd700' : '2px solid transparent',
+          }}>{item.label}</a>
+        ))}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>{user?.name} ({user?.role})</span>
+          <button onClick={logout} style={{
+            padding: '5px 14px', cursor: 'pointer', fontSize: '12px', letterSpacing: '0.5px',
+            backgroundColor: 'transparent', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '4px', transition: 'all 0.2s',
+          }}>Logout</button>
         </div>
       </nav>
     </>

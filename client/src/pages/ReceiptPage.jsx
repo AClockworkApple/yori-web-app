@@ -50,9 +50,9 @@ export default function ReceiptPage() {
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString('de-DE') : '';
   const fmtTime = (d) => d ? new Date(d).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
 
-  if (loading) return <div style={{ padding: '20px' }}>Lade Rechnung...</div>;
-  if (error) return <div style={{ padding: '20px', color: 'red' }}>Fehler: {error}</div>;
-  if (!receipt) return <div style={{ padding: '20px' }}>Keine Rechnungsdaten vorhanden.</div>;
+  if (loading) return <div style={{ padding: '24px 40px' }}>Lade Rechnung...</div>;
+  if (error) return <div style={{ padding: '24px 40px', color: '#ff6b6b' }}>Fehler: {error}</div>;
+  if (!receipt) return <div style={{ padding: '24px 40px' }}>Keine Rechnungsdaten vorhanden.</div>;
 
   return (
     <div style={{ padding: '20px', maxWidth: '420px', margin: '0 auto', fontFamily: "'Courier New', Courier, monospace", fontSize: '12px', lineHeight: '1.4' }}>

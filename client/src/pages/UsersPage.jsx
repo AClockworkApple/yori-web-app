@@ -100,21 +100,31 @@ export default function UsersPage() {
 
   const getRoleColor = (role) => {
     const colors = {
-      OWNER: '#dc3545',
-      MANAGER: '#17a2b8',
-      STAFF: '#28a745',
-      CUSTOMER: '#6c757d',
+      OWNER: 'rgba(220,53,69,0.25)',
+      MANAGER: 'rgba(23,162,184,0.25)',
+      STAFF: 'rgba(40,167,69,0.25)',
+      CUSTOMER: 'rgba(108,117,125,0.25)',
     };
-    return colors[role] || '#6c757d';
+    return colors[role] || 'rgba(108,117,125,0.25)';
+  };
+
+  const getRoleTextColor = (role) => {
+    const colors = {
+      OWNER: '#ff6b6b',
+      MANAGER: '#17a2b8',
+      STAFF: 'green',
+      CUSTOMER: 'rgba(255,255,255,0.5)',
+    };
+    return colors[role] || 'rgba(255,255,255,0.5)';
   };
 
   const displayUsers = searchActive ? searchedUsers : users;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>User Management</h1>
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
       <SearchBar
         items={users}
@@ -147,7 +157,7 @@ export default function UsersPage() {
 
       {showForm && (
         <form onSubmit={handleSubmit} style={{
-          border: '1px solid #ccc',
+          border: '1px solid rgba(255,255,255,0.08)',
           padding: '20px',
           marginBottom: '20px',
           borderRadius: '8px'
@@ -156,7 +166,7 @@ export default function UsersPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
-              <label>Email *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Email *</label>
               <input
                 type="email"
                 name="email"
@@ -168,7 +178,7 @@ export default function UsersPage() {
             </div>
 
             <div>
-              <label>Name *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Name *</label>
               <input
                 type="text"
                 name="name"
@@ -181,7 +191,7 @@ export default function UsersPage() {
 
             {!editingId && (
               <div>
-                <label>Password *</label>
+                <label style={{ color: 'rgba(255,255,255,0.5)' }}>Password *</label>
                 <input
                   type="password"
                   name="password"
@@ -195,7 +205,7 @@ export default function UsersPage() {
             )}
 
             <div>
-              <label>Role *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Role *</label>
               <select
                 name="role"
                 value={formData.role}
@@ -210,7 +220,7 @@ export default function UsersPage() {
             </div>
 
             <div>
-              <label>Restaurant</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Restaurant</label>
               <select
                 name="restaurantId"
                 value={formData.restaurantId}
@@ -228,8 +238,8 @@ export default function UsersPage() {
           <button type="submit" disabled={loading} style={{
             marginTop: '20px',
             padding: '10px 30px',
-            backgroundColor: '#007bff',
-            color: 'white',
+            backgroundColor: 'rgba(255,215,0,0.15)',
+            color: '#ffd700',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer'
@@ -246,45 +256,45 @@ export default function UsersPage() {
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Name</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Email</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Role</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Restaurant</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Actions</th>
+            <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Name</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Email</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Role</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Restaurant</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {displayUsers.map((user) => (
               <tr key={user.id}>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <strong>{user.name}</strong>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{user.email}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>{user.email}</td>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <span style={{
                     padding: '4px 8px',
                     borderRadius: '4px',
                     backgroundColor: getRoleColor(user.role),
-                    color: 'white',
+                    color: getRoleTextColor(user.role),
                     fontSize: '12px',
                     fontWeight: 'bold'
                   }}>
                     {user.role}
                   </span>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   {user.restaurantId
                     ? (restaurants.find(r => r.id === user.restaurantId)?.name || user.restaurantId)
                     : '-'}
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   {hasRole('OWNER') && (
                     <>
                       <button onClick={() => handleEdit(user)} style={{ marginRight: '5px' }}>
                         Edit
                       </button>
-                      <button onClick={() => handleDelete(user.id)} style={{ color: 'red' }}>
+                      <button onClick={() => handleDelete(user.id)} style={{ color: '#ff6b6b' }}>
                         Delete
                       </button>
                     </>

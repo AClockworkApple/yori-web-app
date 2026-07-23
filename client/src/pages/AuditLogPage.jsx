@@ -24,21 +24,35 @@ export default function AuditLogPage() {
   };
 
   const actionColors = {
-    CREATE: '#28a745',
-    UPDATE: '#007bff',
-    DELETE: '#dc3545',
+    CREATE: 'rgba(40,167,69,0.25)',
+    UPDATE: 'rgba(255,215,0,0.15)',
+    DELETE: 'rgba(220,53,69,0.25)',
+    STATUS_CHANGE: 'rgba(255,193,7,0.25)',
+    SEAT: 'rgba(23,162,184,0.25)',
+    COMPLETE: 'rgba(111,66,193,0.25)',
+    EXTEND: 'rgba(253,126,20,0.25)',
+    IMPORT: 'rgba(32,201,151,0.25)',
+    TOGGLE_AVAILABILITY: 'rgba(232,62,140,0.25)',
+    DELETE_CATEGORY: 'rgba(220,53,69,0.25)',
+    RENAME_CATEGORY: 'rgba(108,117,125,0.25)',
+  };
+
+  const actionTextColors = {
+    CREATE: 'green',
+    UPDATE: '#ffd700',
+    DELETE: '#ff6b6b',
     STATUS_CHANGE: '#ffc107',
     SEAT: '#17a2b8',
     COMPLETE: '#6f42c1',
     EXTEND: '#fd7e14',
     IMPORT: '#20c997',
     TOGGLE_AVAILABILITY: '#e83e8c',
-    DELETE_CATEGORY: '#dc3545',
-    RENAME_CATEGORY: '#6c757d',
+    DELETE_CATEGORY: '#ff6b6b',
+    RENAME_CATEGORY: 'rgba(255,255,255,0.5)',
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '24px 40px' }}>
       <h1>Audit Log{selectedRestaurant ? ` — ${selectedRestaurant.name}` : ''}</h1>
       <button onClick={loadLogs} style={{ marginBottom: '16px', padding: '6px 16px', cursor: 'pointer' }}>
         Refresh
@@ -52,7 +66,7 @@ export default function AuditLogPage() {
         <div style={{ overflowX: 'auto' }}>
           <table border="1" cellPadding="8" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ backgroundColor: '#f8f9fa' }}>
+              <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
                 <th>Time</th>
                 <th>User</th>
                 <th>Role</th>
@@ -71,17 +85,17 @@ export default function AuditLogPage() {
                   <td>
                     <span style={{
                       display: 'inline-block', padding: '2px 8px', borderRadius: '3px',
-                      fontSize: '11px', fontWeight: 'bold', color: '#fff',
-                      backgroundColor: actionColors[log.action] || '#6c757d',
+                      fontSize: '11px', fontWeight: 'bold', color: actionTextColors[log.action] || 'rgba(255,255,255,0.5)',
+                      backgroundColor: actionColors[log.action] || 'rgba(108,117,125,0.25)',
                     }}>
                       {log.action}
                     </span>
                   </td>
                   <td>{log.resource}</td>
-                  <td style={{ fontSize: '12px', color: '#666', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <td style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {log.resourceId || '-'}
                   </td>
-                  <td style={{ fontSize: '12px', color: '#666', maxWidth: '250px' }}>
+                  <td style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', maxWidth: '250px' }}>
                     {log.details ? JSON.stringify(log.details) : '-'}
                   </td>
                 </tr>

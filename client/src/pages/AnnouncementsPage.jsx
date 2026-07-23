@@ -4,7 +4,13 @@ import { useRestaurants } from '../context/RestaurantContext';
 import { useAuth } from '../context/AuthContext';
 
 const PRIORITY_COLORS = {
-  IMPORTANT: '#dc3545',
+  IMPORTANT: 'rgba(220,53,69,0.25)',
+  WARNING: 'rgba(255,193,7,0.25)',
+  INFO: 'rgba(23,162,184,0.25)',
+};
+
+const PRIORITY_TEXT_COLORS = {
+  IMPORTANT: '#ff6b6b',
   WARNING: '#ffc107',
   INFO: '#17a2b8',
 };
@@ -101,7 +107,7 @@ export default function AnnouncementsPage() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1>Announcements</h1>
         <p>Select a restaurant from the navigation bar to manage announcements.</p>
       </div>
@@ -109,10 +115,10 @@ export default function AnnouncementsPage() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Announcements — {selectedRestaurant?.name}</h1>
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
       {canManage && (
         <div style={{ marginBottom: '20px' }}>
@@ -124,19 +130,19 @@ export default function AnnouncementsPage() {
 
       {showForm && (
         <form onSubmit={handleSubmit} style={{
-          border: '1px solid #ccc', padding: '20px', marginBottom: '20px', borderRadius: '8px'
+          border: '1px solid rgba(255,255,255,0.08)', padding: '20px', marginBottom: '20px', borderRadius: '8px'
         }}>
           <h2>{editingId ? 'Edit Announcement' : 'New Announcement'}</h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label>Message *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Message *</label>
               <textarea name="message" value={formData.message}
                 onChange={handleInputChange} required rows="3"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Priority</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Priority</label>
               <select name="priority" value={formData.priority}
                 onChange={handleInputChange}
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }}>
@@ -146,7 +152,7 @@ export default function AnnouncementsPage() {
               </select>
             </div>
             <div>
-              <label>Expires At (optional)</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Expires At (optional)</label>
               <input type="datetime-local" name="expiresAt" value={formData.expiresAt}
                 onChange={handleInputChange}
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
@@ -154,8 +160,8 @@ export default function AnnouncementsPage() {
           </div>
 
           <button type="submit" disabled={loading} style={{
-            marginTop: '20px', padding: '10px 30px', backgroundColor: '#007bff',
-            color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'
+            marginTop: '20px', padding: '10px 30px', backgroundColor: 'rgba(255,215,0,0.15)',
+            color: '#ffd700', border: 'none', borderRadius: '4px', cursor: 'pointer'
           }}>
             {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
           </button>
@@ -170,10 +176,10 @@ export default function AnnouncementsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
           {announcements.map(a => (
             <div key={a.id} style={{
-              border: `2px solid ${PRIORITY_COLORS[a.priority] || '#ccc'}`,
+              border: `2px solid ${PRIORITY_COLORS[a.priority] || 'rgba(255,255,255,0.08)'}`,
               borderRadius: '8px', padding: '16px',
               opacity: a.active ? 1 : 0.5,
-              backgroundColor: a.active ? '#fff' : '#f8f9fa',
+              backgroundColor: a.active ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.04)',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
@@ -181,24 +187,24 @@ export default function AnnouncementsPage() {
                     display: 'inline-block', padding: '2px 10px', borderRadius: '4px',
                     fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase',
                     backgroundColor: PRIORITY_COLORS[a.priority],
-                    color: a.priority === 'WARNING' ? '#000' : '#fff',
+                    color: PRIORITY_TEXT_COLORS[a.priority] || 'rgba(255,255,255,0.8)',
                     marginBottom: '8px'
                   }}>
                     {a.priority}
                   </div>
                   <p style={{ margin: '8px 0', whiteSpace: 'pre-wrap' }}>{a.message}</p>
-                  <div style={{ fontSize: '12px', color: '#666' }}>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
                     Created: {formatDate(a.createdAt)}
                     {a.expiresAt && <> &middot; Expires: {formatDate(a.expiresAt)}</>}
-                    {!a.active && <span style={{ color: '#dc3545' }}> &middot; Deactivated</span>}
+                    {!a.active && <span style={{ color: '#ff6b6b' }}> &middot; Deactivated</span>}
                   </div>
                 </div>
                 {canManage && (
                   <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
                     <button onClick={() => handleToggleActive(a)} style={{
                       padding: '4px 10px', cursor: 'pointer', fontSize: '12px',
-                      backgroundColor: a.active ? '#dc3545' : '#28a745',
-                      color: 'white', border: 'none', borderRadius: '4px',
+                      backgroundColor: a.active ? 'rgba(220,53,69,0.25)' : 'rgba(40,167,69,0.25)',
+                      color: a.active ? '#ff6b6b' : 'green', border: 'none', borderRadius: '4px',
                     }}>
                       {a.active ? 'Deactivate' : 'Activate'}
                     </button>
@@ -206,7 +212,7 @@ export default function AnnouncementsPage() {
                       Edit
                     </button>
                     <button onClick={() => handleDelete(a.id)} style={{
-                      padding: '4px 10px', cursor: 'pointer', fontSize: '12px', color: '#dc3545'
+                      padding: '4px 10px', cursor: 'pointer', fontSize: '12px', color: '#ff6b6b'
                     }}>
                       Delete
                     </button>

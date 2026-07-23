@@ -190,7 +190,7 @@ export default function BookingsPage() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '1400px', margin: '0 auto' }}>
         <h1>Bookings Management</h1>
         <p>Select a restaurant from the navigation bar to manage bookings.</p>
       </div>
@@ -198,11 +198,11 @@ export default function BookingsPage() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1400px', margin: '0 auto' }}>
       <h1>Bookings — {selectedRestaurant?.name}</h1>
-      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
       <SearchBar
         items={filteredBookings}
@@ -228,37 +228,37 @@ export default function BookingsPage() {
 
       {showForm && (
         <form onSubmit={handleSubmit} style={{
-          border: '1px solid #ccc', padding: '20px', marginBottom: '20px', borderRadius: '8px'
+          border: '1px solid rgba(255,255,255,0.08)', padding: '20px', marginBottom: '20px', borderRadius: '8px'
         }}>
           <h2>{editingId ? 'Edit Booking' : 'Add New Booking'}</h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
-              <label>Customer Name *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Customer Name *</label>
               <input type="text" name="customerName" value={formData.customerName}
                 onChange={handleInputChange} required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Party Size *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Party Size *</label>
               <input type="number" name="partySize" value={formData.partySize}
                 onChange={handleInputChange} min="1" required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Phone</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Phone</label>
               <input type="tel" name="customerPhone" value={formData.customerPhone}
                 onChange={handleInputChange}
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Email *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Email *</label>
               <input type="email" name="customerEmail" value={formData.customerEmail}
                 onChange={handleInputChange} required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Scheduled Start *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Scheduled Start *</label>
               <input type="datetime-local" name="scheduledStart" value={formData.scheduledStart}
                 onChange={handleInputChange} required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
@@ -266,7 +266,7 @@ export default function BookingsPage() {
           </div>
 
           <div style={{ marginTop: '20px' }}>
-            <label style={{ fontWeight: 'bold' }}>Assigned Tables</label>
+            <label style={{ fontWeight: 'bold', color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Assigned Tables</label>
             {tables.length > 0 ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
                 {tables.map(table => table.status === 'OCCUPIED' ? (
@@ -280,9 +280,9 @@ export default function BookingsPage() {
                 ) : (
                   <label key={table.id} style={{
                     display: 'flex', alignItems: 'center', gap: '4px',
-                    padding: '6px 12px', border: '1px solid #ccc', borderRadius: '4px',
-                    cursor: 'pointer', backgroundColor: formData.tableIds.includes(table.id) ? '#007bff' : '#fff',
-                    color: formData.tableIds.includes(table.id) ? '#fff' : '#000'
+                    padding: '6px 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px',
+                    cursor: 'pointer', backgroundColor: formData.tableIds.includes(table.id) ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.03)',
+                    color: formData.tableIds.includes(table.id) ? '#ffd700' : 'rgba(255,255,255,0.6)'
                   }}>
                     <input type="checkbox" checked={formData.tableIds.includes(table.id)}
                       onChange={() => handleTableToggle(table.id)} style={{ display: 'none' }} />
@@ -296,8 +296,8 @@ export default function BookingsPage() {
           </div>
 
           <button type="submit" disabled={loading} style={{
-            marginTop: '20px', padding: '10px 30px', backgroundColor: '#007bff',
-            color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'
+            marginTop: '20px', padding: '10px 30px', backgroundColor: 'rgba(255,215,0,0.15)',
+            color: '#ffd700', border: 'none', borderRadius: '4px', cursor: 'pointer'
           }}>
             {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
           </button>
@@ -311,24 +311,24 @@ export default function BookingsPage() {
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Customer</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Party</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Date/Time</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Status</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Tables</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Actions</th>
+            <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Customer</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Party</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Date/Time</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Status</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Tables</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {displayBookings.map((booking) => (
               <tr key={booking.id}>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div><strong>{booking.customerName}</strong></div>
                   <div style={{ fontSize: '12px', color: '#666' }}>{booking.customerPhone}</div>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{booking.partySize}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>{booking.partySize}</td>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div style={{ fontSize: '13px' }}>{formatDateTime(booking.scheduledStart)}</div>
                   {booking.isOverbooked && (
                     <span style={{ fontSize: '11px', backgroundColor: '#ffc107', padding: '2px 6px', borderRadius: '3px', color: 'black' }}>
@@ -336,7 +336,7 @@ export default function BookingsPage() {
                     </span>
                   )}
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <select value={booking.status}
                     onChange={(e) => handleStatusChange(booking.id, e.target.value)}
                     style={{ padding: '4px 8px', borderRadius: '4px',
@@ -350,7 +350,7 @@ export default function BookingsPage() {
                     <option value="WAITLISTED">Waitlisted</option>
                   </select>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   {(booking.tables || []).length > 0 ? (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                       {(booking.tables || []).map(t => (
@@ -369,7 +369,7 @@ export default function BookingsPage() {
                     <span style={{ color: '#999' }}>No tables assigned</span>
                   )}
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   {booking.status === 'PENDING' && (
                     <button onClick={() => handleSeat(booking.id)} style={{ marginRight: '5px', backgroundColor: '#28a745', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>
                       Seat
@@ -386,7 +386,7 @@ export default function BookingsPage() {
                   <button onClick={() => handleEdit(booking)} style={{ marginRight: '5px', padding: '4px 8px', cursor: 'pointer' }}>
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(booking.id)} style={{ color: 'red', padding: '4px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => handleDelete(booking.id)} style={{ color: '#ff6b6b', padding: '4px 8px', cursor: 'pointer' }}>
                     Delete
                   </button>
                 </td>

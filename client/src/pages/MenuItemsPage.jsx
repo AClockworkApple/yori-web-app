@@ -128,17 +128,17 @@ export default function MenuItemsPage() {
   const displayItems = searchActive ? searchedItems : filteredItems;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1400px', margin: '0 auto' }}>
       <h1>
         {selectedRestaurantId
           ? `Menu Items — ${selectedRestaurant?.name}`
           : 'General Menu Items'}
       </h1>
       {selectedRestaurantId && (
-        <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+        <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
       )}
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
       <SearchBar
         items={filteredItems}
@@ -168,13 +168,13 @@ export default function MenuItemsPage() {
         </select>
 
         {selectedRestaurantId && (
-          <button onClick={handleImport} style={{ padding: '8px', backgroundColor: '#28a745', color: 'white' }}>
+          <button onClick={handleImport} style={{ padding: '8px', backgroundColor: 'rgba(40,167,69,0.3)', color: '#28a745', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px' }}>
             Import General Menu
           </button>
         )}
 
         {selectedRestaurantId && (
-          <Link to="/categories" style={{ padding: '8px 14px', backgroundColor: '#6f42c1', color: 'white', textDecoration: 'none', borderRadius: '4px', fontSize: '13px' }}>
+          <Link to="/categories" style={{ padding: '8px 14px', backgroundColor: 'rgba(111,66,193,0.2)', color: '#b794f4', textDecoration: 'none', borderRadius: '4px', fontSize: '13px', border: '1px solid rgba(255,255,255,0.08)' }}>
             Manage Categories
           </Link>
         )}
@@ -195,26 +195,26 @@ export default function MenuItemsPage() {
           </button>
         )}
 
-        <span style={{ fontSize: '13px', color: '#666' }}>
+        <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
           {selectedRestaurantId ? 'Restaurant menu' : 'General menu (shared across all restaurants)'}
         </span>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} style={{
-          border: '1px solid #ccc', padding: '20px', marginBottom: '20px', borderRadius: '8px'
+          border: '1px solid rgba(255,255,255,0.08)', padding: '20px', marginBottom: '20px', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.03)'
         }}>
           <h2>{editingId ? 'Edit Menu Item' : 'Add New Menu Item'}</h2>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
-              <label>Name *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Name *</label>
               <input type="text" name="name" value={formData.name}
                 onChange={handleInputChange} placeholder="e.g., Margherita Pizza" required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Category *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Category *</label>
               {formData.category === '__new__' ? (
                 <input type="text" value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
@@ -236,31 +236,31 @@ export default function MenuItemsPage() {
               )}
             </div>
             <div>
-              <label>Price *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Price *</label>
               <input type="number" name="price" value={formData.price}
                 onChange={handleInputChange} step="0.01" min="0" required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Item Number</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Item Number</label>
               <input type="text" name="itemNumber" value={formData.itemNumber}
                 onChange={handleInputChange} placeholder="e.g., M-001"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Image URL</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Image URL</label>
               <input type="text" name="imageUrl" value={formData.imageUrl}
                 onChange={handleInputChange} placeholder="https://example.com/image.jpg"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '25px' }}>
               {!selectedRestaurantId && (
-                <span style={{ fontSize: '13px', color: '#666' }}>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
                   This item will be added to the General Menu (shared across all restaurants)
                 </span>
               )}
               {selectedRestaurantId && (
-                <span style={{ fontSize: '13px', color: '#666' }}>
+                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
                   This item will be added to {selectedRestaurant?.name}
                 </span>
               )}
@@ -268,15 +268,15 @@ export default function MenuItemsPage() {
           </div>
 
           <div style={{ marginTop: '15px' }}>
-            <label>Description</label>
+            <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Description</label>
             <textarea name="description" value={formData.description}
               onChange={handleInputChange} placeholder="Optional description..." rows="3"
               style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
           </div>
 
           <button type="submit" disabled={loading} style={{
-            marginTop: '20px', padding: '10px 30px', backgroundColor: '#007bff',
-            color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'
+            marginTop: '20px', padding: '10px 30px', backgroundColor: 'rgba(255,215,0,0.15)',
+            color: '#ffd700', border: 'none', borderRadius: '4px', cursor: 'pointer'
           }}>
             {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
           </button>
@@ -290,68 +290,68 @@ export default function MenuItemsPage() {
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Item #</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Name</th>
+            <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Item #</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Name</th>
               {!selectedRestaurantId && (
-                <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Restaurant</th>
+                <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Restaurant</th>
               )}
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Category</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Price</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Category</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Price</th>
               {selectedRestaurantId && (
-                <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Source</th>
+                <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Source</th>
               )}
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Status</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Actions</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Status</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {displayItems.map((item) => (
               <tr key={item.id} style={{ opacity: item.isAvailable ? 1 : 0.5 }}>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6', color: '#666', fontSize: '13px' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.35)', fontSize: '13px' }}>
                   {item.itemNumber || '-'}
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div><strong>{item.name}</strong></div>
                   {item.description && (
-                    <div style={{ fontSize: '12px', color: '#666' }}>{item.description}</div>
+                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>{item.description}</div>
                   )}
                 </td>
                 {!selectedRestaurantId && (
-                  <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                  <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {item.isGeneral ? 'General' : (item.restaurantId || '-')}
                   </td>
                 )}
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                  <span style={{ padding: '4px 8px', backgroundColor: '#e9ecef', borderRadius: '4px', fontSize: '12px' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <span style={{ padding: '4px 8px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '4px', fontSize: '12px' }}>
                     {item.category}
                   </span>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>€{item.price.toFixed(2)}</td>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>€{item.price.toFixed(2)}</td>
                 {selectedRestaurantId && (
-                  <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                  <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <span style={{
                       padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
-                      backgroundColor: item.isGeneral ? '#007bff' : (item.source === 'general' ? '#17a2b8' : '#28a745'),
-                      color: 'white'
+                      backgroundColor: item.isGeneral ? 'rgba(0,123,255,0.2)' : (item.source === 'general' ? 'rgba(23,162,184,0.2)' : 'rgba(40,167,69,0.2)'),
+                      color: item.isGeneral ? '#6cb2eb' : (item.source === 'general' ? '#5bc0de' : '#28a745')
                     }}>
                       {item.isGeneral ? 'General' : (item.source === 'general' ? 'Imported' : 'Custom')}
                     </span>
                   </td>
                 )}
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <button onClick={() => handleToggleAvailability(item.id)}
                     style={{
                       padding: '4px 8px', borderRadius: '4px',
-                      backgroundColor: item.isAvailable ? '#28a745' : '#dc3545',
-                      color: 'white', border: 'none', cursor: 'pointer'
+                      backgroundColor: item.isAvailable ? 'rgba(40,167,69,0.3)' : 'rgba(220,53,69,0.3)',
+                      color: item.isAvailable ? '#28a745' : '#dc3545', border: 'none', cursor: 'pointer'
                     }}>
                     {item.isAvailable ? 'Available' : 'Unavailable'}
                   </button>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <button onClick={() => handleEdit(item)} style={{ marginRight: '10px' }}>Edit</button>
-                  <button onClick={() => handleDelete(item.id)} style={{ color: 'red' }}>Delete</button>
+                  <button onClick={() => handleDelete(item.id)} style={{ color: '#ff6b6b' }}>Delete</button>
                 </td>
               </tr>
             ))}

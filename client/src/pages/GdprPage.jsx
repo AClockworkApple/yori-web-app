@@ -67,39 +67,39 @@ export default function GdprPage() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1000px', margin: '0 auto' }}>
       <h1>GDPR Compliance</h1>
-      <p style={{ color: '#666', marginBottom: '24px' }}>
+      <p style={{ color: 'rgba(255,255,255,0.35)', marginBottom: '24px' }}>
         Look up, export, or erase personal data for a customer by email address.
       </p>
 
-      {error && <p style={{ color: 'red', background: '#fff', padding: '8px', borderRadius: '4px' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b', background: 'rgba(255,255,255,0.03)', padding: '8px', borderRadius: '4px' }}>Error: {error}</p>}
       {eraseResult && (
-        <p style={{ color: '#28a745', background: '#fff', padding: '8px', borderRadius: '4px' }}>
+        <p style={{ color: 'green', background: 'rgba(255,255,255,0.03)', padding: '8px', borderRadius: '4px' }}>
           {eraseResult.message}
         </p>
       )}
 
       <div style={{
-        border: '1px solid #dee2e6', borderRadius: '8px', padding: '20px',
-        backgroundColor: '#fff', marginBottom: '24px'
+        border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px',
+        backgroundColor: 'rgba(255,255,255,0.03)', marginBottom: '24px'
       }}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
           <div style={{ flex: 1 }}>
-            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Customer Email</label>
+            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'rgba(255,255,255,0.5)' }}>Customer Email</label>
             <input type="email" value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="customer@example.com"
               style={{ width: '100%', padding: '8px', fontSize: '14px' }} />
           </div>
           <button onClick={handleLookup} disabled={loading || !email} style={{
-            padding: '8px 20px', backgroundColor: '#007bff', color: 'white',
+            padding: '8px 20px', backgroundColor: 'rgba(255,215,0,0.15)', color: '#ffd700',
             border: 'none', borderRadius: '4px', cursor: 'pointer'
           }}>
             {loading ? '...' : 'Look Up'}
           </button>
           <button onClick={handleExport} disabled={loading || !email} style={{
-            padding: '8px 20px', backgroundColor: '#17a2b8', color: 'white',
+            padding: '8px 20px', backgroundColor: 'rgba(23,162,184,0.25)', color: '#17a2b8',
             border: 'none', borderRadius: '4px', cursor: 'pointer'
           }}>
             Export JSON
@@ -110,8 +110,8 @@ export default function GdprPage() {
       {lookupResult && (
         <>
           <div style={{
-            border: '1px solid #dee2e6', borderRadius: '8px', padding: '20px',
-            backgroundColor: '#fff', marginBottom: '24px'
+            border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px',
+            backgroundColor: 'rgba(255,255,255,0.03)', marginBottom: '24px'
           }}>
             <h2 style={{ margin: '0 0 12px 0' }}>
               {lookupResult.found
@@ -123,8 +123,8 @@ export default function GdprPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {lookupResult.data.map(booking => (
                   <div key={booking.id} style={{
-                    border: '1px solid #e9ecef', borderRadius: '6px', padding: '16px',
-                    backgroundColor: '#f8f9fa'
+                    border: '1px solid rgba(255,255,255,0.04)', borderRadius: '6px', padding: '16px',
+                    backgroundColor: 'rgba(255,255,255,0.04)'
                   }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '14px' }}>
                       <div><strong>Name:</strong> {booking.customerName}</div>
@@ -137,16 +137,16 @@ export default function GdprPage() {
                       <div><strong>Created:</strong> {formatDate(booking.createdAt)}</div>
                     </div>
                     {booking.orders && booking.orders.length > 0 && (
-                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #dee2e6' }}>
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                         <strong style={{ fontSize: '13px' }}>Orders ({booking.orders.length}):</strong>
                         {booking.orders.map(order => (
                           <div key={order.id} style={{
-                            fontSize: '13px', color: '#495057', marginTop: '4px',
-                            padding: '8px', backgroundColor: '#fff', borderRadius: '4px'
+                            fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '4px',
+                            padding: '8px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '4px'
                           }}>
                             <div>Order: {order.id.substring(0, 8)}... &middot; {order.status} &middot; €{order.total?.toFixed(2)}</div>
                             {order.payments && order.payments.length > 0 && (
-                              <div style={{ fontSize: '12px', color: '#666' }}>
+                              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
                                 Payments: {order.payments.map(p => `${p.method} €${p.amount?.toFixed(2)}`).join(', ')}
                               </div>
                             )}
@@ -162,11 +162,11 @@ export default function GdprPage() {
 
           {lookupResult.found && (
             <div style={{
-              border: '2px solid #dc3545', borderRadius: '8px', padding: '20px',
-              backgroundColor: '#fff'
+              border: '2px solid rgba(220,53,69,0.4)', borderRadius: '8px', padding: '20px',
+              backgroundColor: 'rgba(255,255,255,0.03)'
             }}>
-              <h2 style={{ margin: '0 0 8px 0', color: '#dc3545' }}>Right to Erasure</h2>
-              <p style={{ fontSize: '13px', color: '#666', marginBottom: '12px' }}>
+              <h2 style={{ margin: '0 0 8px 0', color: '#ff6b6b' }}>Right to Erasure</h2>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', marginBottom: '12px' }}>
                 Type the email address again to confirm permanent anonymization of all data for this customer.
                 This cannot be undone.
               </p>
@@ -176,7 +176,7 @@ export default function GdprPage() {
                   placeholder="Type email to confirm"
                   style={{ flex: 1, padding: '8px', fontSize: '14px' }} />
                 <button onClick={handleErase} disabled={loading || confirmErase !== email} style={{
-                  padding: '10px 24px', backgroundColor: '#dc3545', color: 'white',
+                  padding: '10px 24px', backgroundColor: 'rgba(220,53,69,0.25)', color: '#ff6b6b',
                   border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold'
                 }}>
                   {loading ? '...' : 'Erase Data'}

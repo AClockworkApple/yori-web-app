@@ -89,7 +89,7 @@ export default function WalkInPage() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '24px 40px' }}>
         <h1>Walk-in Management</h1>
         <p>Select a restaurant from the navigation bar to manage walk-ins.</p>
       </div>
@@ -97,37 +97,37 @@ export default function WalkInPage() {
   }
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '24px 40px' }}>
       <h1>Walk-in Management — {selectedRestaurant?.name}</h1>
-      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
       <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', marginBottom: '20px', cursor: 'pointer' }}>
         {showForm ? 'Cancel' : 'Register Walk-in'}
       </button>
 
       {showForm && (
-        <form onSubmit={handleSubmit} style={{ border: '1px solid #ddd', padding: '20px', marginBottom: '20px', borderRadius: '4px' }}>
+        <form onSubmit={handleSubmit} style={{ border: '1px solid rgba(255,255,255,0.08)', padding: '20px', marginBottom: '20px', borderRadius: '4px' }}>
           <h3>Register Walk-in</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label>Name: </label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Name: </label>
               <input name="customerName" value={formData.customerName} onChange={handleInputChange} required style={{ width: '100%' }} />
             </div>
             <div>
-              <label>Party Size: </label>
+              <label style={{ color: 'rgba(255,255,255,0.5)' }}>Party Size: </label>
               <input name="partySize" type="number" min="1" value={formData.partySize} onChange={handleInputChange} style={{ width: '100%' }} />
             </div>
           </div>
 
           <div style={{ marginTop: '12px' }}>
-            <label>Assign Tables: </label>
+            <label style={{ color: 'rgba(255,255,255,0.5)' }}>Assign Tables: </label>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
               {availableTables.length === 0 && occupiedTables.length === 0 && <span style={{ color: '#999' }}>No tables found</span>}
               {availableTables.map(table => (
                 <label key={table.id} style={{
-                  padding: '6px 12px', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer',
-                  backgroundColor: formData.tableIds.includes(table.id) ? '#007bff' : '#fff',
-                  color: formData.tableIds.includes(table.id) ? '#fff' : '#000',
+                  padding: '6px 12px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px', cursor: 'pointer',
+                  backgroundColor: formData.tableIds.includes(table.id) ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.03)',
+                  color: formData.tableIds.includes(table.id) ? '#ffd700' : 'rgba(255,255,255,0.6)',
                 }}>
                   <input type="checkbox" checked={formData.tableIds.includes(table.id)} onChange={() => handleTableToggle(table.id)} style={{ display: 'none' }} />
                   {table.name || table.id} ({table.seats} seats)
@@ -135,8 +135,8 @@ export default function WalkInPage() {
               ))}
               {occupiedTables.map(table => (
                 <span key={table.id} style={{
-                  padding: '6px 12px', border: '1px solid #dc3545', borderRadius: '4px',
-                  backgroundColor: '#f8d7da', color: '#dc3545', fontSize: '13px',
+                  padding: '6px 12px', border: '1px solid rgba(220,53,69,0.4)', borderRadius: '4px',
+                  backgroundColor: 'rgba(220,53,69,0.15)', color: '#ff6b6b', fontSize: '13px',
                 }}>
                   {table.name || table.id} ({table.seats} seats) &mdash; occupied
                 </span>
@@ -152,7 +152,7 @@ export default function WalkInPage() {
       {walkIns.length === 0 && <p>No walk-ins registered.</p>}
       <table border="1" cellPadding="8" style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ backgroundColor: '#f8f9fa' }}>
+          <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
             <th>Time</th>
             <th>Name</th>
             <th>Party Size</th>
