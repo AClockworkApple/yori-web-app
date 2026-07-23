@@ -28,9 +28,11 @@ import DailyReportPage from './pages/DailyReportPage';
 import GdprPage from './pages/GdprPage';
 import AuditLogPage from './pages/AuditLogPage';
 import DailyReconciliationPage from './pages/DailyReconciliationPage';
+import AiConfigPage from './pages/AiConfigPage';
 import CustomerHomePage from './pages/CustomerHomePage';
 import CustomerMenuPage from './pages/CustomerMenuPage';
 import CustomerBookingPage from './pages/CustomerBookingPage';
+import CustomerChatWidget from './components/CustomerChatWidget';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -87,6 +89,7 @@ function AppNav() {
         <a href="/table-status" style={{ marginRight: '20px' }}>Table Status</a>
         <a href="/daily-report" style={{ marginRight: '20px' }}>Daily Report</a>
         <a href="/reconciliation" style={{ marginRight: '20px' }}>Reconciliation</a>
+        <a href="/ai-config" style={{ marginRight: '20px' }}>AI</a>
         {hasRole('OWNER', 'MANAGER') && <a href="/users" style={{ marginRight: '20px' }}>Users</a>}
         {hasRole('OWNER', 'MANAGER') && <a href="/announcements" style={{ marginRight: '20px' }}>Announcements</a>}
         {hasRole('OWNER', 'MANAGER') && <a href="/gdpr" style={{ marginRight: '20px' }}>GDPR</a>}
@@ -135,10 +138,12 @@ function AppRoutes() {
                         <Route path="/gdpr" element={<ProtectedRoute><GdprPage /></ProtectedRoute>} />
                         <Route path="/audit-log" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
                         <Route path="/reconciliation" element={<ProtectedRoute><DailyReconciliationPage /></ProtectedRoute>} />
+                        <Route path="/ai-config" element={<ProtectedRoute><AiConfigPage /></ProtectedRoute>} />
                         <Route path="/restaurant-hours" element={<ProtectedRoute><RestaurantHoursPage /></ProtectedRoute>} />
                         <Route path="/receipts/:orderId" element={<ProtectedRoute><ReceiptPage /></ProtectedRoute>} />
                       </Routes>
                     </Router>
+                    <CustomerChatWidget />
                   </AnnouncementProvider>
                 </RestaurantHourProvider>
               </UserProvider>

@@ -24,7 +24,7 @@ export default function RestaurantDetailPage() {
         heroImageUrl: restaurant.heroImageUrl || '',
         heroVideoUrl: restaurant.heroVideoUrl || '',
         storyImageUrl: restaurant.storyImageUrl || '',
-        mode: restaurant.mode || 'SEMI_AUTO',
+        mode: restaurant.mode || 'AUTO',
         slotDurationMinutes: restaurant.slotDurationMinutes || 120,
         bufferMinutes: restaurant.bufferMinutes || 30,
         overbookingPercentage: restaurant.overbookingPercentage || 30,
@@ -161,8 +161,8 @@ export default function RestaurantDetailPage() {
               <label>Mode</label>
               <select name="mode" value={formData.mode} onChange={handleInputChange}
                 style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
-                <option value="SEMI_AUTO">Semi-Auto</option>
-                <option value="FULL_AUTO">Full Auto</option>
+                <option value="AUTO">Auto</option>
+                <option value="MANUAL">Manual</option>
               </select>
             </div>
             <div>

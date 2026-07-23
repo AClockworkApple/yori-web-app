@@ -6,6 +6,7 @@ const Table = require('../models/Table');
 const { sendConfirmation, sendCancellation, sendStatusUpdate } = require('../utils/emailService');
 const { logAction } = require('../utils/auditLogger');
 const { emitBookingUpdate } = require('../socket/setup');
+const { assignTablesForBooking } = require('../utils/tableAssignment');
 
 function doTimeRangesOverlap(startA, endA, startB, endB) {
   return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
@@ -117,11 +118,14 @@ const bookingController = {
         }
       }
 
+      const autoTableIds = await assignTablesForBooking(restaurantId, partySize, scheduledStart, scheduledEnd);
+
       const booking = await Booking.create({
         ...req.body,
         scheduledEnd,
         isOverbooked: isOverbooked || false,
-        status: isOverbooked ? 'WAITLISTED' : (req.body.status || 'PENDING')
+        status: isOverbooked ? 'WAITLISTED' : (req.body.status || 'PENDING'),
+        tableIds: autoTableIds,
       });
 
       if (req.body.source !== 'walk-in') {
@@ -390,3 +394,5 @@ const bookingController = {
 };
 
 module.exports = bookingController;
+module.exports.validateBookingTime = validateBookingTime;
+module.exports.doTimeRangesOverlap = doTimeRangesOverlap;

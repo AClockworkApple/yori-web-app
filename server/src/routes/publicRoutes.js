@@ -3,6 +3,7 @@ const router = express.Router();
 const Restaurant = require('../models/Restaurant');
 const MenuItem = require('../models/MenuItem');
 const bookingController = require('../controllers/bookingController');
+const { handleChat, getConversationHistory } = require('../controllers/chatController');
 
 router.get('/restaurants', async (req, res) => {
   try {
@@ -36,5 +37,8 @@ router.post('/bookings', (req, res, next) => {
   req.body.source = req.body.source || 'pre-booking';
   next();
 }, bookingController.create);
+
+router.post('/chat', handleChat);
+router.get('/chat/:conversationId', getConversationHistory);
 
 module.exports = router;

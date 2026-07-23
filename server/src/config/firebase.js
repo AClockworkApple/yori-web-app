@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const { getFirestore } = require('firebase-admin/firestore');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const path = require('path');
 
 const credentialsPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
@@ -27,4 +27,4 @@ if (admin.getApps().length === 0) {
 
 const db = getFirestore();
 
-module.exports = { db };
+module.exports = { db, FieldValue };
