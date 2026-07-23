@@ -130,7 +130,7 @@ export default function CustomerChatWidget() {
               <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
                   maxWidth: '80%', padding: '10px 14px', borderRadius: '12px',
-                  backgroundColor: msg.role === 'user' ? '#d4af37' : '#333',
+                  backgroundColor: msg.role === 'user' ? '#8B0000' : '#333',
                   color: msg.role === 'user' ? '#1a1a1a' : '#fff',
                   fontSize: '13px', lineHeight: '1.5',
                   borderBottomRightRadius: msg.role === 'user' ? '4px' : '12px',
@@ -178,7 +178,7 @@ export default function CustomerChatWidget() {
             />
             <button onClick={handleSend} disabled={sending || !input.trim()}
               style={{
-                padding: '10px 14px', backgroundColor: '#d4af37', color: '#1a1a1a',
+                padding: '10px 14px', backgroundColor: '#8B0000', color: '#1a1a1a',
                 border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',
                 fontSize: '13px', opacity: sending || !input.trim() ? 0.5 : 1,
               }}>
@@ -190,7 +190,7 @@ export default function CustomerChatWidget() {
 
       <button onClick={handleToggle} aria-label="Toggle chat"
         style={{
-          width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#d4af37',
+          width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#8B0000',
           border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: '24px', position: 'relative', transition: 'transform 0.2s',

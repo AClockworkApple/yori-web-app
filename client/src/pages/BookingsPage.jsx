@@ -291,7 +291,7 @@ export default function BookingsPage() {
                 ))}
               </div>
             ) : (
-              <p style={{ color: '#666', marginTop: '8px' }}>No tables found for this restaurant.</p>
+              <p style={{ color: 'rgba(255,255,255,0.35)', marginTop: '8px' }}>No tables found for this restaurant.</p>
             )}
           </div>
 
@@ -325,7 +325,7 @@ export default function BookingsPage() {
               <tr key={booking.id}>
                 <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <div><strong>{booking.customerName}</strong></div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>{booking.customerPhone}</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>{booking.customerPhone}</div>
                 </td>
                 <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>{booking.partySize}</td>
                 <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>

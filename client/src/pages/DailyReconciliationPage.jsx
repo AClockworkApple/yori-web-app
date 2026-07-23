@@ -8,7 +8,7 @@ function formatCurrency(amount) {
 }
 
 export default function DailyReconciliationPage() {
-  const { selectedRestaurantId, selectedRestaurant } = useRestaurants();
+  const { restaurants, selectedRestaurantId, selectedRestaurant, setSelectedRestaurantId } = useRestaurants();
   const { hasRole } = useAuth();
   const canEdit = hasRole('OWNER', 'MANAGER');
 
@@ -126,7 +126,23 @@ export default function DailyReconciliationPage() {
     return (
       <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1>Daily Cash Reconciliation</h1>
-        <p>Select a restaurant from the navigation bar to begin.</p>
+        <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '24px' }}>Select a restaurant to begin.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {restaurants.map(r => (
+            <button key={r.id} onClick={() => setSelectedRestaurantId(r.id)} style={{
+              display: 'flex', alignItems: 'center', padding: '16px 20px',
+              border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px',
+              backgroundColor: 'rgba(255,255,255,0.03)', cursor: 'pointer', textAlign: 'left',
+              gap: '16px', transition: 'all 0.2s', width: '100%',
+            }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'}>
+              <div style={{ fontSize: '16px', fontWeight: '600', minWidth: '180px', color: '#fff' }}>{r.name}</div>
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', flex: 1 }}>{r.address || '-'}</div>
+              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px' }}>&rarr;</span>
+            </button>
+          ))}
+        </div>
       </div>
     );
   }

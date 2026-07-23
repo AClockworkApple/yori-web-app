@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { RestaurantProvider, useRestaurants } from './context/RestaurantContext';
 import { TableProvider } from './context/TableContext';
 import { BookingProvider } from './context/BookingContext';
@@ -44,7 +45,7 @@ globalStyle.textContent = `
     border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 4px !important;
     padding: 8px 10px !important; font-size: 14px !important; outline: none;
   }
-  input:focus, select:focus, textarea:focus { border-color: rgba(255,215,0,0.4) !important; }
+  input:focus, select:focus, textarea:focus { border-color: rgba(139,0,0,0.4) !important; }
   select option { background: #1a1a1a !important; color: #fff !important; }
   table { border-collapse: collapse; width: 100%; }
   th { background: rgba(255,255,255,0.05) !important; color: rgba(255,255,255,0.7) !important; font-weight: 600 !important; text-transform: uppercase !important; font-size: 11px !important; letter-spacing: 1px !important; }
@@ -76,7 +77,7 @@ function ProtectedRoute({ children }) {
 
 function AppNav() {
   const location = useLocation();
-  const publicPaths = ['/', '/menu', '/booking'];
+  const publicPaths = ['/', '/menu', '/booking', '/login'];
   const { isAuthenticated, user, hasRole, logout } = useAuth();
   const { fetchRestaurants, selectedRestaurantId } = useRestaurants();
   const { activeAnnouncements, fetchActive } = useAnnouncements();
@@ -123,7 +124,6 @@ function AppNav() {
         {[
           { href: '/restaurants', label: 'Restaurants' },
           { href: '/menu-items', label: 'Menu Items' },
-          { href: '/table-status', label: 'Table Status' },
           { href: '/daily-report', label: 'Daily Report' },
           { href: '/reconciliation', label: 'Reconciliation' },
           { href: '/ai-config', label: 'AI' },
@@ -153,6 +153,31 @@ function AppNav() {
   );
 }
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            <CustomerHomePage />
+          </motion.div>
+        } />
+        <Route path="/menu" element={
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            <CustomerMenuPage />
+          </motion.div>
+        } />
+        <Route path="/booking" element={
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+            <CustomerBookingPage />
+          </motion.div>
+        } />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 function AppRoutes() {
   return (
     <RestaurantProvider>
@@ -165,11 +190,7 @@ function AppRoutes() {
                 <RestaurantHourProvider>
                   <AnnouncementProvider>
                     <Router>
-                      <Routes>
-                        <Route path="/" element={<CustomerHomePage />} />
-                        <Route path="/menu" element={<CustomerMenuPage />} />
-                        <Route path="/booking" element={<CustomerBookingPage />} />
-                      </Routes>
+                      <AnimatedRoutes />
                       <AppNav />
                       <Routes>
                         <Route path="/login" element={<LoginPage />} />
