@@ -131,7 +131,7 @@ export default function AiConfigPage() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '900px', margin: '0 auto' }}>
         <h1>AI Configuration</h1>
         <p>Select a restaurant from the navigation bar to configure AI.</p>
       </div>
@@ -139,24 +139,24 @@ export default function AiConfigPage() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '900px', margin: '0 auto' }}>
       <h1>AI Configuration {selectedRestaurant?.name ? `— ${selectedRestaurant.name}` : ''}</h1>
 
-      {error && <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '4px' }}>{error}</div>}
-      {success && <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: '#d4edda', color: '#155724', borderRadius: '4px' }}>{success}</div>}
+      {error && <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: 'rgba(220,53,69,0.15)', color: '#ff6b6b', borderRadius: '4px' }}>{error}</div>}
+      {success && <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: 'rgba(40,167,69,0.15)', color: 'green', borderRadius: '4px' }}>{success}</div>}
 
       {activeConfig && (
-        <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: '#e8f5e9', color: '#155724', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ padding: '12px', marginBottom: '16px', backgroundColor: 'rgba(40,167,69,0.15)', color: 'green', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontWeight: 'bold' }}>Active:</span>
           <span>{PROVIDER_LABELS[activeConfig.provider] || activeConfig.provider}</span>
         </div>
       )}
 
       {canEdit && (
-        <div style={{ border: '1px solid #dee2e6', borderRadius: '8px', padding: '20px', marginBottom: '24px', backgroundColor: '#fff' }}>
+        <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px', marginBottom: '24px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
           <h3 style={{ margin: '0 0 16px 0' }}>Add / Update API Key</h3>
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#495057', marginBottom: '4px' }}>AI Provider</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>AI Provider</label>
             <select value={selectedProvider} onChange={(e) => setSelectedProvider(e.target.value)}
               style={{ width: '100%', padding: '8px', fontSize: '14px' }}>
               <option value="">-- Select Provider --</option>
@@ -166,12 +166,12 @@ export default function AiConfigPage() {
             </select>
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#495057', marginBottom: '4px' }}>API Key</label>
+            <label style={{ display: 'block', fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>API Key</label>
             <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)}
               placeholder="sk-..." style={{ width: '100%', padding: '8px', fontSize: '14px', fontFamily: 'monospace', boxSizing: 'border-box' }} />
           </div>
           <button onClick={handleSave} disabled={saving} style={{
-            padding: '10px 24px', backgroundColor: '#007bff', color: 'white',
+            padding: '10px 24px', backgroundColor: 'rgba(255,215,0,0.15)', color: '#ffd700',
             border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold',
           }}>
             {saving ? 'Saving...' : 'Save API Key'}
@@ -180,42 +180,42 @@ export default function AiConfigPage() {
       )}
 
       {configs.length > 0 && (
-        <div style={{ border: '1px solid #dee2e6', borderRadius: '8px', padding: '20px', marginBottom: '24px', backgroundColor: '#fff' }}>
+        <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px', marginBottom: '24px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
           <h3 style={{ margin: '0 0 16px 0' }}>Saved Configurations</h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
               <thead>
-                <tr style={{ backgroundColor: '#f8f9fa', textAlign: 'left' }}>
-                  <th style={{ padding: '8px', borderBottom: '2px solid #dee2e6' }}>Provider</th>
-                  <th style={{ padding: '8px', borderBottom: '2px solid #dee2e6' }}>Status</th>
-                  <th style={{ padding: '8px', borderBottom: '2px solid #dee2e6' }}>Created</th>
-                  {canEdit && <th style={{ padding: '8px', borderBottom: '2px solid #dee2e6' }}>Actions</th>}
+                <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)', textAlign: 'left' }}>
+                  <th style={{ padding: '8px', borderBottom: '2px solid rgba(255,255,255,0.08)' }}>Provider</th>
+                  <th style={{ padding: '8px', borderBottom: '2px solid rgba(255,255,255,0.08)' }}>Status</th>
+                  <th style={{ padding: '8px', borderBottom: '2px solid rgba(255,255,255,0.08)' }}>Created</th>
+                  {canEdit && <th style={{ padding: '8px', borderBottom: '2px solid rgba(255,255,255,0.08)' }}>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {configs.map(c => (
-                  <tr key={c.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                  <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     <td style={{ padding: '8px', fontWeight: 'bold' }}>{PROVIDER_LABELS[c.provider] || c.provider}</td>
                     <td style={{ padding: '8px' }}>
                       <span style={{
                         padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold',
-                        backgroundColor: c.isActive ? '#28a745' : '#6c757d', color: '#fff',
+                        backgroundColor: c.isActive ? 'rgba(40,167,69,0.25)' : 'rgba(108,117,125,0.25)', color: c.isActive ? 'green' : 'rgba(255,255,255,0.5)',
                       }}>
                         {c.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td style={{ padding: '8px', color: '#666' }}>{new Date(c.createdAt).toLocaleDateString()}</td>
+                    <td style={{ padding: '8px', color: 'rgba(255,255,255,0.35)' }}>{new Date(c.createdAt).toLocaleDateString()}</td>
                     {canEdit && (
                       <td style={{ padding: '8px' }}>
                         <div style={{ display: 'flex', gap: '6px' }}>
                           {!c.isActive && (
                             <button onClick={() => handleActivate(c.id)} style={{
-                              padding: '4px 10px', backgroundColor: '#28a745', color: 'white',
+                              padding: '4px 10px', backgroundColor: 'rgba(40,167,69,0.25)', color: 'green',
                               border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px',
                             }}>Activate</button>
                           )}
                           <button onClick={() => handleDelete(c.id)} style={{
-                            padding: '4px 10px', backgroundColor: '#dc3545', color: 'white',
+                            padding: '4px 10px', backgroundColor: 'rgba(220,53,69,0.25)', color: '#ff6b6b',
                             border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px',
                           }}>Delete</button>
                         </div>
@@ -230,10 +230,10 @@ export default function AiConfigPage() {
       )}
 
       {activeConfig && (
-        <div style={{ border: '1px solid #dee2e6', borderRadius: '8px', padding: '20px', backgroundColor: '#fff' }}>
+        <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
           <h3 style={{ margin: '0 0 16px 0' }}>Test AI Query</h3>
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#495057', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginBottom: '4px' }}>
               Ask a restaurant-related question
             </label>
             <textarea value={queryInput} onChange={(e) => setQueryInput(e.target.value)}
@@ -241,20 +241,20 @@ export default function AiConfigPage() {
               style={{ width: '100%', padding: '8px', fontSize: '14px', boxSizing: 'border-box', minHeight: '80px' }} />
           </div>
           <button onClick={handleQuery} disabled={queryLoading || !queryInput.trim()} style={{
-            padding: '10px 24px', backgroundColor: '#17a2b8', color: 'white',
+            padding: '10px 24px', backgroundColor: 'rgba(23,162,184,0.25)', color: '#17a2b8',
             border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold',
           }}>
             {queryLoading ? 'Thinking...' : 'Send Query'}
           </button>
 
           {queryError && (
-            <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#fff3cd', color: '#856404', borderRadius: '4px' }}>
+            <div style={{ marginTop: '16px', padding: '12px', backgroundColor: 'rgba(255,193,7,0.15)', color: '#ffc107', borderRadius: '4px' }}>
               {queryError}
             </div>
           )}
 
           {queryResult && (
-            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '4px', whiteSpace: 'pre-wrap', fontSize: '14px' }}>
+            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '4px', whiteSpace: 'pre-wrap', fontSize: '14px' }}>
               <strong>Response:</strong>
               <p style={{ margin: '8px 0 0 0', lineHeight: '1.6' }}>{queryResult}</p>
             </div>

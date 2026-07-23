@@ -58,167 +58,111 @@ export default function RestaurantsPage() {
     });
   };
 
+  const labelStyle = { color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px', display: 'block', marginBottom: '4px' };
+
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Restaurants Management</h1>
-      
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-      
-      <button onClick={() => setShowForm(!showForm)} style={{ marginBottom: '20px', padding: '10px 20px' }}>
+
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
+
+      <button onClick={() => setShowForm(!showForm)} style={{ marginBottom: '20px' }}>
         {showForm ? 'Cancel' : 'Add Restaurant'}
       </button>
 
       {showForm && (
-        <form onSubmit={handleSubmit} style={{ 
-          border: '1px solid #ccc', 
-          padding: '20px', 
-          marginBottom: '20px',
-          borderRadius: '8px'
+        <form onSubmit={handleSubmit} style={{
+          border: '1px solid rgba(255,255,255,0.08)', padding: '24px', marginBottom: '24px',
+          borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.02)'
         }}>
-          <h2>Add New Restaurant</h2>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <h2 style={{ marginBottom: '20px' }}>Add New Restaurant</h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
-              <label>Name *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
-            </div>
-            
-            <div>
-              <label>Address</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Name *</label>
+              <input type="text" name="name" value={formData.name}
+                onChange={handleInputChange} required
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Mode</label>
-              <select
-                name="mode"
-                value={formData.mode}
+              <label style={labelStyle}>Address</label>
+              <input type="text" name="address" value={formData.address}
                 onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              >
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Mode</label>
+              <select name="mode" value={formData.mode}
+                onChange={handleInputChange}
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }}>
                 <option value="AUTO">Auto</option>
                 <option value="MANUAL">Manual</option>
               </select>
             </div>
 
             <div>
-              <label>Slot Duration (minutes)</label>
-              <input
-                type="number"
-                name="slotDurationMinutes"
-                value={formData.slotDurationMinutes}
-                onChange={handleInputChange}
-                min="15" max="480"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Slot Duration (minutes)</label>
+              <input type="number" name="slotDurationMinutes" value={formData.slotDurationMinutes}
+                onChange={handleInputChange} min="15" max="480"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Buffer Duration (minutes)</label>
-              <input
-                type="number"
-                name="bufferMinutes"
-                value={formData.bufferMinutes}
-                onChange={handleInputChange}
-                min="0" max="240"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Buffer Duration (minutes)</label>
+              <input type="number" name="bufferMinutes" value={formData.bufferMinutes}
+                onChange={handleInputChange} min="0" max="240"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Max Extension (minutes)</label>
-              <input
-                type="number"
-                name="maxExtensionMinutes"
-                value={formData.maxExtensionMinutes}
-                onChange={handleInputChange}
-                min="0" max="480"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Max Extension (minutes)</label>
+              <input type="number" name="maxExtensionMinutes" value={formData.maxExtensionMinutes}
+                onChange={handleInputChange} min="0" max="480"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Warning Before (minutes)</label>
-              <input
-                type="number"
-                name="warningBeforeMinutes"
-                value={formData.warningBeforeMinutes}
-                onChange={handleInputChange}
-                min="0" max="120"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Warning Before (minutes)</label>
+              <input type="number" name="warningBeforeMinutes" value={formData.warningBeforeMinutes}
+                onChange={handleInputChange} min="0" max="120"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Overbooking (%)</label>
-              <input
-                type="number"
-                name="overbookingPercentage"
-                value={formData.overbookingPercentage}
-                onChange={handleInputChange}
-                min="0" max="200"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Overbooking (%)</label>
+              <input type="number" name="overbookingPercentage" value={formData.overbookingPercentage}
+                onChange={handleInputChange} min="0" max="200"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Tax Rate (%)</label>
-              <input
-                type="number"
-                name="taxRate"
-                value={formData.taxRate}
-                onChange={handleInputChange}
-                min="0" max="100" step="0.01"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Tax Rate (%)</label>
+              <input type="number" name="taxRate" value={formData.taxRate}
+                onChange={handleInputChange} min="0" max="100" step="0.01"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Service Fee (%)</label>
-              <input
-                type="number"
-                name="serviceFeeRate"
-                value={formData.serviceFeeRate}
-                onChange={handleInputChange}
-                min="0" max="100" step="0.01"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Service Fee (%)</label>
+              <input type="number" name="serviceFeeRate" value={formData.serviceFeeRate}
+                onChange={handleInputChange} min="0" max="100" step="0.01"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
 
             <div>
-              <label>Data Retention (days)</label>
-              <input
-                type="number"
-                name="dataRetentionDays"
-                value={formData.dataRetentionDays}
-                onChange={handleInputChange}
-                min="1" max="365"
-                style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-              />
+              <label style={labelStyle}>Data Retention (days)</label>
+              <input type="number" name="dataRetentionDays" value={formData.dataRetentionDays}
+                onChange={handleInputChange} min="1" max="365"
+                style={{ width: '100%', padding: '10px', marginTop: '4px' }} />
             </div>
           </div>
 
-          <button type="submit" disabled={loading} style={{ 
-            marginTop: '20px', 
-            padding: '10px 30px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
+          <button type="submit" disabled={loading} style={{
+            marginTop: '20px', padding: '10px 30px',
+            backgroundColor: 'rgba(255,215,0,0.15)', color: '#ffd700',
+            border: '1px solid rgba(255,215,0,0.3)', borderRadius: '4px', cursor: 'pointer'
           }}>
             {loading ? 'Saving...' : 'Create'}
           </button>
@@ -234,26 +178,26 @@ export default function RestaurantsPage() {
           {restaurants.map((restaurant) => (
             <Link key={restaurant.id} to={`/restaurants/${restaurant.id}`} style={{
               display: 'flex', alignItems: 'center', padding: '16px 20px',
-              border: '1px solid #dee2e6', borderRadius: '8px',
-              textDecoration: 'none', color: 'inherit', backgroundColor: '#fff',
-              gap: '20px'
+              border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px',
+              textDecoration: 'none', color: 'inherit', backgroundColor: 'rgba(255,255,255,0.03)',
+              gap: '20px', transition: 'background 0.2s',
             }}>
-              <div style={{ fontSize: '16px', fontWeight: 'bold', minWidth: '180px' }}>{restaurant.name}</div>
-              <div style={{ fontSize: '13px', color: '#666', flex: 1 }}>{restaurant.address || '-'}</div>
+              <div style={{ fontSize: '16px', fontWeight: '600', minWidth: '180px', color: '#fff' }}>{restaurant.name}</div>
+              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', flex: 1 }}>{restaurant.address || '-'}</div>
               <span style={{
                 padding: '4px 10px', borderRadius: '4px', fontSize: '12px',
-                backgroundColor: '#6f42c1', color: 'white', fontWeight: 'bold', marginRight: '6px'
+                backgroundColor: 'rgba(111,66,193,0.25)', color: '#b388ff', fontWeight: '600', marginRight: '6px'
               }}>
                 {restaurant.overbookingPercentage || 30}% OB
               </span>
               <span style={{
                 padding: '4px 10px', borderRadius: '4px', fontSize: '12px',
-                backgroundColor: restaurant.mode === 'AUTO' ? '#28a745' : '#ffc107',
-                color: 'white', fontWeight: 'bold'
+                backgroundColor: restaurant.mode === 'AUTO' ? 'rgba(40,167,69,0.25)' : 'rgba(255,193,7,0.25)',
+                color: restaurant.mode === 'AUTO' ? '#28a745' : '#ffc107', fontWeight: '600'
               }}>
                 {restaurant.mode}
               </span>
-              <span style={{ fontSize: '13px', color: '#007bff' }}>&rarr;</span>
+              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>&rarr;</span>
             </Link>
           ))}
         </div>

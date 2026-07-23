@@ -89,7 +89,7 @@ export default function TablesPage() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1>Tables Management</h1>
         <p>Select a restaurant from the navigation bar to manage tables.</p>
       </div>
@@ -97,11 +97,11 @@ export default function TablesPage() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Tables — {selectedRestaurant?.name}</h1>
-      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
       <button onClick={() => setShowForm(!showForm)} style={{ marginBottom: '20px', padding: '10px 20px' }}>
         {showForm ? 'Cancel' : 'Add Table'}
@@ -109,18 +109,18 @@ export default function TablesPage() {
 
       {showForm && (
         <form onSubmit={handleSubmit} style={{
-          border: '1px solid #ccc', padding: '20px', marginBottom: '20px', borderRadius: '8px'
+          border: '1px solid rgba(255,255,255,0.08)', padding: '20px', marginBottom: '20px', borderRadius: '8px'
         }}>
           <h2>{editingId ? 'Edit Table' : 'Add New Table'}</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
-              <label>Table Name *</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Table Name *</label>
               <input type="text" name="name" value={formData.name}
                 onChange={handleInputChange} placeholder="e.g., Table 1" required
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
             </div>
             <div>
-              <label>Number of Seats</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Number of Seats</label>
               <input type="number" name="seats" value={formData.seats}
                 onChange={handleInputChange} min="1"
                 style={{ width: '100%', padding: '8px', marginTop: '5px' }} />
@@ -128,12 +128,12 @@ export default function TablesPage() {
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '25px' }}>
               <input type="checkbox" name="isMergeable" checked={formData.isMergeable}
                 onChange={handleInputChange} style={{ marginRight: '10px' }} />
-              <label>Mergeable</label>
+              <label style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px' }}>Mergeable</label>
             </div>
           </div>
           <button type="submit" disabled={loading} style={{
-            marginTop: '20px', padding: '10px 30px', backgroundColor: '#007bff',
-            color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'
+            marginTop: '20px', padding: '10px 30px', backgroundColor: 'rgba(255,215,0,0.15)',
+            color: '#ffd700', border: 'none', borderRadius: '4px', cursor: 'pointer'
           }}>
             {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
           </button>
@@ -147,21 +147,21 @@ export default function TablesPage() {
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Name</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Seats</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Mergeable</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Status</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Actions</th>
+            <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Name</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Seats</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Mergeable</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Status</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {tables.map((table) => (
               <tr key={table.id}>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{table.name}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{table.seats}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{table.isMergeable ? 'Yes' : 'No'}</td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>{table.name}</td>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>{table.seats}</td>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>{table.isMergeable ? 'Yes' : 'No'}</td>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <select value={table.status} onChange={(e) => handleStatusChange(table.id, e.target.value)}
                     style={{ padding: '4px 8px', borderRadius: '4px',
                       backgroundColor: getStatusColor(table.status), color: 'white', border: 'none', cursor: 'pointer' }}>
@@ -171,9 +171,9 @@ export default function TablesPage() {
                     <option value="MAINTENANCE">Maintenance</option>
                   </select>
                 </td>
-                <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                   <button onClick={() => handleEdit(table)} style={{ marginRight: '10px' }}>Edit</button>
-                  <button onClick={() => handleDelete(table.id)} style={{ color: 'red' }}>Delete</button>
+                  <button onClick={() => handleDelete(table.id)} style={{ color: '#ff6b6b' }}>Delete</button>
                 </td>
               </tr>
             ))}

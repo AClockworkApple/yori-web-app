@@ -32,17 +32,17 @@ export default function SearchBar({ items, fields, weights, placeholder, onResul
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder || `Search ${fields?.join(', ') || '...'}`}
           style={{
-            flex: 1, padding: '8px 12px', fontSize: '14px', border: '1px solid #ccc',
+            flex: 1, padding: '10px 14px', fontSize: '14px',
             borderRadius: '4px', outline: 'none',
           }}
         />
         {query && (
-          <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#999' }}>
+          <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: 'rgba(255,255,255,0.3)' }}>
             &times;
           </button>
         )}
       </div>
-      <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>
+      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>
         {query ? `${results.length} / ${count} results` : `${count} items`}
         <span style={{ marginLeft: '8px' }}>({algo})</span>
       </div>

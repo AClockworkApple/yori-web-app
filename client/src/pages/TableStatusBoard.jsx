@@ -5,10 +5,24 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 
 const STATUS_COLORS = {
-  AVAILABLE: '#28a745',
-  OCCUPIED: '#dc3545',
+  AVAILABLE: 'rgba(40,167,69,0.25)',
+  OCCUPIED: 'rgba(220,53,69,0.25)',
+  CLEANING: 'rgba(255,193,7,0.25)',
+  MAINTENANCE: 'rgba(108,117,125,0.25)',
+};
+
+const STATUS_TEXT_COLORS = {
+  AVAILABLE: 'green',
+  OCCUPIED: '#ff6b6b',
   CLEANING: '#ffc107',
-  MAINTENANCE: '#6c757d',
+  MAINTENANCE: 'rgba(255,255,255,0.5)',
+};
+
+const STATUS_BORDERS = {
+  AVAILABLE: 'rgba(40,167,69,0.5)',
+  OCCUPIED: 'rgba(220,53,69,0.5)',
+  CLEANING: 'rgba(255,193,7,0.5)',
+  MAINTENANCE: 'rgba(108,117,125,0.5)',
 };
 
 const STATUS_LABELS = {
@@ -86,7 +100,7 @@ export default function TableStatusBoard() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1>Table Status Board</h1>
         <p>Select a restaurant from the navigation bar to view the table status board.</p>
       </div>
@@ -96,7 +110,7 @@ export default function TableStatusBoard() {
   const canChangeStatus = hasRole('OWNER', 'MANAGER', 'STAFF');
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1400px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ margin: 0 }}>Table Status — {selectedRestaurant?.name}</h1>
         <div style={{ display: 'flex', gap: '16px', fontSize: '13px', alignItems: 'center' }}>
@@ -110,7 +124,7 @@ export default function TableStatusBoard() {
         </div>
       </div>
 
-      {error && <p style={{ color: 'red', background: '#fff', padding: '8px', borderRadius: '4px' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b', background: 'rgba(255,255,255,0.03)', padding: '8px', borderRadius: '4px' }}>Error: {error}</p>}
 
       {loading ? (
         <p>Loading tables...</p>
@@ -123,10 +137,10 @@ export default function TableStatusBoard() {
         }}>
           {tables.map(table => (
             <div key={table.id} style={{
-              border: `3px solid ${STATUS_COLORS[table.status] || '#ccc'}`,
+              border: `3px solid ${STATUS_BORDERS[table.status] || 'rgba(255,255,255,0.08)'}`,
               borderRadius: '12px', padding: '24px 16px',
-              backgroundColor: STATUS_COLORS[table.status] || '#fff',
-              color: table.status === 'CLEANING' ? '#000' : '#fff',
+              backgroundColor: STATUS_COLORS[table.status] || 'rgba(255,255,255,0.03)',
+              color: STATUS_TEXT_COLORS[table.status] || 'rgba(255,255,255,0.8)',
               textAlign: 'center', position: 'relative',
               transition: 'all 0.3s ease',
               boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
@@ -151,18 +165,18 @@ export default function TableStatusBoard() {
               {statusMenu === table.id && (
                 <div style={{
                   position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
-                  marginTop: '8px', backgroundColor: '#fff', borderRadius: '8px',
+                  marginTop: '8px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '8px',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 10,
                   padding: '8px', minWidth: '140px',
                 }} onClick={(e) => e.stopPropagation()}>
-                  <div style={{ fontSize: '12px', color: '#666', marginBottom: '6px', padding: '0 8px' }}>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', marginBottom: '6px', padding: '0 8px' }}>
                     Change to:
                   </div>
                   {(NEXT_STATUSES[table.status] || []).map(newStatus => (
                     <button key={newStatus} onClick={() => handleStatusChange(table.id, newStatus)}
                       style={{
                         display: 'block', width: '100%', padding: '8px 12px', border: 'none',
-                        backgroundColor: STATUS_COLORS[newStatus], color: newStatus === 'CLEANING' ? '#000' : '#fff',
+                        backgroundColor: STATUS_COLORS[newStatus], color: STATUS_TEXT_COLORS[newStatus] || '#fff',
                         borderRadius: '4px', cursor: 'pointer', marginBottom: '4px',
                         fontSize: '13px', fontWeight: 'bold', textAlign: 'left'
                       }}>

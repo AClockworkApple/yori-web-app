@@ -151,7 +151,7 @@ export default function OrdersPage() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '1400px', margin: '0 auto' }}>
         <h1>Orders Management</h1>
         <p>Select a restaurant from the navigation bar to manage orders.</p>
       </div>
@@ -165,21 +165,21 @@ export default function OrdersPage() {
   const menuCategories = [...new Set(menuItems.filter(m => m.isAvailable).map(m => m.category))];
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1400px', margin: '0 auto' }}>
       <h1>Orders — {selectedRestaurant?.name}</h1>
       {!activeOrderId && (
-        <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+        <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
       )}
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
       {activeOrderId && currentOrder?.id === activeOrderId ? (
-        <div style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '20px', marginBottom: '30px', backgroundColor: '#f8f9fa' }}>
+        <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px', marginBottom: '30px', backgroundColor: 'rgba(255,255,255,0.04)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <h2 style={{ margin: 0 }}>Order: {currentOrder.id.substring(0, 8)}...</h2>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => { setActiveOrderId(null); setCurrentOrder(null); }} style={{ padding: '6px 14px', cursor: 'pointer' }}>&larr; Back to Orders</button>
-              <button onClick={handleCloseOrder} style={{ padding: '6px 14px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Close Order</button>
+              <button onClick={handleCloseOrder} style={{ padding: '6px 14px', backgroundColor: 'rgba(40,167,69,0.25)', color: 'green', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Close Order</button>
             </div>
           </div>
 
@@ -191,23 +191,23 @@ export default function OrdersPage() {
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#e9ecef' }}>
-                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'left' }}>Item</th>
-                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>Qty</th>
-                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>Price</th>
-                      <th style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>Total</th>
-                      <th style={{ padding: '8px', border: '1px solid #dee2e6' }}></th>
+                    <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+                      <th style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Item</th>
+                      <th style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Qty</th>
+                      <th style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Price</th>
+                      <th style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Total</th>
+                      <th style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)' }}></th>
                     </tr>
                   </thead>
                   <tbody>
                     {orderItems.map(item => (
                       <tr key={item.id}>
-                        <td style={{ padding: '8px', border: '1px solid #dee2e6' }}>{item.menuItemName}</td>
-                        <td style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>{item.quantity}</td>
-                        <td style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(item.unitPrice)}</td>
-                        <td style={{ padding: '8px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(item.totalPrice)}</td>
-                        <td style={{ padding: '8px', border: '1px solid #dee2e6' }}>
-                          <button onClick={() => handleRemoveItem(item.id)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer' }}>&times;</button>
+                        <td style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>{item.menuItemName}</td>
+                        <td style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>{item.quantity}</td>
+                        <td style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>{formatCurrency(item.unitPrice)}</td>
+                        <td style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>{formatCurrency(item.totalPrice)}</td>
+                        <td style={{ padding: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                          <button onClick={() => handleRemoveItem(item.id)} style={{ color: '#ff6b6b', border: 'none', background: 'none', cursor: 'pointer' }}>&times;</button>
                         </td>
                       </tr>
                     ))}
@@ -227,17 +227,17 @@ export default function OrdersPage() {
               <h3>Menu Items</h3>
               {menuCategories.map(cat => (
                 <div key={cat} style={{ marginBottom: '15px' }}>
-                  <h4 style={{ margin: '0 0 8px 0', color: '#495057' }}>{cat}</h4>
+                  <h4 style={{ margin: '0 0 8px 0', color: 'rgba(255,255,255,0.5)' }}>{cat}</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {menuItems.filter(m => m.category === cat && m.isAvailable).map(item => (
                       <div key={item.id} style={{
                         display: 'flex', alignItems: 'center', gap: '8px',
-                        padding: '6px 10px', border: '1px solid #dee2e6', borderRadius: '4px',
-                        backgroundColor: '#fff'
+                        padding: '6px 10px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px',
+                        backgroundColor: 'rgba(255,255,255,0.03)'
                       }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{item.name}</div>
-                          <div style={{ fontSize: '12px', color: '#666' }}>{formatCurrency(item.price)}</div>
+                          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>{formatCurrency(item.price)}</div>
                         </div>
                         <input type="number" min="0" value={orderQuantities[item.id] || 0}
                           onChange={(e) => handleQuantityChange(item.id, e.target.value)}
@@ -245,8 +245,8 @@ export default function OrdersPage() {
                         <button onClick={() => handleAddItem(item)}
                           disabled={!orderQuantities[item.id] || orderQuantities[item.id] <= 0}
                           style={{
-                            padding: '4px 12px', backgroundColor: orderQuantities[item.id] > 0 ? '#007bff' : '#6c757d',
-                            color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer'
+                            padding: '4px 12px', backgroundColor: orderQuantities[item.id] > 0 ? 'rgba(255,215,0,0.15)' : 'rgba(108,117,125,0.25)',
+                            color: orderQuantities[item.id] > 0 ? '#ffd700' : 'rgba(255,255,255,0.5)', border: 'none', borderRadius: '4px', cursor: 'pointer'
                           }}>Add</button>
                       </div>
                     ))}
@@ -268,11 +268,11 @@ export default function OrdersPage() {
                 const hasOrder = orders.some(o => o.bookingId === booking.id && o.status === 'OPEN');
                 return (
                   <div key={booking.id} style={{
-                    border: '1px solid #dee2e6', borderRadius: '8px', padding: '16px',
-                    backgroundColor: hasOrder ? '#e8f5e9' : '#fff'
+                    border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '16px',
+                    backgroundColor: hasOrder ? 'rgba(40,167,69,0.15)' : 'rgba(255,255,255,0.03)'
                   }}>
                     <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{booking.customerName}</div>
-                    <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
+                    <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', marginTop: '4px' }}>
                       Party: {booking.partySize} | Tables: {getTableNames(booking)}
                     </div>
                     <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>
@@ -281,8 +281,8 @@ export default function OrdersPage() {
                     <button onClick={() => handleStartOrder(booking)}
                       style={{
                         marginTop: '10px', padding: '6px 16px', cursor: 'pointer',
-                        backgroundColor: hasOrder ? '#28a745' : '#007bff',
-                        color: 'white', border: 'none', borderRadius: '4px'
+                        backgroundColor: hasOrder ? 'rgba(40,167,69,0.25)' : 'rgba(255,215,0,0.15)',
+                        color: hasOrder ? 'green' : '#ffd700', border: 'none', borderRadius: '4px'
                       }}>
                       {hasOrder ? 'Manage Order' : 'Start Order'}
                     </button>
@@ -312,17 +312,17 @@ export default function OrdersPage() {
                 return (
                 <div key={order.id} onClick={() => handleSelectOrder(order)} style={{
                   display: 'flex', alignItems: 'center', gap: '15px',
-                  padding: '12px 16px', border: '1px solid #dee2e6', borderRadius: '8px',
-                  backgroundColor: '#fff', cursor: 'pointer'
+                  padding: '12px 16px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px',
+                  backgroundColor: 'rgba(255,255,255,0.03)', cursor: 'pointer'
                 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 'bold' }}>{booking ? booking.customerName : 'Unknown'}</div>
-                    <div style={{ fontSize: '12px', color: '#666' }}>
+                    <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>
                       Table{booking && booking.tables && booking.tables.length > 1 ? 's' : ''}: {getTableNames(booking)} &middot; {order.status}
                     </div>
                   </div>
                   <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{formatCurrency(order.total)}</div>
-                  <button onClick={(e) => { e.stopPropagation(); handleDeleteOrder(order.id); }} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', fontSize: '18px' }}>&times;</button>
+                  <button onClick={(e) => { e.stopPropagation(); handleDeleteOrder(order.id); }} style={{ color: '#ff6b6b', border: 'none', background: 'none', cursor: 'pointer', fontSize: '18px' }}>&times;</button>
                 </div>
                 );
               })}
@@ -345,36 +345,36 @@ export default function OrdersPage() {
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ backgroundColor: '#f8f9fa' }}>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Order ID</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Created</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Status</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Subtotal</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Tax</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Fee</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Tip</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>Total</th>
-                  <th style={{ padding: '12px', border: '1px solid #dee2e6' }}>Actions</th>
+                <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Order ID</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Created</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Status</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Subtotal</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Tax</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Fee</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Tip</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>Total</th>
+                  <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {displayClosedOrders.map(order => (
                   <tr key={order.id}>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}><strong>{order.id.substring(0, 8)}...</strong></td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>{formatDateTime(order.createdAt)}</td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                      <span style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: '#28a745', color: 'white', fontSize: '12px' }}>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}><strong>{order.id.substring(0, 8)}...</strong></td>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>{formatDateTime(order.createdAt)}</td>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: 'rgba(40,167,69,0.25)', color: 'green', fontSize: '12px' }}>
                         {order.status}
                       </span>
                     </td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.subtotal)}</td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.taxAmount)}</td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.serviceFeeAmount)}</td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}>{formatCurrency(order.tip)}</td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'right' }}><strong>{formatCurrency(order.total)}</strong></td>
-                    <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
-                      <button onClick={() => handleDeleteOrder(order.id)} style={{ color: 'red', marginRight: '8px' }}>Delete</button>
-                      <a href={`/receipts/${order.id}`} style={{ color: '#007bff' }}>Receipt</a>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>{formatCurrency(order.subtotal)}</td>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>{formatCurrency(order.taxAmount)}</td>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>{formatCurrency(order.serviceFeeAmount)}</td>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}>{formatCurrency(order.tip)}</td>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'right' }}><strong>{formatCurrency(order.total)}</strong></td>
+                    <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <button onClick={() => handleDeleteOrder(order.id)} style={{ color: '#ff6b6b', marginRight: '8px' }}>Delete</button>
+                      <a href={`/receipts/${order.id}`} style={{ color: 'rgba(255,255,255,0.6)' }}>Receipt</a>
                     </td>
                   </tr>
                 ))}

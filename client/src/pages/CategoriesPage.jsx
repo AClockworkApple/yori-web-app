@@ -54,7 +54,7 @@ export default function CategoriesPage() {
 
   if (!selectedRestaurantId) {
     return (
-      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1>Categories</h1>
         <p>Select a restaurant from the navigation bar to manage categories.</p>
       </div>
@@ -62,11 +62,11 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Categories — {selectedRestaurant?.name}</h1>
-      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: '#007bff', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
+      <Link to={`/restaurants/${selectedRestaurantId}`} style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '12px' }}>&larr; Back to Restaurant</Link>
 
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {error && <p style={{ color: '#ff6b6b' }}>Error: {error}</p>}
 
       <button onClick={() => setCreating(!creating)} style={{ padding: '10px 20px', marginBottom: '20px' }}>
         {creating ? 'Cancel' : 'Add Category'}
@@ -78,7 +78,7 @@ export default function CategoriesPage() {
             onChange={(e) => setCreateName(e.target.value)}
             placeholder="New category name" required
             style={{ padding: '8px', flex: 1, maxWidth: '300px' }} />
-          <button onClick={handleCreate} style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
+          <button onClick={handleCreate} style={{ padding: '8px 16px', backgroundColor: 'rgba(255,215,0,0.15)', color: '#ffd700', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
         </div>
       )}
 
@@ -89,10 +89,10 @@ export default function CategoriesPage() {
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Category</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Source</th>
-              <th style={{ padding: '12px', border: '1px solid #dee2e6', textAlign: 'left' }}>Actions</th>
+            <tr style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Category</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Source</th>
+              <th style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -100,32 +100,32 @@ export default function CategoriesPage() {
               const isDefault = DEFAULT_CATEGORIES.includes(cat);
               return (
                 <tr key={cat}>
-                  <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                  <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {renaming === cat ? (
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                         <input type="text" value={newName}
                           onChange={(e) => setNewName(e.target.value)}
                           style={{ padding: '6px', width: '200px' }} />
-                        <button onClick={() => handleRename(cat)} style={{ padding: '4px 10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
+                        <button onClick={() => handleRename(cat)} style={{ padding: '4px 10px', backgroundColor: 'rgba(40,167,69,0.25)', color: 'green', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Save</button>
                         <button onClick={() => { setRenaming(null); setNewName(''); }} style={{ padding: '4px 10px', cursor: 'pointer' }}>Cancel</button>
                       </div>
                     ) : (
                       <strong>{cat}</strong>
                     )}
                   </td>
-                  <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                  <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <span style={{
                       padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
-                      backgroundColor: isDefault ? '#007bff' : '#28a745', color: 'white'
+                      backgroundColor: isDefault ? 'rgba(255,215,0,0.15)' : 'rgba(40,167,69,0.25)', color: isDefault ? '#ffd700' : 'green'
                     }}>
                       {isDefault ? 'Default' : 'Custom'}
                     </span>
                   </td>
-                  <td style={{ padding: '12px', border: '1px solid #dee2e6' }}>
+                  <td style={{ padding: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {renaming !== cat && (
                       <>
                         <button onClick={() => { setRenaming(cat); setNewName(cat); }} style={{ marginRight: '10px' }}>Rename</button>
-                        <button onClick={() => handleDelete(cat)} style={{ color: 'red' }}>Delete</button>
+                        <button onClick={() => handleDelete(cat)} style={{ color: '#ff6b6b' }}>Delete</button>
                       </>
                     )}
                   </td>

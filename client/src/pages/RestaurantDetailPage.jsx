@@ -89,12 +89,14 @@ export default function RestaurantDetailPage() {
 
   if (!restaurant) {
     return (
-      <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 40px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1>Restaurant not found</h1>
-        <Link to="/">Back to Restaurants</Link>
+        <Link to="/" style={{ color: 'rgba(255,255,255,0.6)' }}>Back to Restaurants</Link>
       </div>
     );
   }
+
+  const labelStyle = { color: 'rgba(255,255,255,0.5)', fontSize: '12px', letterSpacing: '0.5px', display: 'block', marginBottom: '4px' };
 
   const infoRows = [
     { label: 'Address', value: restaurant.address || '-' },
@@ -121,136 +123,147 @@ export default function RestaurantDetailPage() {
   ];
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-      <Link to="/restaurants" style={{ fontSize: '14px', color: '#007bff' }}>&larr; All Restaurants</Link>
+    <div style={{ padding: '24px 40px', maxWidth: '1000px', margin: '0 auto' }}>
+      <Link to="/restaurants" style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>&larr; All Restaurants</Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
         <h1 style={{ margin: 0 }}>{restaurant.name}</h1>
         <button onClick={() => setEditing(!editing)} style={{ padding: '6px 16px', fontSize: '13px' }}>
           {editing ? 'Cancel' : 'Edit'}
         </button>
-        <button onClick={handleDelete} style={{ padding: '6px 16px', fontSize: '13px', color: 'red' }}>
+        <button onClick={handleDelete} style={{ padding: '6px 16px', fontSize: '13px', color: '#ff6b6b', borderColor: 'rgba(255,107,107,0.3)' }}>
           Delete
         </button>
       </div>
 
       {editing ? (
-        <form onSubmit={handleSave} style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px', marginTop: '20px' }}>
-          <h3>Edit Restaurant</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+        <form onSubmit={handleSave} style={{
+          border: '1px solid rgba(255,255,255,0.08)', padding: '24px', borderRadius: '8px',
+          marginTop: '20px', backgroundColor: 'rgba(255,255,255,0.02)'
+        }}>
+          <h3 style={{ marginBottom: '20px' }}>Edit Restaurant</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
-              <label>Name *</label>
+              <label style={labelStyle}>Name *</label>
               <input type="text" name="name" value={formData.name} onChange={handleInputChange} required
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Address</label>
+              <label style={labelStyle}>Address</label>
               <input type="text" name="address" value={formData.address} onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Phone</label>
+              <label style={labelStyle}>Phone</label>
               <input type="text" name="phone" value={formData.phone} onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Tax Number (Steuernummer)</label>
+              <label style={labelStyle}>Tax Number (Steuernummer)</label>
               <input type="text" name="taxNumber" value={formData.taxNumber} onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Mode</label>
+              <label style={labelStyle}>Mode</label>
               <select name="mode" value={formData.mode} onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}>
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }}>
                 <option value="AUTO">Auto</option>
                 <option value="MANUAL">Manual</option>
               </select>
             </div>
             <div>
-              <label>Slot Duration (min)</label>
+              <label style={labelStyle}>Slot Duration (min)</label>
               <input type="number" name="slotDurationMinutes" value={formData.slotDurationMinutes}
                 onChange={handleInputChange} min="15" max="480"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Buffer (min)</label>
+              <label style={labelStyle}>Buffer (min)</label>
               <input type="number" name="bufferMinutes" value={formData.bufferMinutes}
                 onChange={handleInputChange} min="0" max="240"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Max Extension (min)</label>
+              <label style={labelStyle}>Max Extension (min)</label>
               <input type="number" name="maxExtensionMinutes" value={formData.maxExtensionMinutes}
                 onChange={handleInputChange} min="0" max="480"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Warning Before (min)</label>
+              <label style={labelStyle}>Warning Before (min)</label>
               <input type="number" name="warningBeforeMinutes" value={formData.warningBeforeMinutes}
                 onChange={handleInputChange} min="0" max="120"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Overbooking (%)</label>
+              <label style={labelStyle}>Overbooking (%)</label>
               <input type="number" name="overbookingPercentage" value={formData.overbookingPercentage}
                 onChange={handleInputChange} min="0" max="200"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Tax Rate (%)</label>
+              <label style={labelStyle}>Tax Rate (%)</label>
               <input type="number" name="taxRate" value={formData.taxRate}
                 onChange={handleInputChange} min="0" max="100" step="0.01"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Service Fee (%)</label>
+              <label style={labelStyle}>Service Fee (%)</label>
               <input type="number" name="serviceFeeRate" value={formData.serviceFeeRate}
                 onChange={handleInputChange} min="0" max="100" step="0.01"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Data Retention (days)</label>
+              <label style={labelStyle}>Data Retention (days)</label>
               <input type="number" name="dataRetentionDays" value={formData.dataRetentionDays}
                 onChange={handleInputChange} min="1" max="365"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
-            <div style={{ gridColumn: '1 / -1', borderTop: '1px solid #ddd', paddingTop: '15px', marginTop: '5px' }}>
-              <strong>Customer Website Images</strong>
+            <div style={{ gridColumn: '1 / -1', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '15px', marginTop: '5px' }}>
+              <strong style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Customer Website Images</strong>
             </div>
             <div>
-              <label>Logo URL</label>
+              <label style={labelStyle}>Logo URL</label>
               <input type="text" name="logoUrl" value={formData.logoUrl}
                 onChange={handleInputChange} placeholder="https://example.com/logo.png"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Hero Image URL</label>
+              <label style={labelStyle}>Hero Image URL</label>
               <input type="text" name="heroImageUrl" value={formData.heroImageUrl}
                 onChange={handleInputChange} placeholder="https://example.com/hero.jpg"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Hero Video URL (MP4)</label>
+              <label style={labelStyle}>Hero Video URL (MP4)</label>
               <input type="text" name="heroVideoUrl" value={formData.heroVideoUrl}
                 onChange={handleInputChange} placeholder="https://example.com/hero.mp4"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
             <div>
-              <label>Story Image URL</label>
+              <label style={labelStyle}>Story Image URL</label>
               <input type="text" name="storyImageUrl" value={formData.storyImageUrl}
                 onChange={handleInputChange} placeholder="https://example.com/story.jpg"
-                style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }} />
             </div>
           </div>
-          <button type="submit" disabled={loading} style={{ marginTop: '20px', padding: '10px 30px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          <button type="submit" disabled={loading} style={{
+            marginTop: '20px', padding: '10px 30px',
+            backgroundColor: 'rgba(255,215,0,0.15)', color: '#ffd700',
+            border: '1px solid rgba(255,215,0,0.3)', borderRadius: '4px', cursor: 'pointer'
+          }}>
             {loading ? 'Saving...' : 'Save'}
           </button>
         </form>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '20px', padding: '20px', border: '1px solid #e9ecef', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '20px',
+          padding: '24px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px',
+          backgroundColor: 'rgba(255,255,255,0.02)'
+        }}>
           {infoRows.map(row => (
             <div key={row.label}>
-              <div style={{ fontSize: '12px', color: '#666' }}>{row.label}</div>
-              <div style={{ fontSize: '15px', fontWeight: 'bold', marginTop: '2px' }}>{row.value}</div>
+              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.5px' }}>{row.label}</div>
+              <div style={{ fontSize: '15px', fontWeight: '600', marginTop: '4px', color: '#fff' }}>{row.value}</div>
             </div>
           ))}
         </div>
@@ -259,14 +272,14 @@ export default function RestaurantDetailPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px', marginTop: '30px' }}>
         {sections.map(s => (
           <Link to={s.path} key={s.path} style={{
-            display: 'block', padding: '24px', border: '1px solid #dee2e6', borderRadius: '8px',
-            textDecoration: 'none', color: 'inherit', backgroundColor: '#fff',
-            transition: 'box-shadow 0.2s', cursor: 'pointer'
+            display: 'block', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px',
+            textDecoration: 'none', backgroundColor: 'rgba(255,255,255,0.03)',
+            transition: 'all 0.2s', cursor: 'pointer'
           }}
-            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'}
-            onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
-            <h3 style={{ margin: '0 0 8px 0', color: '#007bff' }}>{s.label}</h3>
-            <p style={{ margin: '0', fontSize: '13px', color: '#666' }}>{s.desc}</p>
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}>
+            <h3 style={{ margin: '0 0 8px 0', color: '#ffd700' }}>{s.label}</h3>
+            <p style={{ margin: '0', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>{s.desc}</p>
           </Link>
         ))}
       </div>
